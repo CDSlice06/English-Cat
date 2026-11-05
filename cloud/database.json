@@ -1,0 +1,49 @@
+{
+  "collections": [
+    {
+      "name": "articles",
+      "fields": ["openid", "title", "sourceImages", "ocrText", "isDemo", "unitData", "status", "createdAt", "updatedAt"],
+      "permission": { "read": false, "write": false }
+    },
+    {
+      "name": "article_units",
+      "fields": ["openid", "articleId", "masteredWords", "analysisStep", "analysisCompleted", "completedMarks", "practiceRecords", "version", "createdAt", "updatedAt"],
+      "permission": { "read": false, "write": false }
+    },
+    {
+      "name": "attempts",
+      "fields": ["openid", "articleId", "questionId", "answer", "result", "feedback", "createdAt"],
+      "permission": { "read": false, "write": false }
+    },
+    {
+      "name": "wordbooks",
+      "fields": ["openid", "entryType", "word", "phonetic", "meanings", "matched", "note", "sentence", "articleId", "articleTitle", "state", "source", "createdAt", "updatedAt"],
+      "permission": { "read": false, "write": false }
+    },
+    {
+      "name": "grammarbooks",
+      "fields": ["openid", "articleId", "key", "title", "sentence", "createdAt", "updatedAt"],
+      "permission": { "read": false, "write": false }
+    },
+    {
+      "name": "known_words",
+      "fields": ["openid", "words", "updatedAt"],
+      "permission": { "read": false, "write": false }
+    },
+    {
+      "name": "word_cache",
+      "fields": ["word", "phonetic", "meanings", "updatedAt"],
+      "permission": { "read": false, "write": false }
+    },
+    {
+      "name": "grammar_cache",
+      "fields": ["key", "payload", "updatedAt"],
+      "permission": { "read": false, "write": false }
+    },
+    {
+      "name": "article_cache",
+      "fields": ["level", "drillVersion", "unitData", "hits", "updatedAt"],
+      "permission": { "read": false, "write": false }
+    }
+  ]
+}

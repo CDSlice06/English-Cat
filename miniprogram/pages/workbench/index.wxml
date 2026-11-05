@@ -1,0 +1,106 @@
+<view class="page workbench tab-page">
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在同步学习单元…</text>
+  </view>
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新连接" bind:tap="load" />
+  </view>
+  <block wx:else>
+    <section-title eyebrow="MY STUDY" title="本篇学习" description="所有进度来自云数据库，可在不同页面实时同步。" />
+
+    <view class="overview enter d1">
+      <view class="paper-tape overview-tape"></view>
+      <view class="paper-star overview-star"></view>
+      <view class="overview-glow"></view>
+      <view class="overview-head">
+        <view class="overview-copy">
+          <text class="overview-kicker">NOW READING</text>
+          <text class="overview-title">{{title}}</text>
+          <view class="overview-meta">
+            <text class="overview-meta-strong">{{progress.completed}}/{{progress.total}} 个单元</text>
+            <text class="overview-meta-sep">·</text>
+            <text>已完成 {{progress.percent}}%</text>
+          </view>
+        </view>
+        <view class="overview-photo">
+          <view class="overview-photo-tape"></view>
+          <cat-image custom-class="overview-cat" name="import-book" size="medium" />
+        </view>
+      </view>
+      <progress-bar percent="{{progress.percent}}" label="四个学习单元" />
+      <view wx:if="{{resume}}" class="resume-entry" hover-class="resume-entry-hover" data-url="{{resume.url}}" bindtap="go">
+        <view class="resume-icon">
+          <cat-image name="pass-check" size="small" />
+        </view>
+        <view class="resume-copy">
+          <text class="resume-title">继续上次：{{resume.label}}</text>
+          <text class="resume-desc">猫猫帮你留了书签，回去接着学</text>
+        </view>
+        <text class="resume-go">继续</text>
+      </view>
+      <view wx:if="{{repairing}}" class="ai-pending">
+        <text class="ai-pending-dot"></text>
+        <text>猫猫正在解析这篇正文，稍等一下</text>
+      </view>
+      <view wx:elif="{{aiPending}}" class="ai-pending">
+        <text class="ai-pending-dot"></text>
+        <text>猫猫正在补充语法讲解，稍后自动刷新</text>
+      </view>
+      <view wx:elif="{{aiFailed}}" class="ai-pending ai-failed">
+        <text class="ai-pending-dot"></text>
+        <text>这次语法精讲没成功，先用现有讲解学习，稍后会自动再试</text>
+      </view>
+      <view wx:elif="{{aiStalled}}" class="ai-pending ai-failed">
+        <text class="ai-pending-dot"></text>
+        <text>精讲还在后台生成，先学现有的词汇和语法，稍后回到本页会自动刷新</text>
+      </view>
+    </view>
+
+    <view class="list-head">
+      <view class="list-title-wrap">
+        <text class="list-stamp en">STATIONS</text>
+        <text class="list-title">学习单元</text>
+      </view>
+      <text class="list-hint">点击继续学习</text>
+    </view>
+
+    <view class="unit-list">
+      <view
+        wx:for="{{units}}"
+        wx:key="title"
+        class="unit tone-{{item.tone}}"
+        hover-class="unit-hover"
+        data-url="{{item.url}}"
+        bindtap="go"
+      >
+        <view class="unit-index en">{{index + 1}}</view>
+        <view class="unit-sticker">
+          <cat-image custom-class="unit-cat" name="{{item.cat}}" size="small" />
+        </view>
+        <view class="unit-copy">
+          <view class="unit-title-row">
+            <text class="unit-title">{{item.title}}</text>
+            <text class="status {{item.done ? 'status-done' : ''}}">{{item.done ? '已完成' : '待学习'}}</text>
+          </view>
+          <text class="unit-desc">{{item.desc}}</text>
+        </view>
+        <view class="unit-arrow"></view>
+      </view>
+    </view>
+
+    <view class="summary-entry {{progress.completed === 4 ? 'summary-ready' : ''}}" data-url="/pages/summary/index" bindtap="go">
+      <view class="paper-tape summary-tape"></view>
+      <view class="summary-icon">
+        <cat-image name="{{progress.completed === 4 ? 'complete-halo' : 'pass-check'}}" size="small" />
+      </view>
+      <view class="summary-copy">
+        <text class="summary-title">本篇学习报告</text>
+        <text class="summary-desc">{{progress.completed === 4 ? '已全部通关，来查看你的成果' : '查看当前掌握情况与下一步建议'}}</text>
+      </view>
+      <view class="summary-arrow"></view>
+    </view>
+  </block>
+</view>

@@ -1,0 +1,410 @@
+.practice-page { padding-bottom: 300rpx; }
+
+/* ---------- 顶部：学习报告入口 ---------- */
+.report-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: -6rpx 2rpx 12rpx;
+}
+
+.report-link {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  min-height: 88rpx;
+  padding: 0 12rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+.report-link-arrow {
+  width: 14rpx;
+  height: 14rpx;
+  border-top: 2rpx solid currentColor;
+  border-right: 2rpx solid currentColor;
+  border-radius: 0 2rpx 0 0;
+  transform: rotate(45deg);
+}
+
+/* ---------- 题目切换 ---------- */
+.question-tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10rpx;
+  width: 100%;
+  margin-bottom: var(--card-gap);
+  white-space: nowrap;
+}
+
+.question-tab {
+  position: relative;
+  flex: none;
+  width: 112rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5rpx;
+  padding: 12rpx 4rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-md);
+  background: #fffdf8;
+  box-shadow: var(--shadow-1);
+  color: var(--muted);
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+
+/* 题签像一排贴歪的小票 */
+.question-tab:nth-child(odd) { transform: rotate(-1.2deg); }
+.question-tab:nth-child(even) { transform: rotate(1.2deg); }
+
+.tab-num {
+  width: 36rpx;
+  height: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  background: var(--amber-soft);
+  color: var(--amber);
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.tab-label {
+  font-size: 20rpx;
+  white-space: nowrap;
+}
+
+/* 已通过：用描边勾，避免字符图标 */
+.tab-check {
+  position: absolute;
+  right: 9rpx;
+  top: 7rpx;
+  width: 14rpx;
+  height: 22rpx;
+  border-right: 3rpx solid #4f9a71;
+  border-bottom: 3rpx solid #4f9a71;
+  border-radius: 0 0 3rpx 0;
+  transform: rotate(42deg);
+}
+
+.tab-on {
+  background: linear-gradient(150deg, #fff0c9 0%, #ffdc8b 100%);
+  border-color: rgba(116, 72, 40, 0.48);
+  color: #5c4008;
+  font-weight: 700;
+  box-shadow: 4rpx 5rpx 0 rgba(199, 121, 63, 0.20);
+}
+
+.tab-on .tab-num {
+  background: #fffdf9;
+  border: 2rpx solid rgba(116, 72, 40, 0.18);
+  color: #8a5a0d;
+}
+
+/* ---------- 练习卡 ---------- */
+.practice-card {
+  position: relative;
+  padding: var(--card-pad-tape);
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  background-color: #fffef9;
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0,
+    transparent 51rpx,
+    rgba(116, 72, 40, 0.08) 51rpx,
+    rgba(116, 72, 40, 0.08) 52rpx
+  );
+  box-shadow: var(--shadow-paper);
+}
+
+.practice-card::before {
+  content: '';
+  position: absolute;
+  top: -12rpx;
+  left: 50%;
+  width: 112rpx;
+  height: 30rpx;
+  margin-left: -56rpx;
+  pointer-events: none;
+  background: rgba(255, 220, 139, 0.82);
+  border-left: 2rpx dashed rgba(116, 72, 40, 0.16);
+  border-right: 2rpx dashed rgba(116, 72, 40, 0.16);
+  transform: rotate(-3deg);
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mode {
+  padding: 7rpx 18rpx;
+  border-radius: var(--r-pill);
+  background: #fff2cd;
+  color: #8a5a0d;
+  font-size: var(--fs-note);
+  font-weight: 700;
+}
+
+.keyword-count {
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+.pattern-chip {
+  display: inline-block;
+  margin-top: 20rpx;
+  padding: 6rpx 16rpx;
+  border-radius: var(--r-sm);
+  background: var(--amber-soft);
+  color: var(--amber);
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.prompt {
+  display: block;
+  margin: 16rpx 0 18rpx;
+  color: var(--ink);
+  font-size: var(--fs-sub);
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+.empty-analysis {
+  margin-top: 24rpx;
+  padding: 60rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  border: 2rpx solid var(--paper-line);
+  color: var(--muted);
+  font-size: var(--fs-note);
+  text-align: center;
+}
+
+/* 提示入口移到输入框上方，不再贴着边框 */
+.answer-tools {
+  display: flex;
+  justify-content: flex-end;
+  margin: -6rpx 0 6rpx;
+}
+
+.hint-trigger {
+  display: flex;
+  align-items: center;
+  min-height: 88rpx;
+  padding: 0 12rpx;
+  color: var(--amber);
+  font-size: var(--fs-note);
+  font-weight: 700;
+}
+
+.answer {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 220rpx;
+  padding: 18rpx 20rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.26);
+  border-radius: var(--r-md);
+  background-color: rgba(255, 255, 255, 0.88);
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0,
+    transparent 45rpx,
+    rgba(116, 72, 40, 0.12) 45rpx,
+    rgba(116, 72, 40, 0.12) 46rpx
+  );
+  color: var(--ink-2);
+  font-size: 27rpx;
+  line-height: 1.75;
+}
+
+.answer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 10rpx;
+  color: var(--muted);
+  font-size: 20rpx;
+}
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 16rpx;
+  padding: 14rpx 18rpx;
+  border-radius: var(--r-md);
+  background: #fff8e4;
+}
+
+.hint-text {
+  flex: 1;
+  color: #6f5011;
+  font-size: var(--fs-note);
+  line-height: 1.65;
+}
+
+/* ---------- 反馈 ---------- */
+.feedback {
+  margin-top: 20rpx;
+  padding: 18rpx 20rpx;
+  border-radius: var(--r-md);
+}
+
+.feedback-head {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 8rpx;
+}
+
+.feedback-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.feedback-title {
+  font-size: 25rpx;
+  font-weight: 700;
+}
+
+.feedback-text {
+  display: block;
+  font-size: var(--fs-note);
+  line-height: 1.72;
+}
+
+/* 正确用法：和问题描述分开，用一块浅色纸条呈现 */
+.feedback-tip {
+  margin-top: 12rpx;
+  padding: 14rpx 16rpx;
+  border-left: 5rpx solid rgba(160, 75, 63, 0.42);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.feedback-tip-label {
+  display: block;
+  margin-bottom: 5rpx;
+  font-size: var(--fs-note);
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+.feedback-tip-text {
+  display: block;
+  color: #5c5450;
+  font-size: var(--fs-note);
+  line-height: 1.72;
+}
+
+/* 重写提示：讲解下面的一条行动指令 */
+.rewrite-hint {
+  margin-top: 12rpx;
+  padding: 10rpx 14rpx;
+  border-radius: var(--r-sm);
+  background: rgba(199, 121, 63, 0.11);
+  color: #7a4d24;
+  font-size: var(--fs-note);
+  line-height: 1.68;
+}
+
+/* 参考答案锁定态：不可点，视觉上弱化 */
+.reference-toggle.reference-locked {
+  color: var(--faint);
+  text-decoration: none;
+}
+
+.pass { background: #e6f3e9; color: #386f50; }
+.fail { background: #fbe7e0; color: #a04b3f; }
+.pending { background: #f2eee5; color: var(--muted); }
+
+.reference-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  margin-top: 10rpx;
+  text-align: center;
+  color: #7a5a1d;
+  font-size: var(--fs-note);
+  text-decoration: underline;
+}
+
+.reference {
+  margin-top: 8rpx;
+  padding: 18rpx 20rpx;
+  border-radius: var(--r-md);
+  background: #f6f2e8;
+}
+
+.reference-label {
+  display: block;
+  margin-bottom: 8rpx;
+  color: var(--ink-2);
+  font-size: var(--fs-note);
+  font-weight: 700;
+}
+
+.reference-text {
+  color: var(--ink-2);
+  font-size: 24rpx;
+  line-height: 1.78;
+}
+
+.demo-text {
+  display: block;
+  margin-top: 22rpx;
+  padding: 0 8rpx;
+  text-align: center;
+  color: var(--muted);
+  font-size: var(--fs-note);
+  line-height: 1.6;
+}
+
+/* ---------- 底部导航 ---------- */
+.bar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+/* 左右两个导航项各占一半，热区足够大且不易误触 */
+.bar-nav-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  min-height: 88rpx;
+}
+
+.nav-arrow {
+  width: 16rpx;
+  height: 16rpx;
+  border-top: 2rpx solid currentColor;
+  border-right: 2rpx solid currentColor;
+  border-radius: 0 2rpx 0 0;
+}
+
+.nav-arrow-left { transform: rotate(-135deg); }
+.nav-arrow-right { transform: rotate(45deg); }
+
+.nav-disabled { opacity: 0.4; }
+
+@media (prefers-reduced-motion: reduce) {
+  .question-tab { transition: none; }
+}

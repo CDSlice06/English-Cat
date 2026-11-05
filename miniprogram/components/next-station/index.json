@@ -1,0 +1,7 @@
+{
+  "component": true,
+  "usingComponents": {
+    "cat-image": "../cat-image/index",
+    "primary-button": "../primary-button/index"
+  }
+}

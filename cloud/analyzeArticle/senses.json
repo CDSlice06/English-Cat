@@ -1,0 +1,332 @@
+{
+  "mean": {
+    "ph": "miːn",
+    "tags": "core",
+    "rank": 1500,
+    "meanings": [
+      { "pos": "v.", "def": "意思是，意味着；打算，意欲" },
+      { "pos": "adj.", "def": "吝啬的；刻薄的，卑鄙的", "rare": true },
+      { "pos": "n.", "def": "平均数；中间值", "rare": true }
+    ]
+  },
+  "drive": {
+    "ph": "draɪv",
+    "tags": "core",
+    "rank": 1500,
+    "meanings": [
+      { "pos": "v.", "def": "驾驶，开车；驱动，推动；迫使" },
+      { "pos": "n.", "def": "驱动力，干劲；驾车路程；驱动器", "rare": true }
+    ]
+  },
+  "run": {
+    "ph": "rʌn",
+    "tags": "core",
+    "rank": 1500,
+    "meanings": [
+      { "pos": "v.", "def": "跑，奔跑；经营，管理；运行，运转；流动" },
+      { "pos": "n.", "def": "一段时间的演出或运行；（棒球）得分", "rare": true }
+    ]
+  },
+  "leave": {
+    "ph": "liːv",
+    "tags": "core",
+    "rank": 1500,
+    "meanings": [
+      { "pos": "v.", "def": "离开；留下，剩下；使处于某种状态" },
+      { "pos": "n.", "def": "休假，假期；许可", "rare": true }
+    ]
+  },
+  "ring": {
+    "ph": "rɪŋ",
+    "tags": "core",
+    "rank": 1500,
+    "meanings": [
+      { "pos": "n.", "def": "戒指，环状物；铃声" },
+      { "pos": "v.", "def": "打电话；按铃，鸣响" },
+      { "pos": "n.", "def": "拳击台；团伙，圈子", "rare": true }
+    ]
+  },
+  "draw": {
+    "ph": "drɔː",
+    "tags": "core",
+    "rank": 1500,
+    "meanings": [
+      { "pos": "v.", "def": "画，绘制；拉，拖；吸引" },
+      { "pos": "n.", "def": "平局；抽签", "rare": true }
+    ]
+  },
+  "foot": {
+    "ph": "fʊt",
+    "tags": "core",
+    "rank": 1500,
+    "meanings": [
+      { "pos": "n.", "def": "脚；英尺；底部，最下端" },
+      { "pos": "v.", "def": "支付（账单）；结算", "rare": true }
+    ]
+  },
+  "lie": {
+    "ph": "laɪ",
+    "tags": "core",
+    "rank": 1500,
+    "meanings": [
+      { "pos": "v.", "def": "躺，平放；位于，在于" },
+      { "pos": "v.", "def": "说谎", "rare": true },
+      { "pos": "n.", "def": "谎言", "rare": true }
+    ]
+  },
+  "tell": {
+    "ph": "tel",
+    "tags": "core",
+    "rank": 1500,
+    "meanings": [
+      { "pos": "v.", "def": "告诉，讲述；分辨，区分" },
+      { "pos": "v.", "def": "起作用，产生影响（tell on 告发）", "rare": true }
+    ]
+  },
+  "well": {
+    "meanings": [{ "pos": "n.", "def": "井", "rare": true }]
+  },
+  "book": {
+    "meanings": [{ "pos": "v.", "def": "预定", "rare": true }]
+  },
+  "bank": {
+    "meanings": [{ "pos": "n.", "def": "岸", "rare": true }]
+  },
+  "light": {
+    "meanings": [{ "pos": "v.", "def": "点燃", "rare": true }]
+  },
+  "matter": {
+    "meanings": [{ "pos": "v.", "def": "要紧", "rare": true }]
+  },
+  "subject": {
+    "meanings": [{ "pos": "v.", "def": "使受到", "rare": true }]
+  },
+  "present": {
+    "meanings": [{ "pos": "v.", "def": "呈现，提出；颁发", "rare": true }]
+  },
+  "order": {
+    "meanings": [
+      { "pos": "v.", "def": "订购，点菜", "rare": true },
+      { "pos": "n.", "def": "订单；命令；秩序", "rare": true }
+    ]
+  },
+  "practice": {
+    "meanings": [{ "pos": "n.", "def": "惯例，做法；业务", "rare": true }]
+  },
+  "pupil": {
+    "meanings": [{ "pos": "n.", "def": "瞳孔", "rare": true }]
+  },
+  "sound": {
+    "meanings": [
+      { "pos": "adj.", "def": "健全的；合理的，可靠的", "rare": true },
+      { "pos": "v.", "def": "听起来", "rare": true }
+    ]
+  },
+  "spare": {
+    "meanings": [{ "pos": "v.", "def": "抽出，腾出（时间）；饶恕", "rare": true }]
+  },
+  "march": {
+    "meanings": [{ "pos": "v.", "def": "行进，游行；进展", "rare": true }]
+  },
+  "credit": {
+    "meanings": [
+      { "pos": "n.", "def": "学分；赞扬，荣誉", "rare": true },
+      { "pos": "v.", "def": "把……归功于", "rare": true }
+    ]
+  },
+  "ground": {
+    "meanings": [{ "pos": "n.", "def": "理由，根据；场地", "rare": true }]
+  },
+  "host": {
+    "meanings": [
+      { "pos": "v.", "def": "主办，主持", "rare": true },
+      { "pos": "n.", "def": "大量，许多", "rare": true }
+    ]
+  },
+  "key": {
+    "meanings": [{ "pos": "adj.", "def": "关键的，重要的", "rare": true }]
+  },
+  "labor": {
+    "meanings": [
+      { "pos": "n.", "def": "劳工，劳动力；分娩", "rare": true },
+      { "pos": "v.", "def": "努力工作，苦干", "rare": true }
+    ]
+  },
+  "lead": {
+    "meanings": [{ "pos": "n.", "def": "铅", "rare": true }]
+  },
+  "long": {
+    "meanings": [{ "pos": "v.", "def": "渴望，极想（long for）", "rare": true }]
+  },
+  "minute": {
+    "meanings": [
+      { "pos": "adj.", "def": "微小的，细微的", "rare": true },
+      { "pos": "n.", "def": "会议记录（复数）", "rare": true }
+    ]
+  },
+  "miss": {
+    "meanings": [{ "pos": "v.", "def": "思念，想念", "rare": true }]
+  },
+  "office": {
+    "meanings": [{ "pos": "n.", "def": "职务，职位；机关", "rare": true }]
+  },
+  "party": {
+    "meanings": [{ "pos": "n.", "def": "政党；当事人，一方", "rare": true }]
+  },
+  "pen": {
+    "meanings": [{ "pos": "n.", "def": "围栏，圈；v. 把……关起来", "rare": true }]
+  },
+  "pride": {
+    "meanings": [{ "pos": "n.", "def": "狮群", "rare": true }]
+  },
+  "season": {
+    "meanings": [{ "pos": "v.", "def": "调味；使适应", "rare": true }]
+  },
+  "story": {
+    "meanings": [{ "pos": "n.", "def": "楼层", "rare": true }]
+  },
+  "trip": {
+    "meanings": [{ "pos": "v.", "def": "绊倒；使失误", "rare": true }]
+  },
+  "want": {
+    "meanings": [{ "pos": "n.", "def": "缺乏，缺少", "rare": true }]
+  },
+  "weather": {
+    "meanings": [{ "pos": "v.", "def": "度过，挺过；风化", "rare": true }]
+  },
+  "wind": {
+    "meanings": [{ "pos": "v.", "def": "缠绕，蜿蜒；上紧（发条）", "rare": true }]
+  },
+  "coach": {
+    "meanings": [{ "pos": "n.", "def": "长途汽车；经济舱", "rare": true }]
+  },
+  "cold": {
+    "meanings": [{ "pos": "n.", "def": "感冒", "rare": true }]
+  },
+  "company": {
+    "meanings": [{ "pos": "n.", "def": "陪伴，同伴", "rare": true }]
+  },
+  "court": {
+    "meanings": [
+      { "pos": "n.", "def": "球场；宫廷", "rare": true },
+      { "pos": "v.", "def": "追求；招致（不利）", "rare": true }
+    ]
+  },
+  "deal": {
+    "meanings": [{ "pos": "n.", "def": "交易，协议；大量", "rare": true }]
+  },
+  "fair": {
+    "meanings": [{ "pos": "n.", "def": "集市，展览会", "rare": true }]
+  },
+  "fast": {
+    "meanings": [{ "pos": "v.", "def": "禁食，斋戒", "rare": true }]
+  },
+  "fire": {
+    "meanings": [{ "pos": "v.", "def": "解雇；激发", "rare": true }]
+  },
+  "flat": {
+    "meanings": [{ "pos": "n.", "def": "公寓；轮胎漏气", "rare": true }]
+  },
+  "fly": {
+    "meanings": [{ "pos": "n.", "def": "苍蝇", "rare": true }]
+  },
+  "green": {
+    "meanings": [{ "pos": "adj.", "def": "无经验的；环保的", "rare": true }]
+  },
+  "late": {
+    "meanings": [{ "pos": "adj.", "def": "已故的", "rare": true }]
+  },
+  "law": {
+    "meanings": [{ "pos": "n.", "def": "定律，规律", "rare": true }]
+  },
+  "lot": {
+    "meanings": [{ "pos": "n.", "def": "地块；一批（拍卖品）；命运", "rare": true }]
+  },
+  "mask": {
+    "meanings": [{ "pos": "v.", "def": "掩饰，掩盖", "rare": true }]
+  },
+  "master": {
+    "meanings": [{ "pos": "v.", "def": "掌握，精通", "rare": true }]
+  },
+  "paper": {
+    "meanings": [{ "pos": "n.", "def": "论文；报纸", "rare": true }]
+  },
+  "park": {
+    "meanings": [{ "pos": "v.", "def": "停放（车辆）", "rare": true }]
+  },
+  "pool": {
+    "meanings": [{ "pos": "n.", "def": "共用资源；合伙经营", "rare": true }]
+  },
+  "post": {
+    "meanings": [
+      { "pos": "n.", "def": "职位，岗位；柱子", "rare": true },
+      { "pos": "v.", "def": "张贴；发布", "rare": true }
+    ]
+  },
+  "raise": {
+    "meanings": [{ "pos": "v.", "def": "抚养；筹集；提出（问题）", "rare": true }]
+  },
+  "reason": {
+    "meanings": [{ "pos": "n.", "def": "理性，理智；v. 推理", "rare": true }]
+  },
+  "rich": {
+    "meanings": [{ "pos": "adj.", "def": "丰富的，富含……的", "rare": true }]
+  },
+  "school": {
+    "meanings": [{ "pos": "n.", "def": "学派，流派", "rare": true }]
+  },
+  "serve": {
+    "meanings": [{ "pos": "v.", "def": "发球；任职；起……作用", "rare": true }]
+  },
+  "short": {
+    "meanings": [{ "pos": "adj.", "def": "缺乏的，不足的", "rare": true }]
+  },
+  "site": {
+    "meanings": [{ "pos": "n.", "def": "网站；遗址", "rare": true }]
+  },
+  "solid": {
+    "meanings": [{ "pos": "adj.", "def": "可靠的，坚实的；纯的", "rare": true }]
+  },
+  "star": {
+    "meanings": [{ "pos": "v.", "def": "主演；标星号", "rare": true }]
+  },
+  "tired": {
+    "meanings": [{ "pos": "adj.", "def": "厌倦的，厌烦的", "rare": true }]
+  },
+  "tree": {
+    "meanings": [{ "pos": "n.", "def": "树状图，树形结构", "rare": true }]
+  },
+  "wall": {
+    "meanings": [{ "pos": "v.", "def": "用墙围住", "rare": true }]
+  },
+  "warm": {
+    "meanings": [{ "pos": "v.", "def": "使温暖；使热衷", "rare": true }]
+  },
+  "weight": {
+    "meanings": [{ "pos": "n.", "def": "分量，重要性；砝码", "rare": true }]
+  },
+  "wing": {
+    "meanings": [{ "pos": "n.", "def": "侧厅；派别，翼", "rare": true }]
+  },
+  "wood": {
+    "meanings": [{ "pos": "n.", "def": "树林，林地", "rare": true }]
+  },
+  "word": {
+    "meanings": [{ "pos": "n.", "def": "消息，音信；诺言", "rare": true }]
+  },
+  "work": {
+    "meanings": [{ "pos": "n.", "def": "作品，著作；工厂（复数）", "rare": true }]
+  },
+  "world": {
+    "meanings": [{ "pos": "n.", "def": "界，领域；世人", "rare": true }]
+  },
+  "wrong": {
+    "meanings": [{ "pos": "v.", "def": "冤枉，不公正地对待", "rare": true }]
+  },
+  "leverage": {
+    "meanings": [
+      { "pos": "v.", "def": "利用，借助" },
+      { "pos": "v.", "def": "以杠杆撬动，对…施加影响" }
+    ]
+  }
+}

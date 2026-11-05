@@ -1,0 +1,5 @@
+<view class="cat-wrap {{size}} custom-class">
+  <view class="cat-halo"></view>
+  <view class="cat-shadow"></view>
+  <image class="cat" src="/assets/ip/cat-{{name}}.png" mode="aspectFit" />
+</view>

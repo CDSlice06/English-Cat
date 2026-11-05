@@ -1,0 +1,114 @@
+@import "../wordbook/index.wxss";
+
+.phrasebook .shelf-hero {
+  background: linear-gradient(150deg, #f7fbff 0%, #e6f0f7 58%, #dbe9f2 100%);
+  border-color: rgba(111, 145, 173, 0.28);
+  box-shadow: 7rpx 8rpx 0 rgba(111, 145, 173, 0.18);
+}
+
+.phrasebook .shelf-kicker { color: #567892; }
+.phrasebook .shelf-unit { color: #64839a; }
+.phrasebook .split-item { color: #567892; }
+
+.phrasebook .seg-on {
+  background: linear-gradient(150deg, #f2f8fc 0%, #dcebf4 100%);
+  color: #496d88;
+  box-shadow: 0 8rpx 18rpx rgba(111, 145, 173, 0.16);
+}
+
+.phrasebook .seg-on .seg-count {
+  background: rgba(111, 145, 173, 0.14);
+  color: #496d88;
+}
+
+.phrase-card {
+  background-color: #fffef9;
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0,
+    transparent 55rpx,
+    rgba(111, 145, 173, 0.055) 55rpx,
+    rgba(111, 145, 173, 0.055) 56rpx
+  );
+}
+
+.phrasebook .wb-accent { background: linear-gradient(180deg, #9dbbd0, #6f91ad); }
+.phrasebook .wb-known .wb-accent { background: linear-gradient(180deg, #8fcfa8, #5fa87c); }
+
+.phrase-heading {
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+  gap: 12rpx;
+}
+
+.phrasebook .wb-word {
+  flex: 1;
+  min-width: 0;
+  font-size: 34rpx;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.phrase-pos {
+  flex: none;
+  margin-top: 5rpx;
+  padding: 3rpx 10rpx;
+  border: 2rpx solid rgba(111, 145, 173, 0.24);
+  border-radius: 7rpx 11rpx 8rpx 10rpx;
+  background: #eaf2f7;
+  color: #567892;
+  font-size: 18rpx;
+  font-weight: 700;
+}
+
+.phrase-matched {
+  display: block;
+  margin-top: 12rpx;
+  color: var(--faint);
+  font-size: 21rpx;
+  line-height: 1.6;
+}
+
+.phrase-note {
+  display: block;
+  margin-top: 14rpx;
+  padding: 14rpx 16rpx;
+  border: 2rpx solid rgba(199, 121, 63, 0.16);
+  border-radius: 12rpx 18rpx 14rpx 16rpx;
+  background: #fff3cf;
+  box-shadow: 3rpx 3rpx 0 rgba(199, 121, 63, 0.10);
+  color: #7a5713;
+  font-size: 22rpx;
+  line-height: 1.7;
+}
+
+.note-label,
+.sentence-label {
+  display: block;
+  margin-bottom: 5rpx;
+  color: var(--faint);
+  font-size: 18rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+.phrase-sentence {
+  margin-top: 14rpx;
+  padding: 14rpx 16rpx;
+  border: 2rpx dashed rgba(111, 145, 173, 0.30);
+  border-left: 5rpx solid rgba(111, 145, 173, 0.56);
+  border-radius: 16rpx 20rpx 14rpx 18rpx;
+  background: rgba(246, 250, 252, 0.92);
+}
+
+.sentence-text {
+  display: block;
+  color: var(--ink-2);
+  font-size: 22rpx;
+  line-height: 1.75;
+}
+
+.phrase-card .wb-foot { align-items: flex-end; }
+.phrase-card .wb-source { line-height: 1.55; }

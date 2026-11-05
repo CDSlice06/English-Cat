@@ -1,0 +1,103 @@
+<view class="page phrasebook">
+  <section-title eyebrow="MY PHRASEBOOK" title="我的词组本" description="把词组、用法和原句放在一起，回到语境里记得更牢。" />
+
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在整理你的词组卡…</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新加载" bind:tap="reload" />
+  </view>
+
+  <block wx:else>
+    <view class="shelf-hero enter d1">
+      <view class="coil-bind"></view>
+      <view class="shelf-glow"></view>
+      <view class="shelf-tape"></view>
+      <view class="shelf-sticker">
+        <cat-image custom-class="shelf-cat" name="reading-highlight" size="medium" />
+      </view>
+      <view class="shelf-copy">
+        <text class="shelf-kicker">PHRASES COLLECTED</text>
+        <view class="shelf-number-row">
+          <text class="shelf-number en">{{counts.total}}</text>
+          <text class="shelf-unit">组词组</text>
+        </view>
+        <view class="shelf-split">
+          <view class="split-item">
+            <view class="dot dot-warn"></view>
+            <text>不记得 {{counts.unknown}}</text>
+          </view>
+          <view class="split-item">
+            <view class="dot dot-ok"></view>
+            <text>记得 {{counts.known}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="segmented enter d2">
+      <view class="seg {{tab === 'unknown' ? 'seg-on' : ''}}" bind:tap="switchTab" data-tab="unknown">
+        <text>不记得</text>
+        <text class="seg-count">{{counts.unknown}}</text>
+      </view>
+      <view class="seg {{tab === 'known' ? 'seg-on' : ''}}" bind:tap="switchTab" data-tab="known">
+        <text>记得</text>
+        <text class="seg-count">{{counts.known}}</text>
+      </view>
+    </view>
+
+    <view class="list">
+      <view wx:for="{{phrases}}" wx:key="id" class="wb-card phrase-card {{item.state === 'known' ? 'wb-known' : ''}}">
+        <view class="wb-accent"></view>
+        <view class="wb-top">
+          <view class="phrase-heading">
+            <text class="phrase-pos">phr.</text>
+            <text class="wb-word en">{{item.word}}</text>
+          </view>
+          <view class="wb-remove" bind:tap="removeItem" data-id="{{item.id}}">{{removingId === item.id ? '移除中…' : '移除'}}</view>
+        </view>
+
+        <meaning-list wx:if="{{item.meanings.length}}" meanings="{{item.meanings}}" />
+        <text wx:else class="wb-nomap">暂未收录释义，可回到原文结合语境复习。</text>
+        <text wx:if="{{item.matched}}" class="phrase-matched">文中形式：{{item.matched}}</text>
+
+        <view wx:if="{{item.note}}" class="phrase-note">
+          <text class="note-label">用法小抄</text>
+          <text>{{item.note}}</text>
+        </view>
+
+        <view wx:if="{{item.sentence}}" class="phrase-sentence">
+          <text class="sentence-label">原句语境</text>
+          <text class="sentence-text en">{{item.sentence}}</text>
+        </view>
+
+        <view class="wb-foot">
+          <text class="wb-source">{{item.sourceLabel}}</text>
+          <view
+            wx:if="{{item.state !== 'known'}}"
+            class="wb-know {{busyId === item.id ? 'wb-know-busy' : ''}}"
+            bind:tap="tapKnown"
+            data-id="{{item.id}}"
+          >
+            <view class="wb-check"></view>
+            <text>{{busyId === item.id ? '保存中…' : '我记住了'}}</text>
+          </view>
+          <view wx:else class="wb-done">
+            <view class="wb-done-mark"></view>
+            <text>已记住</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{!phrases.length}}" class="empty">
+      <cat-image name="{{tab === 'known' ? 'complete-halo' : 'not-found'}}" size="large" />
+      <text class="empty-title">{{tab === 'known' ? '记住的词组还没有搬进来' : '词组本还没开张'}}</text>
+      <text class="empty-text">{{tab === 'known' ? '在不记得列表点「我记住了」，它就搬到这里住下。' : '在「词组搭配」页点「加入词组本」，好用的搭配就留下来了。'}}</text>
+    </view>
+  </block>
+</view>

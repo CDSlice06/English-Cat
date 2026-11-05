@@ -1,0 +1,192 @@
+/* 通关引导：便签纸质感 + 下一站预告 */
+.next-station {
+  position: relative;
+  margin-top: 38rpx;
+  padding: 36rpx 26rpx 26rpx;
+  overflow: hidden;
+  border: 2rpx solid rgba(199, 121, 63, 0.46);
+  border-radius: var(--r-lg);
+  background: linear-gradient(140deg, #fffdf7 0%, #fff2cd 100%);
+  box-shadow: var(--shadow-caramel);
+  animation: ns-rise 0.5s cubic-bezier(0.22, 0.8, 0.28, 1) both;
+}
+
+.ns-tape {
+  position: absolute;
+  top: -14rpx;
+  left: 50%;
+  width: 120rpx;
+  height: 34rpx;
+  margin-left: -60rpx;
+  pointer-events: none;
+  background: rgba(255, 226, 160, 0.86);
+  border-left: 2rpx dashed rgba(116, 72, 40, 0.14);
+  border-right: 2rpx dashed rgba(116, 72, 40, 0.14);
+  box-shadow: 0 3rpx 6rpx rgba(116, 72, 40, 0.08);
+  transform: rotate(-3deg);
+}
+
+.ns-paw {
+  position: absolute;
+  right: 22rpx;
+  bottom: 88rpx;
+  width: 56rpx;
+  height: 52rpx;
+  pointer-events: none;
+  opacity: 0.26;
+  background-image:
+    radial-gradient(ellipse 22rpx 17rpx at 50% 73%, #744828 96%, transparent 100%),
+    radial-gradient(ellipse 9rpx 12rpx at 17% 43%, #744828 96%, transparent 100%),
+    radial-gradient(ellipse 9rpx 13rpx at 38% 20%, #744828 96%, transparent 100%),
+    radial-gradient(ellipse 9rpx 13rpx at 63% 20%, #744828 96%, transparent 100%),
+    radial-gradient(ellipse 9rpx 12rpx at 84% 43%, #744828 96%, transparent 100%);
+  background-repeat: no-repeat;
+  transform: rotate(14deg);
+}
+
+.ns-head {
+  position: relative;
+  z-index: 1;
+}
+
+.ns-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 5rpx 16rpx 5rpx 8rpx;
+  border: 2rpx solid rgba(95, 168, 124, 0.30);
+  border-radius: var(--r-pill);
+  background: #e2f2e6;
+  color: #3f755a;
+  font-size: var(--fs-note);
+  font-weight: 700;
+  letter-spacing: 1.6rpx;
+}
+
+/* 通关徽记：绿色圆底上的描边勾，不用字符图标 */
+.ns-badge-mark {
+  position: relative;
+  width: 26rpx;
+  height: 26rpx;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #5fa87c;
+}
+
+.ns-badge-mark::after {
+  content: '';
+  position: absolute;
+  left: 8rpx;
+  top: 5rpx;
+  width: 7rpx;
+  height: 12rpx;
+  border-right: 3rpx solid #ffffff;
+  border-bottom: 3rpx solid #ffffff;
+  border-radius: 0 0 2rpx 0;
+  transform: rotate(40deg);
+}
+
+.ns-title {
+  display: block;
+  margin-top: 14rpx;
+  color: #3d2d1c;
+  font-size: var(--fs-sub);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.ns-desc {
+  display: block;
+  margin-top: 8rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+  line-height: 1.7;
+}
+
+.ns-target {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin-top: 20rpx;
+  padding: 14rpx 18rpx;
+  border: 2rpx dashed rgba(116, 72, 40, 0.30);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.ns-cat {
+  width: 86rpx !important;
+  height: 86rpx !important;
+  flex-shrink: 0;
+}
+
+.ns-target-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.ns-target-kicker {
+  display: block;
+  color: #8a5a0d;
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: var(--fs-note);
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+
+.ns-target-name {
+  display: block;
+  margin-top: 3rpx;
+  color: #241f18;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.ns-target-step {
+  display: block;
+  margin-top: 2rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+  letter-spacing: 1.2rpx;
+}
+
+/* 手绘长箭头：一条横线 + 箭头尖，避免字符图标 */
+.ns-target-arrow {
+  position: relative;
+  flex-shrink: 0;
+  width: 34rpx;
+  height: 2rpx;
+  margin-right: 6rpx;
+  background: #9c8357;
+}
+
+.ns-target-arrow::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -6rpx;
+  width: 12rpx;
+  height: 12rpx;
+  border-top: 2rpx solid #9c8357;
+  border-right: 2rpx solid #9c8357;
+  border-radius: 0 2rpx 0 0;
+  transform: rotate(45deg);
+}
+
+.ns-action {
+  position: relative;
+  z-index: 1;
+  margin-top: 20rpx;
+}
+
+@keyframes ns-rise {
+  from { opacity: 0; transform: translateY(20rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .next-station { animation: none; }
+}

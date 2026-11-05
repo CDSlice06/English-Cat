@@ -1,0 +1,159 @@
+/* 手绘描边 tabBar：纸底 + 描边图标 + 选中笔迹下划线 */
+.tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+  padding-bottom: env(safe-area-inset-bottom);
+  background-color: #fffdf9;
+  background-image: linear-gradient(180deg, rgba(255, 246, 226, 0.9), rgba(255, 253, 249, 0.5));
+  border-top: 2rpx solid rgba(75, 64, 52, 0.20);
+  box-shadow: 0 -8rpx 20rpx rgba(116, 72, 40, 0.06);
+}
+
+/* 顶边一排虚线针眼，像从本子上撕下来的一页 */
+.tab-bar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 7rpx;
+  height: 2rpx;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(90deg, rgba(116, 72, 40, 0.18) 0 8rpx, rgba(116, 72, 40, 0) 8rpx 16rpx);
+}
+
+.tab-bar-inner {
+  display: flex;
+  height: 104rpx;
+}
+
+.tab-item {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4rpx;
+  color: #6f6557;
+  transition: color 0.18s ease;
+}
+
+.tab-item-on { color: #a86a11; }
+
+.tab-icon {
+  position: relative;
+  width: 40rpx;
+  height: 40rpx;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tab-item-on .tab-icon {
+  transform: translateY(-2rpx) rotate(-3deg);
+}
+
+.tab-text {
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* 选中的笔迹下划线：和全局手绘波浪同一套笔触 */
+.tab-wave {
+  position: absolute;
+  left: 50%;
+  bottom: 8rpx;
+  width: 44rpx;
+  height: 10rpx;
+  margin-left: -22rpx;
+  opacity: 0;
+  background-image: radial-gradient(circle at 50% 100%, rgba(199, 121, 63, 0) 0 5.6rpx, rgba(199, 121, 63, 0.62) 5.6rpx 8rpx, rgba(199, 121, 63, 0) 8rpx);
+  background-size: 16rpx 10rpx;
+  background-repeat: repeat-x;
+}
+
+.tab-item-on .tab-wave { opacity: 1; }
+
+/* ---------- 首页：屋顶 + 屋身 ---------- */
+.home-roof {
+  position: absolute;
+  left: 50%;
+  top: 6rpx;
+  width: 22rpx;
+  height: 22rpx;
+  margin-left: -11rpx;
+  border-top: 2rpx solid currentColor;
+  border-left: 2rpx solid currentColor;
+  border-radius: 4rpx 0 0 0;
+  transform: rotate(45deg);
+}
+
+.home-body {
+  position: absolute;
+  left: 50%;
+  bottom: 4rpx;
+  width: 26rpx;
+  height: 19rpx;
+  margin-left: -13rpx;
+  border: 2rpx solid currentColor;
+  border-top: 0;
+  border-radius: 0 0 6rpx 6rpx;
+}
+
+/* ---------- 学习：摊开的两页书 ---------- */
+.book-page {
+  position: absolute;
+  top: 8rpx;
+  width: 16rpx;
+  height: 23rpx;
+  border: 2rpx solid currentColor;
+}
+
+.book-page-l {
+  left: 2rpx;
+  border-radius: 5rpx 0 0 5rpx;
+}
+
+.book-page-r {
+  right: 2rpx;
+  border-radius: 0 5rpx 5rpx 0;
+}
+
+/* ---------- 我的：猫头轮廓 + 两只耳朵 ---------- */
+.cat-head {
+  position: absolute;
+  left: 50%;
+  bottom: 6rpx;
+  width: 28rpx;
+  height: 23rpx;
+  margin-left: -14rpx;
+  border: 2rpx solid currentColor;
+  border-radius: 50% 50% 44% 44%;
+}
+
+.cat-ear {
+  position: absolute;
+  top: -7rpx;
+  width: 12rpx;
+  height: 12rpx;
+  background: #fffdf9;
+  border-top: 2rpx solid currentColor;
+  border-left: 2rpx solid currentColor;
+  border-radius: 3rpx 0 0 0;
+}
+
+.cat-ear-l {
+  left: -1rpx;
+  transform: rotate(26deg);
+}
+
+.cat-ear-r {
+  right: -1rpx;
+  transform: rotate(64deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-item, .tab-icon { transition: none; }
+}

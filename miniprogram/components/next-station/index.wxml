@@ -1,0 +1,27 @@
+<view wx:if="{{visible}}" class="next-station">
+  <view class="ns-tape"></view>
+  <view class="ns-paw"></view>
+
+  <view class="ns-head">
+    <view class="ns-badge">
+      <view class="ns-badge-mark"></view>
+      <text>STATION CLEAR</text>
+    </view>
+    <text class="ns-title">{{title}}</text>
+    <text wx:if="{{desc}}" class="ns-desc">{{desc}}</text>
+  </view>
+
+  <view class="ns-target">
+    <cat-image custom-class="ns-cat" name="{{cat}}" size="small" />
+    <view class="ns-target-copy">
+      <text class="ns-target-kicker">下一站</text>
+      <text class="ns-target-name">{{nextName}}</text>
+      <text wx:if="{{step}}" class="ns-target-step">{{step}}</text>
+    </view>
+    <view class="ns-target-arrow"></view>
+  </view>
+
+  <view class="ns-action">
+    <primary-button text="{{actionText}}" bind:tap="handleTap" />
+  </view>
+</view>

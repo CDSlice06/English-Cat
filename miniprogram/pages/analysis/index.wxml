@@ -1,0 +1,154 @@
+<view class="page has-bar grammar-page">
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在整理全篇语法点…</text>
+  </view>
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新加载" bind:tap="loadPage" />
+  </view>
+  <block wx:else>
+    <section-title eyebrow="STEP 05 · GRAMMAR" title="全篇语法，逐点讲透" description="这篇文章里所有难懂的句型和语法结构都抽了出来：先看怎么理解、怎么翻译，再去练着写。" />
+
+    <view class="origin-entry">
+      <text class="origin-entry-btn" bindtap="openOrigin">看原文</text>
+    </view>
+
+    <article-drawer
+      visible="{{originOpen}}"
+      text="{{originText}}"
+      highlight="{{originHighlight}}"
+      bind:close="closeOrigin"
+    />
+
+    <view class="summary-card enter d1">
+      <view class="summary-row">
+        <view class="summary-item">
+          <text class="summary-num en">{{points.length}}</text>
+          <text class="summary-label">语法点</text>
+        </view>
+        <view class="summary-divider"></view>
+        <view class="summary-item">
+          <text class="summary-num en">{{viewedCount}}</text>
+          <text class="summary-label">已看</text>
+        </view>
+        <view class="summary-divider"></view>
+        <view class="summary-item">
+          <text class="summary-num en">{{drillTotal}}</text>
+          <text class="summary-label">配套练习</text>
+        </view>
+      </view>
+      <progress-bar percent="{{percent}}" label="语法点已看进度" />
+      <text wx:if="{{aiPending}}" class="ai-note">猫猫正在补充语法讲解，稍后重新进入本页会自动更新</text>
+      <cat-image custom-class="summary-cat" name="idea-bulb" size="small" />
+    </view>
+
+    <view
+      wx:for="{{points}}"
+      wx:key="id"
+      id="grammar-{{item.id}}"
+      class="grammar-card {{item.expanded ? 'card-open' : ''}} enter d2"
+    >
+      <view class="grammar-head" data-id="{{item.id}}" bindtap="togglePoint">
+        <text class="grammar-index en">{{item.label}}</text>
+        <view class="grammar-title-wrap">
+          <text class="grammar-pattern">{{item.pattern}}</text>
+          <text class="grammar-meta">{{item.words}} 词 · {{item.drillCount}} 道练习{{item.viewed ? ' · 已看' : ''}}</text>
+        </view>
+        <text class="grammar-toggle">{{item.expanded ? '收起' : '展开'}}</text>
+      </view>
+
+      <text class="grammar-sentence en">{{item.sentence}}</text>
+
+      <block wx:if="{{item.expanded}}">
+        <view class="explain">
+          <view class="explain-head">
+            <text class="explain-tag">怎么理解</text>
+          </view>
+          <text wx:if="{{item.understanding}}" class="explain-text">{{item.understanding}}</text>
+          <view wx:if="{{item.steps.length}}" class="step-list">
+            <view
+              wx:for="{{item.steps}}"
+              wx:for-item="step"
+              wx:for-index="stepIndex"
+              wx:key="title"
+              class="step-row"
+            >
+              <text class="step-index en">{{stepIndex + 1}}</text>
+              <view class="step-body">
+                <text class="step-title">{{step.title}}</text>
+                <text class="step-detail">{{step.detail}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="explain">
+          <view class="explain-head">
+            <text class="explain-tag">怎么翻译</text>
+          </view>
+          <view wx:if="{{item.chunks.length}}" class="chunk-list">
+            <view wx:for="{{item.chunks}}" wx:for-item="chunk" wx:key="en" class="chunk-row">
+              <text class="chunk-en en">{{chunk.en}}</text>
+              <text class="chunk-arrow">→</text>
+              <text class="chunk-zh">{{chunk.zh}}</text>
+            </view>
+            <text class="chunk-label">整句连起来</text>
+          </view>
+          <text class="explain-text">{{item.translation}}</text>
+        </view>
+
+        <view wx:if="{{item.usageTip}}" class="explain">
+          <view class="explain-head">
+            <text class="explain-tag">用法要点</text>
+          </view>
+          <text class="explain-text">{{item.usageTip}}</text>
+        </view>
+
+        <view wx:if="{{item.examples.length}}" class="example-box">
+          <text class="example-label">同结构例句</text>
+          <view wx:for="{{item.examples}}" wx:key="en" wx:for-item="eg" class="example-row">
+            <text class="example-en en">{{eg.en}}</text>
+            <text class="example-zh">{{eg.zh}}</text>
+          </view>
+        </view>
+
+        <view class="drill-note">配 {{item.drillCount}} 道双向翻译练习：先英译汉，再汉译英，用手机打字写出来。</view>
+      </block>
+
+      <view class="grammar-foot">
+        <text class="grammar-save {{item.saved ? 'save-done' : ''}}" data-id="{{item.id}}" catchtap="addToGrammarbook">{{savingId === item.id ? '收藏中…' : (item.saved ? '已在语法本' : '+ 收藏到语法本')}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{!points.length}}" class="empty-analysis">
+      <cat-image name="sleepy-nap" size="medium" />
+      <text>这篇句型比较平，猫没挑出语法点；换一篇长一点的试试。</text>
+    </view>
+
+    <next-station
+      id="next-station"
+      visible="{{nextReady}}"
+      title="语法这一站通关了"
+      desc="所有语法点都看完了。下一站用英译汉、汉译英把它们真正写出来。"
+      next-name="双语输出练习"
+      step="STEP 06 · OUTPUT"
+      cat="practice-writing"
+      action-text="继续 · 输出练习"
+      bind:next="goPractice"
+    />
+  </block>
+
+  <view class="action-bar">
+    <view class="action-meta">
+      <text class="action-meta-strong">语法点 {{viewedCount}}/{{points.length}}</text>
+      <text>{{drillTotal}} 道练习 · 英译汉 + 汉译英</text>
+    </view>
+    <primary-button text="开始语法练习" disabled="{{!drillTotal}}" bind:tap="goPractice" />
+    <view class="bar-secondary" bind:tap="goPhrases">
+      <text>回看这篇的词组搭配</text>
+      <view class="bar-arrow"></view>
+    </view>
+  </view>
+</view>

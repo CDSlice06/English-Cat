@@ -1,0 +1,14 @@
+<view class="wrap">
+  <view class="meta">
+    <text class="label">{{label}}</text>
+    <text class="value">{{percent}}<text class="unit">%</text></text>
+  </view>
+  <view class="track">
+    <view class="fill" style="width: {{percent}}%">
+      <view class="shine"></view>
+    </view>
+    <view class="tick tick-1"></view>
+    <view class="tick tick-2"></view>
+    <view class="tick tick-3"></view>
+  </view>
+</view>

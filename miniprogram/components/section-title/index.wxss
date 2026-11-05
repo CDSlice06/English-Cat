@@ -1,0 +1,77 @@
+.wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 32rpx;
+  padding-right: 54rpx;
+}
+
+.wrap::after {
+  content: '';
+  position: absolute;
+  top: 2rpx;
+  right: 0;
+  width: 48rpx;
+  height: 46rpx;
+  opacity: 0.16;
+  pointer-events: none;
+  transform: rotate(12deg);
+  background-image:
+    radial-gradient(ellipse 19rpx 14rpx at 50% 73%, #c7793f 96%, transparent 100%),
+    radial-gradient(ellipse 8rpx 10rpx at 17% 43%, #c7793f 96%, transparent 100%),
+    radial-gradient(ellipse 8rpx 11rpx at 38% 20%, #c7793f 96%, transparent 100%),
+    radial-gradient(ellipse 8rpx 11rpx at 63% 20%, #c7793f 96%, transparent 100%),
+    radial-gradient(ellipse 8rpx 10rpx at 84% 43%, #c7793f 96%, transparent 100%);
+  background-repeat: no-repeat;
+}
+
+.eyebrow-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.eyebrow-bar {
+  position: relative;
+  width: 34rpx;
+  height: 20rpx;
+  margin-right: 12rpx;
+  border-top: 2rpx solid #c7793f;
+  border-bottom: 2rpx solid #c7793f;
+  border-radius: 0;
+  background: transparent;
+  transform: rotate(-5deg);
+}
+
+.eyebrow-bar::after {
+  content: '';
+  position: absolute;
+  left: 5rpx;
+  right: -5rpx;
+  top: 8rpx;
+  height: 2rpx;
+  background: #c7793f;
+}
+
+.eyebrow {
+  color: var(--amber, #a86a11);
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 20rpx;
+  font-weight: 700;
+  letter-spacing: 3rpx;
+}
+
+.title {
+  font-size: 44rpx;
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: 0.5rpx;
+  color: var(--ink, #241f18);
+}
+
+.description {
+  margin-top: 14rpx;
+  color: var(--muted, #7d7365);
+  font-size: 24rpx;
+  line-height: 1.78;
+}

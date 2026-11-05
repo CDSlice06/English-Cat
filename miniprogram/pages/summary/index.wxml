@@ -1,0 +1,146 @@
+<view class="page summary-page">
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在生成云端学习报告…</text>
+  </view>
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新连接" bind:tap="load" />
+  </view>
+  <block wx:else>
+    <view class="hero enter">
+      <view class="hero-halo"></view>
+      <view class="hero-spark spark-a"></view>
+      <view class="hero-spark spark-b"></view>
+      <view class="hero-spark spark-c"></view>
+      <cat-image custom-class="hero-cat" name="{{complete ? 'complete-halo' : 'pass-check'}}" size="xl" />
+      <text class="eyebrow">DEEP READING REPORT</text>
+      <view class="title-wrap hand-wave hand-wave-short">
+        <text class="title">{{complete ? '这篇，真的读懂了！' : '每完成一步，都更懂一点'}}</text>
+      </view>
+      <text class="subtitle">{{complete ? '词汇、词组、语法与输出，四个单元全部通关。' : '本篇已完成 ' + progress.completed + '/4 个单元，继续保持自己的节奏。'}}</text>
+    </view>
+
+    <view class="score-card enter d1">
+      <view class="score-tape"></view>
+      <view class="score-glow"></view>
+      <view class="score-seal">
+        <text class="score-seal-cn">精读</text>
+        <text class="score-seal-en">DEEP READING</text>
+      </view>
+      <view class="score-head">
+        <view class="score-copy">
+          <text class="score-kicker">PROGRESS</text>
+          <text class="score-title">{{articleTitle}}</text>
+        </view>
+        <view class="score-value">
+          <text class="score-num en">{{progress.percent}}</text>
+          <text class="score-unit">%</text>
+        </view>
+      </view>
+      <view class="score-strip">
+        <progress-bar percent="{{progress.percent}}" label="本篇学习进度" />
+        <view class="score-scale">
+          <text>0</text>
+          <text>25</text>
+          <text>50</text>
+          <text>75</text>
+          <text>100</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="unit-grid enter d2">
+      <view wx:for="{{units}}" wx:key="name" class="unit {{item.done ? 'unit-done' : ''}}">
+        <view class="unit-check"></view>
+        <view class="unit-copy">
+          <text class="unit-name">{{item.name}}</text>
+          <text class="unit-value">{{item.value}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{practiceTotal}}" class="diagnose enter d3">
+      <view class="diagnose-head">
+        <text class="diagnose-title">输出练习诊断</text>
+        <text class="diagnose-rate">一次通过 {{firstTryRate}}%</text>
+      </view>
+      <view wx:if="{{topErrors.length}}" class="diagnose-list">
+        <view wx:for="{{topErrors}}" wx:key="key" class="diagnose-item">
+          <text class="diagnose-rank">{{index + 1}}</text>
+          <text class="diagnose-label">{{item.label}}</text>
+          <text class="diagnose-count">{{item.count}} 次</text>
+        </view>
+      </view>
+      <text wx:elif="{{failCount}}" class="diagnose-empty">早期练习记录没有保存错误类型，暂时无法归类统计；新提交的练习会自动计入。</text>
+      <text wx:else class="diagnose-empty">还没有失败记录，继续保持。</text>
+    </view>
+
+    <view class="review-section enter d3">
+      <view class="review-head">
+        <text class="review-title">重点词回顾</text>
+        <text class="review-hint">释义与词性一起复习</text>
+      </view>
+      <view class="review-list">
+        <view wx:for="{{reviewWords}}" wx:key="id" class="review-word">
+          <view class="review-top">
+            <text class="word en">{{item.word}}</text>
+            <text class="phonetic">{{item.phonetic}}</text>
+            <view class="review-speak"><speak-btn word="{{item.word}}" /></view>
+          </view>
+          <meaning-list meanings="{{item.meanings}}" compact="{{true}}" />
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{complete}}" class="translate-section enter d4">
+      <view class="review-head">
+        <text class="review-title">全文对照</text>
+        <text class="review-hint">左边原文 · 右边参考译文</text>
+      </view>
+      <view wx:if="{{translation.length}}" class="translate-list">
+        <view wx:for="{{translation}}" wx:key="en" class="translate-row">
+          <text class="translate-en en">{{item.en}}</text>
+          <text class="translate-zh">{{item.zh}}</text>
+        </view>
+      </view>
+      <view wx:elif="{{translationLoading}}" class="translate-state">
+        <cat-image name="sleepy-nap" size="small" />
+        <text class="translate-state-text">猫猫正在逐句翻译这一篇，通常十几秒…</text>
+      </view>
+      <view wx:else class="translate-state">
+        <text class="translate-state-text">{{translationError || '全文对照还没生成。'}}</text>
+        <text class="translate-retry" bindtap="retryTranslation">生成全文对照</text>
+      </view>
+    </view>
+
+    <view class="next-plan enter d4">
+      <view class="plan-icon">
+        <cat-image name="idea-bulb" size="small" />
+      </view>
+      <view class="plan-copy">
+        <text class="plan-title">下一步建议</text>
+        <text class="plan-text">{{plan}}</text>
+      </view>
+    </view>
+
+    <view class="card-entry enter d5" hover-class="card-entry-hover" bindtap="saveReportCard">
+      <view class="card-entry-icon">
+        <cat-image name="import-book" size="small" />
+      </view>
+      <view class="card-entry-copy">
+        <text class="card-entry-title">{{savingCard ? '正在生成手账卡片…' : '存成手账卡片'}}</text>
+        <text class="card-entry-desc">把这篇的精读成果存进相册，随时翻看或分享</text>
+      </view>
+      <text class="card-entry-go">{{savingCard ? '生成中' : '保存'}}</text>
+    </view>
+
+    <view class="summary-actions enter d5">
+      <primary-button text="返回学习页" data-url="/pages/workbench/index" bind:tap="goTab" />
+      <primary-button text="回到首页" secondary="{{true}}" data-url="/pages/index/index" bind:tap="goTab" />
+    </view>
+
+    <canvas type="2d" id="reportCanvas" class="report-canvas"></canvas>
+  </block>
+</view>

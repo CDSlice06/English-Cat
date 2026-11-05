@@ -1,0 +1,210 @@
+<view class="page library">
+  <view class="lib-hero enter">
+    <view class="paper-tape lib-hero-tape"></view>
+    <view class="paper-star lib-hero-star"></view>
+    <view class="lib-stamp en">SHELF</view>
+    <view class="lib-photo">
+      <cat-image name="reading-highlight" size="medium" custom-class="lib-cat" />
+    </view>
+    <view class="lib-copy">
+      <view class="lib-tag en">LIBRARY · 分级题库</view>
+      <text class="lib-title">今天读哪篇</text>
+      <text class="lib-sub">内置模拟篇按四六级难度分层；你录入的真题按年份、套数、篇号归档</text>
+    </view>
+  </view>
+
+  <view class="segmented enter d1">
+    <view
+      wx:for="{{levels}}"
+      wx:key="key"
+      class="seg {{level === item.key ? 'seg-on' : ''}}"
+      bind:tap="switchLevel"
+      data-level="{{item.key}}"
+    >
+      <text>{{item.label}}</text>
+    </view>
+  </view>
+
+  <view class="source-tabs enter d1">
+    <view class="source-tab {{source === 'bank' ? 'source-on' : ''}}" bind:tap="switchSource" data-source="bank">
+      <text>内置模拟篇</text>
+    </view>
+    <view class="source-tab {{source === 'real' ? 'source-on' : ''}}" bind:tap="switchSource" data-source="real">
+      <text>我的真题{{real.length ? '(' + real.length + ')' : ''}}</text>
+    </view>
+    <view class="source-tab {{source === 'imported' ? 'source-on' : ''}}" bind:tap="switchSource" data-source="imported">
+      <text>其它篇目{{imported.length ? '(' + imported.length + ')' : ''}}</text>
+    </view>
+  </view>
+
+  <view class="draw-card enter d2" hover-class="draw-card-hover" bind:tap="draw">
+    <view class="lib-draw-tape"></view>
+    <view class="draw-copy">
+      <text class="draw-title">随机抽一篇</text>
+      <text class="draw-desc">{{source === 'bank' ? '猫随手翻一页，抽到哪篇读哪篇' : (source === 'real' ? '从你导入的真题里随机抽一篇' : '从你录入的内容里随机抽一段')}}</text>
+    </view>
+    <view class="draw-dice"></view>
+  </view>
+
+  <view wx:if="{{error}}" class="lib-error enter">{{error}}</view>
+
+  <block wx:if="{{source === 'bank'}}">
+    <view class="lib-list">
+      <view
+        wx:for="{{list}}"
+        wx:key="id"
+        class="lib-item enter"
+        hover-class="lib-item-hover"
+        bind:tap="pick"
+        data-id="{{item.id}}"
+      >
+        <view class="lib-index en">{{index + 1}}</view>
+        <view class="lib-item-copy">
+          <text class="lib-item-title">{{item.title}}</text>
+          <view class="lib-item-meta">
+            <text class="lib-issue">{{item.issueLabel}}</text>
+            <text class="lib-dot">·</text>
+            <text class="lib-topic">{{item.topic}}</text>
+            <text class="lib-dot">·</text>
+            <text class="lib-words en">{{item.words}} words</text>
+          </view>
+        </view>
+        <view class="lib-arrow"></view>
+      </view>
+    </view>
+    <view class="lib-import-tip" bind:tap="goImport">
+      <view class="lib-import-copy">
+        <text class="lib-import-title">手里有真题原文？</text>
+        <text class="lib-import-desc">粘贴或上传 Word / PDF，导入时选择归档位置：真题进「我的真题」，其他进「其它篇目」</text>
+      </view>
+      <view class="lib-arrow"></view>
+    </view>
+  </block>
+
+  <block wx:elif="{{source === 'real'}}">
+    <!-- 年份书签：真题攒多了以后先按年份收窄，再在年份里挑篇目 -->
+    <scroll-view wx:if="{{years.length > 2}}" class="year-bar enter d1" scroll-x enable-flex>
+      <view
+        wx:for="{{years}}"
+        wx:key="key"
+        class="year-chip {{yearFilter === item.key ? 'year-chip-on' : ''}}"
+        bind:tap="pickYear"
+        data-key="{{item.key}}"
+      >
+        <text>{{item.label}}</text>
+        <text class="year-chip-num en">{{item.count}}</text>
+      </view>
+    </scroll-view>
+
+    <view wx:if="{{realGroups.length}}" class="year-groups">
+      <view wx:for="{{realGroups}}" wx:key="key" wx:for-item="group" class="year-group">
+        <view class="year-head">
+          <text class="year-head-year en">{{group.yearLabel}}</text>
+          <text wx:if="{{group.year}}" class="year-head-unit">年</text>
+          <view class="year-head-rule"></view>
+          <text class="year-head-count">{{group.count}} 篇</text>
+        </view>
+        <view class="lib-list">
+          <view
+            wx:for="{{group.items}}"
+            wx:key="_id"
+            wx:for-item="item"
+            wx:for-index="iIndex"
+            class="lib-item"
+            hover-class="lib-item-hover"
+            bind:tap="pickMine"
+            bind:longpress="removeMine"
+            data-id="{{item._id}}"
+          >
+            <view class="lib-index en">{{iIndex + 1}}</view>
+            <view class="lib-item-copy">
+              <text class="lib-item-title">{{item.title}}</text>
+              <view class="lib-item-meta">
+                <text class="lib-issue">{{item.issue}}</text>
+                <text wx:if="{{item.topic}}" class="lib-dot">·</text>
+                <text wx:if="{{item.topic}}" class="lib-topic">{{item.topic}}</text>
+                <text wx:if="{{item.words}}" class="lib-dot">·</text>
+                <text wx:if="{{item.words}}" class="lib-words en">{{item.words}} words</text>
+              </view>
+            </view>
+            <view class="lib-arrow"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:elif="{{mineLoading}}" class="lib-empty">
+      <cat-image name="sleepy-nap" size="medium" />
+      <text>猫正在翻你的书架…</text>
+    </view>
+    <view wx:else class="lib-empty">
+      <cat-image name="not-found" size="medium" />
+      <text>这个级别还没有真题。导入时把「归档到」选成「我的真题」，它就会出现在这里。</text>
+      <view class="lib-empty-btn" bind:tap="goImport">去导入一篇</view>
+    </view>
+
+    <!-- 已有篇目时也要能继续往当前分类里加 -->
+    <view wx:if="{{realGroups.length}}" class="lib-import-tip" bind:tap="goImport">
+      <view class="lib-import-copy">
+        <text class="lib-import-title">再收一篇真题</text>
+        <text class="lib-import-desc">上传 Word / PDF 或粘贴原文，归档到「我的真题」；整卷会自动拆成 Passage 1 / 2</text>
+      </view>
+      <view class="lib-arrow"></view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view wx:if="{{mineView.length}}" class="lib-list">
+      <view
+        wx:for="{{mineView}}"
+        wx:key="_id"
+        class="lib-item enter"
+        hover-class="lib-item-hover"
+        bind:tap="pickMine"
+        bind:longpress="removeMine"
+        data-id="{{item._id}}"
+      >
+        <view class="lib-index en">{{index + 1}}</view>
+        <view class="lib-item-copy">
+          <text class="lib-item-title">{{item.title}}</text>
+          <view wx:if="{{item.topic || item.words}}" class="lib-item-meta">
+            <text wx:if="{{item.topic}}" class="lib-topic">{{item.topic}}</text>
+            <text wx:if="{{item.topic && item.words}}" class="lib-dot">·</text>
+            <text wx:if="{{item.words}}" class="lib-words en">{{item.words}} words</text>
+          </view>
+        </view>
+        <view class="lib-arrow"></view>
+      </view>
+    </view>
+    <view wx:elif="{{mineLoading}}" class="lib-empty">
+      <cat-image name="sleepy-nap" size="medium" />
+      <text>猫正在翻你的书架…</text>
+    </view>
+    <view wx:else class="lib-empty">
+      <cat-image name="not-found" size="medium" />
+      <text>这个级别还没有录入的内容。上传文档或粘贴原文，就会出现在这里。</text>
+      <view class="lib-empty-btn" bind:tap="goImport">去导入一篇</view>
+    </view>
+
+    <!-- 已有篇目时也要能继续往当前分类里加 -->
+    <view wx:if="{{mineView.length}}" class="lib-import-tip" bind:tap="goImport">
+      <view class="lib-import-copy">
+        <text class="lib-import-title">再收一篇到其它篇目</text>
+        <text class="lib-import-desc">上传 Word / PDF 或粘贴原文，归档到「其它篇目」</text>
+      </view>
+      <view class="lib-arrow"></view>
+    </view>
+  </block>
+
+  <view class="lib-note">
+    <text>{{source === 'bank' ? '版权说明：四六级真题原文的著作权归考试主办方所有，本小程序不内置真题原文；真题由你自行上传，仅存放于你自己的账号下。内置篇目为原创分级文章。' : '长按列表里的任意一篇可以补上考试年份或删除；删除只清正文、进度和练习记录，已收藏的生词和语法不受影响。'}}</text>
+  </view>
+
+  <view wx:if="{{starting}}" class="lib-mask">
+    <view class="lib-mask-card">
+      <cat-image name="sleepy-nap" size="medium" />
+      <text class="lib-mask-title">猫正在翻这篇文章</text>
+      <text class="lib-mask-text">{{startingTitle}}</text>
+    </view>
+  </view>
+</view>

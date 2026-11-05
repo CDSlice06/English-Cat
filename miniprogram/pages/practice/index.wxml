@@ -1,0 +1,138 @@
+<view class="page has-bar practice-page">
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在整理语法练习…</text>
+  </view>
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新连接" bind:tap="load" />
+  </view>
+  <block wx:elif="{{!items.length}}">
+    <section-title eyebrow="STEP 06 · OUTPUT" title="读懂，也要写出来" description="每个语法点配英译汉与汉译英各一道，写完用手机打字提交。" />
+    <view class="empty-analysis">
+      <cat-image name="sleepy-nap" size="medium" />
+      <text>练习还没出题，先去语法页把句型过一遍。</text>
+    </view>
+  </block>
+  <block wx:else>
+    <section-title eyebrow="STEP 06 · OUTPUT" title="双语输出，把语法用出来" description="先英译汉检查理解，再汉译英把结构写对；系统检查整句意思与句型是否完整。" />
+
+    <view class="report-row">
+      <view class="report-link" bind:tap="goSummary">
+        <text>本篇学习报告</text>
+        <view class="report-link-arrow"></view>
+      </view>
+    </view>
+
+    <scroll-view class="question-tabs enter d1" scroll-x enable-flex>
+      <view
+        wx:for="{{items}}"
+        wx:key="id"
+        class="question-tab {{itemIndex === index ? 'tab-on' : ''}} {{item.passed ? 'tab-passed' : ''}}"
+        data-index="{{itemIndex}}"
+        bindtap="selectQuestion"
+        wx:for-index="itemIndex"
+      >
+        <text class="tab-num en">{{itemIndex + 1}}</text>
+        <text class="tab-label">{{item.shortMode}}</text>
+        <view wx:if="{{item.passed}}" class="tab-check"></view>
+      </view>
+    </scroll-view>
+
+    <view class="practice-card enter d2">
+      <view class="card-top">
+        <text class="mode">{{item.modeLabel}}</text>
+        <text class="keyword-count">句型要点 {{item.keywords.length}} 处</text>
+      </view>
+
+      <text class="pattern-chip">{{item.pattern}}</text>
+      <text class="prompt {{item.mode === 'en2zh' ? 'en' : ''}}">{{item.prompt}}</text>
+
+      <view class="answer-tools">
+        <view class="hint-trigger" bindtap="toggleHint">
+          <text>{{showHint ? '收起提示' : '需要提示？'}}</text>
+        </view>
+      </view>
+
+      <textarea
+        class="answer"
+        value="{{answer}}"
+        disabled="{{evaluating}}"
+        placeholder="{{item.mode === 'en2zh' ? '用自然、完整的中文写下这句话的意思…' : '用英语写出完整句子，注意用上这个句型…'}}"
+        maxlength="500"
+        placeholder-class="textarea-placeholder"
+        bindinput="onAnswerInput"
+      />
+
+      <view class="answer-meta">
+        <text>{{answerLength}}/500</text>
+      </view>
+
+      <view wx:if="{{showHint}}" class="hint">
+        <cat-image name="idea-bulb" size="small" />
+        <text class="hint-text">{{item.hint}}</text>
+      </view>
+
+      <view wx:if="{{record}}" class="feedback {{record.result}}">
+        <view class="feedback-head">
+          <view class="feedback-dot"></view>
+          <text class="feedback-title">{{record.result === 'pass' ? '回答通过' : (record.result === 'fail' ? '再完善一下' : '暂未判定')}}</text>
+        </view>
+        <text class="feedback-text">{{record.feedback}}</text>
+        <view wx:if="{{record.tip}}" class="feedback-tip">
+          <text class="feedback-tip-label">正确用法</text>
+          <text class="feedback-tip-text">{{record.tip}}</text>
+        </view>
+        <view wx:if="{{rewriteHint}}" class="rewrite-hint">
+          <text>{{rewriteHint}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{record}}" class="reference-toggle {{referenceLocked ? 'reference-locked' : ''}}" bind:tap="toggleReference">
+        <text>{{referenceLocked ? '参考答案已锁定 · 先按讲解重写' : (showReference ? '隐藏参考答案' : '查看参考答案')}}</text>
+      </view>
+
+      <view wx:if="{{showReference}}" class="reference">
+        <text class="reference-label">参考答案</text>
+        <text class="reference-text {{item.mode === 'en2zh' ? '' : 'en'}}">{{item.reference}}</text>
+      </view>
+    </view>
+
+    <text class="demo-text">判定看整句意思与句型结构，不会直接告诉你缺哪个词；汉译英没通过时会附上这条语法的正确用法，照着改一遍更有效。</text>
+
+    <next-station
+      id="next-station"
+      visible="{{nextReady}}"
+      title="输出练习全部通过"
+      desc="四站都走完了：词、词组、语法、输出。去看看这篇的完整学习报告吧。"
+      next-name="本篇学习报告"
+      step="DEEP READING REPORT"
+      cat="complete-halo"
+      action-text="查看学习报告"
+      bind:next="goSummary"
+    />
+  </block>
+
+  <view class="action-bar">
+    <view class="action-meta">
+      <text class="action-meta-strong">练习 {{index + 1}} / {{items.length}}</text>
+      <text>{{passed}} 道已通过</text>
+    </view>
+    <primary-button
+      text="{{evaluating ? '评估中…' : (record && record.result === 'pass' ? (nextIndex < 0 ? '查看学习报告' : '下一题') : (referenceLocked ? '按讲解重写并提交' : '提交并评估'))}}"
+      disabled="{{evaluating || !item.id}}"
+      bind:tap="primaryAction"
+    />
+    <view class="bar-nav">
+      <view class="bar-nav-item {{index === 0 ? 'nav-disabled' : ''}}" data-index="{{index - 1}}" bindtap="selectQuestion">
+        <view class="nav-arrow nav-arrow-left"></view>
+        <text>上一题</text>
+      </view>
+      <view class="bar-nav-item {{index === items.length - 1 ? 'nav-disabled' : ''}}" data-index="{{index + 1}}" bindtap="selectQuestion">
+        <text>跳过这一题</text>
+        <view class="nav-arrow nav-arrow-right"></view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,85 @@
+.wrap { width: 100%; }
+
+.meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14rpx;
+  color: var(--muted, #7d7365);
+  font-size: 22rpx;
+}
+
+.label { font-weight: 500; }
+
+.value {
+  padding: 2rpx 10rpx;
+  color: var(--caramel-dark, #744828);
+  background: #fff0c9;
+  border: 2rpx solid rgba(116, 72, 40, 0.22);
+  border-radius: 10rpx 8rpx 12rpx 8rpx;
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 30rpx;
+  font-weight: 700;
+  letter-spacing: 0.5rpx;
+  transform: rotate(2deg);
+}
+
+.unit {
+  margin-left: 2rpx;
+  color: var(--muted, #7d7365);
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.track {
+  position: relative;
+  height: 24rpx;
+  overflow: hidden;
+  border: 2rpx solid rgba(116, 72, 40, 0.22);
+  border-radius: 12rpx 16rpx 12rpx 14rpx;
+  background-color: #f4ead6;
+  background-image: repeating-linear-gradient(90deg, rgba(116, 72, 40, 0) 0 20rpx, rgba(116, 72, 40, 0.07) 20rpx 22rpx);
+  box-shadow: inset 0 2rpx 5rpx rgba(116, 72, 40, 0.12);
+}
+
+.fill {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 8rpx 12rpx 10rpx 8rpx;
+  border-right: 2rpx solid rgba(116, 72, 40, 0.34);
+  background: linear-gradient(90deg, #ffd25c 0%, #f9bd3f 55%, #e99a35 100%);
+  box-shadow: 0 2rpx 6rpx rgba(199, 121, 63, 0.24);
+  transition: width 0.5s cubic-bezier(0.22, 0.8, 0.28, 1);
+}
+
+.shine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 42%;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0));
+  animation: progress-sheen 2.6s ease-in-out infinite;
+}
+
+.tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2rpx;
+  background: rgba(255, 253, 249, 0.55);
+}
+
+.tick-1 { left: 25%; }
+.tick-2 { left: 50%; }
+.tick-3 { left: 75%; }
+
+@keyframes progress-sheen {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(320%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fill { transition: none; }
+  .shine { animation: none; opacity: 0; }
+}

@@ -1,0 +1,339 @@
+/* ---------- 引导页 ---------- */
+.onboarding {
+  padding-bottom: 60rpx;
+}
+
+.ob-hero {
+  position: relative;
+  padding: 30rpx 26rpx 26rpx;
+  margin-bottom: var(--card-gap);
+  border-radius: var(--r-lg) var(--r-md) var(--r-lg) var(--r-md);
+  border: 2rpx solid var(--paper-line);
+  background: var(--paper);
+  box-shadow: var(--shadow-paper);
+}
+
+/* 顶边一条和纸胶带，把欢迎卡贴在纸面上 */
+.ob-hero::before {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  left: 34rpx;
+  top: 0;
+  width: 108rpx;
+  height: 28rpx;
+  pointer-events: none;
+  background: rgba(255, 226, 160, 0.86);
+  border-left: 2rpx dashed rgba(116, 72, 40, 0.14);
+  border-right: 2rpx dashed rgba(116, 72, 40, 0.14);
+  transform: rotate(-5deg);
+  transform-origin: left top;
+}
+
+.ob-tag {
+  display: inline-block;
+  margin-bottom: 14rpx;
+  color: var(--amber);
+  font-size: var(--fs-note);
+  letter-spacing: 2rpx;
+}
+
+.ob-title {
+  display: block;
+  color: var(--ink);
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: var(--fs-sub);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.ob-sub {
+  display: block;
+  margin-top: 12rpx;
+  padding-right: 218rpx;
+  color: var(--muted);
+  font-size: var(--fs-body);
+  line-height: 1.7;
+}
+
+/* 招手猫贴成白卡相框，像首页拍立得 */
+.ob-photo {
+  position: absolute;
+  z-index: 1;
+  right: 10rpx;
+  bottom: 8rpx;
+  padding: 8rpx 8rpx 6rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.24);
+  border-radius: var(--r-md);
+  background: #fffdf8;
+  box-shadow: 5rpx 6rpx 0 rgba(116, 72, 40, 0.14);
+  transform: rotate(4deg);
+}
+
+.ob-photo-tape {
+  position: absolute;
+  left: 50%;
+  top: -13rpx;
+  width: 88rpx;
+  height: 26rpx;
+  margin-left: -44rpx;
+  pointer-events: none;
+  background: rgba(255, 226, 160, 0.94);
+  border-left: 2rpx dashed rgba(116, 72, 40, 0.14);
+  border-right: 2rpx dashed rgba(116, 72, 40, 0.14);
+  transform: rotate(-6deg);
+}
+
+.ob-cat {
+  display: block;
+  width: 184rpx !important;
+  height: 184rpx !important;
+}
+
+/* ---------- 等级选择 ---------- */
+.level-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+}
+
+.level-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 22rpx;
+  min-height: 140rpx;
+  padding: 24rpx;
+  border-radius: var(--r-lg) var(--r-md) var(--r-lg) var(--r-md);
+  border: 2rpx solid var(--paper-line);
+  background: var(--paper);
+  box-shadow: var(--shadow-paper);
+}
+
+.level-card:nth-child(odd) { transform: rotate(-0.6deg); }
+.level-card:nth-child(even) { transform: rotate(0.6deg); }
+
+.level-card-hover {
+  background: #fff8e8;
+  transform: translateY(2rpx);
+}
+
+.level-stamp {
+  flex: 0 0 auto;
+  width: 118rpx;
+  height: 92rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-md);
+  border: 2rpx dashed rgba(168, 106, 17, 0.42);
+  background: var(--amber-soft);
+  color: var(--amber);
+  font-size: 26rpx;
+  letter-spacing: 1rpx;
+}
+
+.level-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.level-name {
+  color: var(--ink);
+  font-size: var(--fs-sub);
+  font-weight: 700;
+}
+
+.level-desc {
+  color: var(--muted);
+  font-size: var(--fs-note);
+  line-height: 1.5;
+}
+
+.level-arrow,
+.source-arrow,
+.ob-link-arrow {
+  flex: 0 0 auto;
+  width: 18rpx;
+  height: 18rpx;
+  border-top: 3rpx solid var(--faint);
+  border-right: 3rpx solid var(--faint);
+  border-radius: 2rpx;
+  transform: rotate(45deg);
+}
+
+.ob-note {
+  margin-top: var(--card-gap);
+  padding: 18rpx 22rpx;
+  border-radius: var(--r-md);
+  border: 2rpx dashed rgba(168, 106, 17, 0.24);
+  background: rgba(255, 253, 249, 0.7);
+}
+
+.ob-note text {
+  color: var(--faint);
+  font-size: var(--fs-note);
+  line-height: 1.7;
+}
+
+.ob-skip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  margin-top: 10rpx;
+  color: var(--faint);
+  font-size: var(--fs-note);
+}
+
+/* ---------- 来源选择 ---------- */
+.ob-level-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10rpx;
+  min-height: 88rpx;
+  margin-top: 6rpx;
+}
+
+.ob-level-text {
+  padding: 4rpx 16rpx;
+  border-radius: var(--r-pill);
+  background: var(--amber-soft);
+  color: var(--amber);
+  font-size: var(--fs-note);
+  letter-spacing: 1rpx;
+}
+
+.ob-level-change {
+  color: var(--faint);
+  font-size: var(--fs-note);
+  text-decoration: underline;
+}
+
+.source-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+}
+
+.source-card {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  min-height: 150rpx;
+  padding: 20rpx 24rpx;
+  border-radius: var(--r-lg) var(--r-md) var(--r-lg) var(--r-md);
+  border: 2rpx solid var(--paper-line);
+  background: var(--paper);
+  box-shadow: var(--shadow-paper);
+}
+
+.source-card-hover {
+  background: #fff8e8;
+  transform: translateY(2rpx);
+}
+
+/* 猫猫做成白边贴纸，两张来源卡交替歪贴 */
+.source-sticker {
+  flex: 0 0 auto;
+  padding: 5rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.18);
+  border-radius: var(--r-md);
+  background: #fffdf8;
+  box-shadow: 3rpx 4rpx 0 rgba(116, 72, 40, 0.12);
+  transform: rotate(-4deg);
+}
+
+.source-card:nth-child(even) .source-sticker { transform: rotate(4deg); }
+
+.source-cat {
+  display: block;
+  flex: 0 0 auto;
+  width: 112rpx !important;
+  height: 112rpx !important;
+}
+
+.source-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.source-title {
+  color: var(--ink);
+  font-size: var(--fs-sub);
+  font-weight: 700;
+}
+
+.source-desc {
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+.ob-error {
+  margin-top: var(--card-gap);
+  padding: 18rpx 22rpx;
+  border-radius: var(--r-md);
+  border: 2rpx solid rgba(239, 131, 104, 0.45);
+  background: var(--coral-soft);
+  color: #a4402a;
+  font-size: var(--fs-note);
+  line-height: 1.6;
+}
+
+.ob-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  min-height: 88rpx;
+  margin-top: 12rpx;
+  color: var(--amber);
+  font-size: var(--fs-note);
+}
+
+.ob-link-arrow {
+  width: 14rpx;
+  height: 14rpx;
+  border-color: var(--amber);
+}
+
+/* ---------- 抽取中 ---------- */
+.ob-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(36, 31, 24, 0.32);
+}
+
+.ob-mask-card {
+  width: 480rpx;
+  padding: 30rpx 26rpx 28rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  border-radius: var(--r-lg) var(--r-md) var(--r-lg) var(--r-md);
+  border: 2rpx solid var(--paper-line);
+  background: var(--paper);
+  box-shadow: var(--shadow-paper);
+}
+
+.ob-mask-title {
+  color: var(--ink);
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+
+.ob-mask-text {
+  color: var(--muted);
+  font-size: var(--fs-note);
+  text-align: center;
+  line-height: 1.5;
+}

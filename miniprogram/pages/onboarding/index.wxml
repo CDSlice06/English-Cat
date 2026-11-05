@@ -1,0 +1,90 @@
+<view class="page onboarding">
+  <block wx:if="{{step === 1}}">
+    <view class="ob-hero enter">
+      <view class="ob-tag en">WELCOME · 英语精读喵</view>
+      <text class="ob-title">先告诉我，你在备战哪一级</text>
+      <text class="ob-sub">选好之后，猫按这一级的难度挑文章，词汇和语法点也按这个标准筛，不会一上来就给你超纲的长难句。</text>
+      <view class="ob-photo">
+        <view class="ob-photo-tape"></view>
+        <cat-image name="welcome-wave" size="large" custom-class="ob-cat" />
+      </view>
+    </view>
+
+    <view class="level-list">
+      <view
+        wx:for="{{levels}}"
+        wx:key="key"
+        class="level-card enter"
+        hover-class="level-card-hover"
+        bind:tap="chooseLevel"
+        data-level="{{item.key}}"
+      >
+        <view class="level-stamp en">{{item.full}}</view>
+        <view class="level-copy">
+          <text class="level-name">{{item.label}}</text>
+          <text class="level-desc">{{item.desc}}</text>
+        </view>
+        <view class="level-arrow"></view>
+      </view>
+    </view>
+
+    <view class="ob-note">
+      <text>真题原文受版权保护，题库用的是按四六级难度分级的原创文章，题型、篇幅和句式都对齐真题。</text>
+    </view>
+
+    <view class="ob-skip" bind:tap="skip">
+      <text>以后再说</text>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="ob-hero enter">
+      <view class="ob-tag en">STEP 02 · SOURCE</view>
+      <text class="ob-title">今天从哪一篇开始</text>
+      <text class="ob-sub">抽一篇按难度分好级的文章，或者把手上整理好的文章导进来。</text>
+      <view class="ob-level-chip" bind:tap="backToLevel">
+        <text class="ob-level-text en">{{levelLabel}}</text>
+        <text class="ob-level-change">更换</text>
+      </view>
+    </view>
+
+    <view class="source-list">
+      <view class="source-card enter d1" hover-class="source-card-hover" bind:tap="draw">
+        <view class="source-sticker">
+          <cat-image name="reading-highlight" size="small" custom-class="source-cat" />
+        </view>
+        <view class="source-copy">
+          <text class="source-title">随机抽一篇</text>
+          <text class="source-desc">从题库里抽一篇，直接进词汇站</text>
+        </view>
+        <view class="source-arrow"></view>
+      </view>
+
+      <view class="source-card enter d2" hover-class="source-card-hover" bind:tap="goImport">
+        <view class="source-sticker">
+          <cat-image name="import-book" size="small" custom-class="source-cat" />
+        </view>
+        <view class="source-copy">
+          <text class="source-title">导入我的文章</text>
+          <text class="source-desc">支持 Word（.docx）与 PDF</text>
+        </view>
+        <view class="source-arrow"></view>
+      </view>
+    </view>
+
+    <view wx:if="{{error}}" class="ob-error enter">{{error}}</view>
+
+    <view class="ob-link" bind:tap="goLibrary">
+      <text>先看看题库里都有什么</text>
+      <view class="ob-link-arrow"></view>
+    </view>
+  </block>
+
+  <view wx:if="{{starting}}" class="ob-mask">
+    <view class="ob-mask-card">
+      <cat-image name="sleepy-nap" size="medium" />
+      <text class="ob-mask-title">猫正在翻这篇文章</text>
+      <text class="ob-mask-text">{{startingTitle}}</text>
+    </view>
+  </view>
+</view>

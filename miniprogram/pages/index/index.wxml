@@ -1,0 +1,179 @@
+<view class="page home tab-page">
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在从云数据库同步…</text>
+  </view>
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新连接" bind:tap="load" />
+  </view>
+  <block wx:else>
+    <view class="topline enter">
+      <view class="brand">
+        <text class="brand-en en">MIAO</text>
+        <view class="brand-copy">
+          <text class="brand-name">英语精读喵</text>
+          <text class="brand-sub en">reading journal</text>
+        </view>
+      </view>
+      <view class="level-pill">
+        <view class="level-dot"></view>
+        <text>CET 4 / 6</text>
+      </view>
+    </view>
+
+    <view class="hero enter d1">
+      <view class="paper-tape hero-tape"></view>
+      <view class="paper-star hero-star"></view>
+
+      <view class="hero-copy">
+        <view class="hello">
+          <view class="hello-line"></view>
+          <text>今天，也读懂一点点</text>
+        </view>
+        <text class="hero-title">读过的每一篇</text>
+        <view class="hero-strong hand-wave">
+          <text class="hero-title hero-title-strong">都要完全消化</text>
+        </view>
+        <text class="hero-sub">从一篇文档到词汇、语法与表达，让橘猫陪你走完学习闭环。</text>
+      </view>
+
+      <view class="hero-photo {{catTapped ? 'cat-tapped' : ''}}" bind:tap="tapCat">
+        <view class="photo-tape"></view>
+        <view class="photo-window">
+          <cat-image custom-class="hero-cat-visual" name="{{catName}}" size="large" />
+        </view>
+        <text class="photo-caption en">today's cat · 戳一下</text>
+        <view wx:if="{{catBubble}}" class="cat-bubble">
+          <text>{{catBubble}}</text>
+        </view>
+      </view>
+
+      <view class="hero-band">
+        <text class="en">WORD</text>
+        <view class="band-dot"></view>
+        <text class="en">PHRASE</text>
+        <view class="band-dot"></view>
+        <text class="en">GRAMMAR</text>
+        <view class="band-dot"></view>
+        <text class="en">OUTPUT</text>
+      </view>
+    </view>
+
+    <view wx:if="{{hasProgress}}" class="progress-card enter d2">
+      <view class="paper-tape progress-tape"></view>
+      <view class="progress-paw paw-print"></view>
+
+      <view class="progress-head">
+        <view class="progress-copy">
+          <text class="progress-kicker">THIS ARTICLE</text>
+          <text class="progress-title">{{title}}</text>
+        </view>
+        <view class="progress-badge">{{progress.completed}}/{{progress.total}}</view>
+      </view>
+
+      <view class="stat-strip">
+        <view class="stat">
+          <text class="stat-num en">{{mastered}}</text>
+          <text class="stat-label">已掌握词</text>
+        </view>
+        <view class="stat">
+          <text class="stat-num en">{{progress.completed}}<text class="stat-small">/{{progress.total}}</text></text>
+          <text class="stat-label">学习单元</text>
+        </view>
+        <view class="stat">
+          <text class="stat-num en">{{progress.percent}}<text class="stat-small">%</text></text>
+          <text class="stat-label">本篇进度</text>
+        </view>
+      </view>
+
+      <progress-bar percent="{{progress.percent}}" label="四个学习单元 · 全部完成即通关" />
+      <view class="step-row">
+        <view class="step-chip {{progress.completed >= 1 ? 'step-on' : ''}}"><view class="step-pip"></view><text>词汇</text></view>
+        <view class="step-chip {{progress.completed >= 2 ? 'step-on' : ''}}"><view class="step-pip"></view><text>词组</text></view>
+        <view class="step-chip {{progress.completed >= 3 ? 'step-on' : ''}}"><view class="step-pip"></view><text>语法</text></view>
+        <view class="step-chip {{progress.completed >= 4 ? 'step-on' : ''}}"><view class="step-pip"></view><text>输出</text></view>
+      </view>
+
+      <view class="continue-action">
+        <primary-button text="继续学习 · {{nextUnit.label}}" data-url="{{nextUnit.url}}" bind:tap="go" />
+        <text class="continue-hint">{{nextUnit.hint}}</text>
+      </view>
+    </view>
+
+    <view wx:else class="zero-card enter d2">
+      <view class="paper-tape zero-tape"></view>
+      <view class="zero-photo">
+        <cat-image custom-class="zero-cat" name="sleepy-nap" size="medium" />
+      </view>
+      <view class="zero-copy">
+        <text class="zero-title">猫在等你的第一篇文章</text>
+        <text class="zero-desc">从题库抽一篇，或导入自己的 Word / PDF，我们从词汇一路读到输出。</text>
+      </view>
+      <view class="zero-action">
+        <primary-button text="从题库抽一篇" data-url="/pages/library/index" bind:tap="go" />
+        <view class="zero-link" data-url="/pages/import/index" bind:tap="go">
+          <text>我有文章，直接导入</text>
+          <view class="zero-link-arrow"></view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{hasProgress}}" class="cta enter d3">
+      <primary-button text="换一篇文章" secondary="{{true}}" data-url="/pages/library/index" bind:tap="go" />
+      <view class="cta-hint">
+        <view class="cta-hint-dot"></view>
+        <text>也可以导入自己的 Word / PDF</text>
+      </view>
+    </view>
+
+    <view class="section-head">
+      <view class="section-title-wrap">
+        <text class="section-stamp en">NEXT</text>
+        <text class="section-title">接着往下学</text>
+      </view>
+      <text class="section-hint">先词后句，再练输出</text>
+    </view>
+
+    <view class="feature-grid">
+      <view
+        wx:for="{{features}}"
+        wx:key="name"
+        class="feature-card tone-{{item.tone}}"
+        hover-class="feature-hover"
+        data-url="{{item.url}}"
+        bindtap="go"
+      >
+        <view class="feature-tape"></view>
+        <view class="feature-top">
+          <text class="feature-index en">0{{index + 1}}</text>
+          <text class="feature-tag">{{item.tag}}</text>
+        </view>
+        <text class="feature-name">{{item.name}}</text>
+        <text class="feature-desc">{{item.desc}}</text>
+        <view class="feature-sticker">
+          <cat-image name="{{item.cat}}" size="medium" custom-class="feature-cat" />
+        </view>
+      </view>
+    </view>
+
+    <view class="route-link" bind:tap="go" data-url="/pages/workbench/index">
+      <text>查看完整学习路线 · 四站进度</text>
+      <view class="route-arrow"></view>
+    </view>
+
+    <view class="tip-card enter d5">
+      <view class="tip-tape"></view>
+      <cat-image name="idea-bulb" size="small" />
+      <view class="tip-copy">
+        <text class="tip-title">今天的小目标</text>
+        <text class="tip-text">不用担心起点，完成比完美更重要。</text>
+      </view>
+      <view class="tip-diamond"></view>
+    </view>
+
+    <view class="home-rule"></view>
+    <text class="home-footer">英语精读喵 · 每一次精读都有回响</text>
+  </block>
+</view>

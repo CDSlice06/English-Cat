@@ -1,0 +1,53 @@
+<view class="page review-page">
+  <section-title eyebrow="DAILY REVIEW" title="今日复习" description="只复习「不记得」的词：最久没看的先来，记得就亲手搬走。" />
+
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在挑今天的复习词…</text>
+  </view>
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新加载" bind:tap="load" />
+  </view>
+  <block wx:else>
+    <view class="review-progress enter d1">
+      <view class="review-progress-row">
+        <text class="review-progress-label">今日已复习</text>
+        <text class="review-progress-value en">{{doneCount}} / {{total}}</text>
+      </view>
+      <progress-bar percent="{{percent}}" label="本轮复习进度" />
+      <text class="review-progress-hint">还剩 {{left}} 个词</text>
+    </view>
+
+    <view wx:if="{{current}}" class="review-card enter d2">
+      <view class="paper-tape review-tape"></view>
+      <text class="review-kicker">WORD CARD</text>
+      <view class="review-word-row">
+        <text class="review-word en">{{current.word}}</text>
+        <speak-btn word="{{current.word}}" />
+      </view>
+      <text wx:if="{{current.phonetic}}" class="review-phonetic">{{current.phonetic}}</text>
+      <meaning-list wx:if="{{current.meanings.length}}" meanings="{{current.meanings}}" />
+      <text wx:else class="review-nomap">这个词暂未收录释义，先凭记忆判断。</text>
+
+      <view class="review-actions">
+        <view class="review-btn review-unknown {{busy ? 'review-btn-busy' : ''}}" bindtap="mark" data-result="unknown">
+          <text class="review-btn-main">不记得</text>
+          <text class="review-btn-hint">留在词库里，稍后再看</text>
+        </view>
+        <view class="review-btn review-known {{busy ? 'review-btn-busy' : ''}}" bindtap="mark" data-result="known">
+          <text class="review-btn-main">记得</text>
+          <text class="review-btn-hint">搬进「记得」</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:elif="{{done}}" class="review-done enter d2">
+      <cat-image custom-class="done-cat" name="complete-halo" size="large" />
+      <text class="done-title">{{total ? '今天的复习做完了' : '今天没有要复习的词'}}</text>
+      <text class="done-text">{{total ? '本轮复习 ' + doneCount + ' 个词，明天再来一遍会更牢。' : '生词本里的词都标成「记得」了，或者还没收词。'}}</text>
+      <primary-button text="回到生词本" bind:tap="goWordbook" />
+    </view>
+  </block>
+</view>

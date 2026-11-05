@@ -1,0 +1,135 @@
+<view class="page has-bar">
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在加载学习数据…</text>
+  </view>
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新加载" bind:tap="loadPage" />
+  </view>
+  <block wx:else>
+    <section-title
+      eyebrow="STEP 02 · PROOFREAD"
+      title="{{manualMode ? '英文句子语法解析工具' : '核对文章原文'}}"
+      description="{{docMode ? '文档已提取完成，检查换行与错字，确认后存入题库。' : (manualMode ? '仅支持英文句子与英文单词，确认后存入题库，在题库里打开时再解析。' : '修正文字与换行，确认后再生成学习单元。')}}"
+    />
+
+    <!-- 真题整卷只保留仔细阅读，多篇时在这里切换核对 -->
+    <view class="target-tabs enter d1" wx:if="{{passages.length > 1}}">
+      <view
+        class="target-tab {{passageTab === index ? 'target-on' : ''}}"
+        wx:for="{{passages}}"
+        wx:key="title"
+        data-index="{{index}}"
+        bind:tap="onPassageTab"
+      >{{item.title}}</view>
+    </view>
+
+    <view class="editor-card enter d1">
+      <view class="editor-tape"></view>
+      <view class="editor-head">
+        <view class="editor-label">
+          <view class="editor-dot"></view>
+          <text>英文原文</text>
+        </view>
+        <text class="count-pill">{{characterCount}} 字符</text>
+      </view>
+      <textarea
+        class="editor"
+        value="{{ocrText}}"
+        maxlength="10000"
+        auto-height
+        placeholder="仅粘贴英文句子 / 英文单词"
+        placeholder-class="editor-placeholder"
+        bind:input="onTextInput"
+      />
+      <view class="editor-foot">
+        <text>可直接在原文上修改</text>
+        <text class="editor-foot-dot">·</text>
+        <text>修改后自动带入下一步</text>
+      </view>
+      <view wx:if="{{analyzeError}}" class="analyze-error">{{analyzeError}}</view>
+    </view>
+
+    <view class="confidence-card enter d2" wx:if="{{docMeta}}">
+      <view class="confidence-top">
+        <view class="confidence-sticker">
+          <cat-image name="idea-bulb" size="small" />
+        </view>
+        <view class="confidence-copy">
+          <text class="confidence-title">{{docMeta.fileName}}</text>
+          <text class="confidence-desc">{{docMeta.kindLabel}} 文档 · 提取 {{docMeta.paragraphs}} 段正文</text>
+        </view>
+        <view class="confidence-badge">OK</view>
+      </view>
+      <view class="parse-warn" wx:for="{{docMeta.warnings}}" wx:key="*this">{{item}}</view>
+    </view>
+
+    <view class="manual-tip enter d2" wx:elif="{{manualMode}}">
+      <cat-image name="practice-writing" size="small" />
+      <text class="manual-tip-text">只支持英文内容；生词后括号里的中文注释（20 字内）会自动忽略，大段中文会被拦截。保留原本的换行即可。</text>
+    </view>
+
+    <!-- 出处标注：真题填上年份套数篇号，之后在题库里可以按出处找回来 -->
+    <view class="origin-card enter d2">
+      <view class="origin-tape"></view>
+      <view class="origin-head">
+        <text class="origin-title">归档到</text>
+        <text class="origin-hint">{{target === 'real' ? '保存后会出现在「我的真题」' : '保存后会出现在「其它篇目」'}}</text>
+      </view>
+      <view class="target-tabs">
+        <view class="target-tab {{target === 'real' ? 'target-on' : ''}}" bind:tap="onTarget" data-target="real">我的真题</view>
+        <view class="target-tab {{target === 'custom' ? 'target-on' : ''}}" bind:tap="onTarget" data-target="custom">其它篇目</view>
+      </view>
+      <view class="origin-head">
+        <text class="origin-title">这篇的出处</text>
+        <text class="origin-hint">{{target === 'real' ? '选填 · 标注后按年份套数找回' : '选填 · 普通导入可不标注'}}</text>
+      </view>
+      <view class="origin-grid">
+        <picker class="origin-cell" mode="selector" range="{{levelOptions}}" value="{{levelIndex}}" bindchange="onLevel">
+          <text class="origin-label">级别</text>
+          <text class="origin-value">{{levelOptions[levelIndex]}}</text>
+        </picker>
+        <picker class="origin-cell" mode="selector" range="{{yearOptions}}" value="{{yearIndex}}" bindchange="onYear">
+          <text class="origin-label">年份</text>
+          <text class="origin-value">{{yearOptions[yearIndex]}}</text>
+        </picker>
+        <picker class="origin-cell" mode="selector" range="{{monthOptions}}" value="{{monthIndex}}" bindchange="onMonth">
+          <text class="origin-label">月份</text>
+          <text class="origin-value">{{monthOptions[monthIndex]}}</text>
+        </picker>
+        <picker class="origin-cell" mode="selector" range="{{paperOptions}}" value="{{paperIndex}}" bindchange="onPaper">
+          <text class="origin-label">套数</text>
+          <text class="origin-value">{{paperOptions[paperIndex]}}</text>
+        </picker>
+        <!-- 整卷拆分时篇号由拆分的篇目决定，跟当前标签走，不能再显示「不标注」 -->
+        <view class="origin-cell" wx:if="{{passages.length}}">
+          <text class="origin-label">篇号</text>
+          <text class="origin-value">Passage {{passageTab + 1}}</text>
+        </view>
+        <picker wx:else class="origin-cell" mode="selector" range="{{passageOptions}}" value="{{passageIndex}}" bindchange="onPassage">
+          <text class="origin-label">篇号</text>
+          <text class="origin-value">{{passageOptions[passageIndex]}}</text>
+        </picker>
+      </view>
+    </view>
+
+    <view class="demo-tip enter d3">
+      <view class="demo-tip-line"></view>
+      <text>{{isDemo ? '已载入体验文章，确认文本后进入词汇学习。' : (storeMode ? (docMode ? '提取完成，建议先通读一遍，再存入题库。' : '确认文本无误后就存入题库，稍后在题库里打开即可精读。') : (docMeta ? '提取完成，建议先通读一遍，再进入词汇筛选。' : '文本确认无误后，点击下方按钮生成学习单元。'))}}</text>
+    </view>
+  </block>
+
+  <view class="action-bar">
+    <view class="action-meta">
+      <text class="action-meta-strong">{{storeMode ? '导入题库' : '下一步'}}</text>
+      <text>{{ocrText ? (storeMode ? '存入后在题库里随时开始精读' : '文本已就绪，可生成学习单元') : '请先粘贴或上传文章原文'}}</text>
+    </view>
+    <primary-button
+      text="{{storeMode ? (analyzing ? '正在存入题库…' : '存入题库') : (analyzing ? '正在生成学习单元…' : '生成词汇与解析')}}"
+      disabled="{{analyzing || !canSubmit}}"
+      bind:tap="next"
+    />
+  </view>
+</view>

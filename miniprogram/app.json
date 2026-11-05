@@ -1,0 +1,53 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/workbench/index",
+    "pages/profile/index",
+    "pages/import/index",
+    "pages/proofread/index",
+    "pages/preview/index",
+    "pages/vocabulary/index",
+    "pages/analysis/index",
+    "pages/phrases/index",
+    "pages/practice/index",
+    "pages/summary/index",
+    "pages/wordbook/index",
+    "pages/review/index",
+    "pages/phrasebook/index",
+    "pages/grammarbook/index",
+    "pages/onboarding/index",
+    "pages/library/index"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#fdf7ea",
+    "navigationBarTitleText": "英语精读喵",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#fdf7ea",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#a1957f",
+    "selectedColor": "#a86a11",
+    "backgroundColor": "#fffdf9",
+    "borderStyle": "white",
+    "list": [
+      {"pagePath":"pages/index/index","text":"首页","iconPath":"assets/tabbar/home.png","selectedIconPath":"assets/tabbar/home-active.png"},
+      {"pagePath":"pages/workbench/index","text":"学习","iconPath":"assets/tabbar/study.png","selectedIconPath":"assets/tabbar/study-active.png"},
+      {"pagePath":"pages/profile/index","text":"我的","iconPath":"assets/tabbar/user.png","selectedIconPath":"assets/tabbar/user-active.png"}
+    ]
+  },
+  "usingComponents": {
+    "cat-image": "/components/cat-image/index",
+    "primary-button": "/components/primary-button/index",
+    "section-title": "/components/section-title/index",
+    "progress-bar": "/components/progress-bar/index",
+    "meaning-list": "/components/meaning-list/index",
+    "next-station": "/components/next-station/index",
+    "speak-btn": "/components/speak-btn/index",
+    "article-drawer": "/components/article-drawer/index"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

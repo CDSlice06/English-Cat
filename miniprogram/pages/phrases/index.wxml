@@ -1,0 +1,94 @@
+<view class="page has-bar phrases-page">
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在整理全篇词组搭配…</text>
+  </view>
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新加载" bind:tap="loadPage" />
+  </view>
+  <block wx:else>
+    <section-title eyebrow="STEP 04 · PHRASES" title="词组与固定搭配" description="生词不只单个词。这些搭配要整块记，拆开逐词直译，意思就走样了。" />
+
+    <view class="origin-entry">
+      <text class="origin-entry-btn" bindtap="openOrigin">看原文</text>
+    </view>
+
+    <article-drawer
+      visible="{{originOpen}}"
+      text="{{originText}}"
+      highlight="{{originHighlight}}"
+      bind:close="closeOrigin"
+    />
+
+    <view class="overview-card enter d1">
+      <view class="overview-copy">
+        <text class="overview-kicker">PHRASES IN THIS ARTICLE</text>
+        <text class="overview-title">{{phrases.length}} 个固定搭配</text>
+        <text class="overview-sub">已看 {{viewedCount}} / {{phrases.length}} · 点开卡片看用法与原句</text>
+      </view>
+      <view class="overview-badge">{{viewedCount}}/{{phrases.length}}</view>
+      <cat-image custom-class="overview-cat" name="reading-highlight" size="small" />
+    </view>
+
+    <view
+      wx:for="{{phrases}}"
+      wx:key="id"
+      id="phrase-{{item.id}}"
+      class="phrase-card enter d2 {{item.viewed ? 'phrase-seen' : ''}}"
+    >
+      <view class="phrase-head" data-id="{{item.id}}" bindtap="togglePhrase">
+        <text class="pos-tag">phr.</text>
+        <view class="phrase-title-wrap">
+          <text class="phrase-title en">{{item.phrase}}</text>
+          <text wx:if="{{item.matched !== item.phrase}}" class="phrase-matched en">文中出现：{{item.matched}}</text>
+        </view>
+        <text class="phrase-toggle">{{item.expanded ? '收起' : '看原句'}}</text>
+      </view>
+
+      <text class="phrase-meaning">{{item.meaning}}</text>
+
+      <block wx:if="{{item.expanded}}">
+        <view wx:if="{{item.note}}" class="phrase-note">{{item.note}}</view>
+        <view class="phrase-sentence">
+          <text class="sentence-label">文中原句</text>
+          <text class="sentence-text en">{{item.sentence}}</text>
+        </view>
+      </block>
+
+      <view class="phrase-foot">
+        <text class="add-btn {{item.added ? 'add-done' : ''}}" data-id="{{item.id}}" catchtap="addToPhrasebook">{{addingId === item.id ? '收录中…' : (item.added ? '已在词组本' : '+ 加入词组本')}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{!phrases.length}}" class="empty-analysis">
+      <cat-image name="sleepy-nap" size="medium" />
+      <text>这篇太短，猫没找到固定搭配；换一篇长一点的试试。</text>
+    </view>
+
+    <next-station
+      id="next-station"
+      visible="{{nextReady}}"
+      title="词组这一站通关了"
+      desc="这篇的固定搭配都看过了。下一站拆句型、学语法，再动手写。"
+      next-name="语法与句式精读"
+      step="STEP 05 · GRAMMAR"
+      cat="idea-bulb"
+      action-text="继续 · 语法与句式"
+      bind:next="goGrammar"
+    />
+  </block>
+
+  <view class="action-bar">
+    <view class="action-meta">
+      <text class="action-meta-strong">词组 {{viewedCount}}/{{phrases.length}}</text>
+      <text>整块记，别逐词拆</text>
+    </view>
+    <primary-button text="去语法练习" disabled="{{saving}}" bind:tap="goGrammar" />
+    <view class="bar-secondary" bind:tap="goSummary">
+      <text>查看学习报告</text>
+      <view class="bar-arrow"></view>
+    </view>
+  </view>
+</view>

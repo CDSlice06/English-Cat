@@ -1,0 +1,8 @@
+<view class="wrap">
+  <view wx:if="{{eyebrow}}" class="eyebrow-row">
+    <view class="eyebrow-bar"></view>
+    <text class="eyebrow">{{eyebrow}}</text>
+  </view>
+  <text class="title">{{title}}</text>
+  <text wx:if="{{description}}" class="description">{{description}}</text>
+</view>

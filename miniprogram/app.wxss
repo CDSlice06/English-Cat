@@ -1,0 +1,511 @@
+/* ============================================================
+   英语精读喵 · 全局设计系统
+   色彩：奶黄 / 蜜橘 / 薄荷 / 天青 / 珊瑚
+   质感：纸感奶油底 + 柔光卡片 + 贴纸描边
+   ============================================================ */
+
+page {
+  /* 文字 */
+  --ink: #241f18;
+  --ink-2: #4a4236;
+  /* 弱色在纸底上的对比度：muted 5.6:1 / faint 4.5:1，均达到 WCAG AA */
+  --muted: #6f6557;
+  --faint: #8c8272;
+
+  /* 底色 */
+  --cream: #fdf7ea;
+  --cream-2: #f9efdb;
+  --paper: #fffdf9;
+  --white: #ffffff;
+
+  /* 主色 */
+  --butter: #ffd25c;
+  --butter-2: #f7b733;
+  --butter-3: #ffe9b6;
+  --amber: #a86a11;
+  --amber-soft: #fff3d4;
+
+  /* 辅色 */
+  --coral: #ef8368;
+  --coral-soft: #ffe7de;
+  --mint: #5fa87c;
+  --mint-soft: #e2f2e6;
+  --sky: #5b8bc4;
+  --sky-soft: #e4eef9;
+  --sky-deep: #6f91ad;
+  --violet: #8574c4;
+  --violet-soft: #ece8fa;
+  --caramel: #c7793f;
+  --caramel-dark: #744828;
+  --doodle: #4b4034;
+
+  /* 线条与阴影 */
+  --line: rgba(48, 40, 28, 0.12);
+  --line-2: rgba(48, 40, 28, 0.07);
+  --paper-line: rgba(75, 64, 52, 0.20);
+  /* 阴影只有一种语言：错位硬影 + 极淡柔影，暖褐色调 */
+  --shadow-1: 4rpx 5rpx 0 rgba(103, 73, 40, 0.10), 0 2rpx 8rpx rgba(133, 96, 34, 0.04);
+  --shadow-2: 6rpx 7rpx 0 rgba(103, 73, 40, 0.14), 0 3rpx 10rpx rgba(133, 96, 34, 0.05);
+  --shadow-3: 8rpx 9rpx 0 rgba(103, 73, 40, 0.18), 0 4rpx 14rpx rgba(133, 96, 34, 0.06);
+  --shadow-paper: 6rpx 7rpx 0 rgba(103, 73, 40, 0.14), 0 3rpx 10rpx rgba(133, 96, 34, 0.05);
+  --shadow-caramel: 6rpx 7rpx 0 rgba(116, 72, 40, 0.18), 0 3rpx 10rpx rgba(133, 96, 34, 0.05);
+  --shadow-sky: 6rpx 7rpx 0 rgba(116, 72, 40, 0.16), 0 3rpx 10rpx rgba(133, 96, 34, 0.05);
+
+  /* 圆角只保留三档：卡片 / 小件 / 胶囊 */
+  --r-lg: 32rpx;
+  --r-md: 20rpx;
+  --r-sm: 20rpx;
+  --r-pill: 999rpx;
+
+  /* 字号阶梯：页面标题 / 卡片标题 / 正文 / 注解 */
+  --fs-title: 44rpx;
+  --fs-sub: 32rpx;
+  --fs-body: 25rpx;
+  --fs-note: 22rpx;
+
+  /* 卡片节奏：统一内边距与间距，带纸胶带的卡片顶部多留 4rpx */
+  --card-pad-y: 26rpx 26rpx 24rpx;
+  --card-pad-tape: 30rpx 26rpx 24rpx;
+  --card-gap: 18rpx;
+
+  background-color: #fdf7ea;
+  background-image:
+    radial-gradient(680rpx 520rpx at 106% -6%, rgba(255, 205, 102, 0.34), rgba(255, 205, 102, 0) 62%),
+    radial-gradient(520rpx 460rpx at -18% 6%, rgba(255, 170, 138, 0.18), rgba(255, 170, 138, 0) 62%),
+    radial-gradient(600rpx 520rpx at 50% 108%, rgba(190, 220, 245, 0.24), rgba(190, 220, 245, 0) 66%),
+    /* 方格纸：44rpx 网格，暖褐细线，交叉处自然叠深 */
+    linear-gradient(90deg, rgba(111, 90, 62, 0.05) 0, rgba(111, 90, 62, 0.05) 2rpx, rgba(111, 90, 62, 0) 2rpx, rgba(111, 90, 62, 0) 44rpx),
+    linear-gradient(0deg, rgba(111, 90, 62, 0.05) 0, rgba(111, 90, 62, 0.05) 2rpx, rgba(111, 90, 62, 0) 2rpx, rgba(111, 90, 62, 0) 44rpx),
+    linear-gradient(180deg, #fdf7ea 0%, #fbf1de 100%);
+  background-size: auto, auto, auto, 44rpx 44rpx, 44rpx 44rpx, auto;
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 28rpx;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+view, text, image, button, textarea, input, scroll-view {
+  box-sizing: border-box;
+}
+
+button::after { border: 0; }
+
+/* ---------- 页面骨架 ---------- */
+.page {
+  position: relative;
+  min-height: 100vh;
+  padding: 36rpx 32rpx 80rpx;
+}
+
+/* 有底部固定操作栏的页面 */
+.has-bar { padding-bottom: 280rpx; }
+
+/* 自定义 tabBar 页面：底部留出固定底栏的高度，内容不被压住 */
+.tab-page { padding-bottom: calc(170rpx + env(safe-area-inset-bottom)); }
+
+/* ---------- 卡片：全站只保留「纸卡」一种语言 ---------- */
+.card,
+.card-flat,
+.paper-card {
+  position: relative;
+  background-color: var(--paper);
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 248, 232, 0.28));
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-paper);
+}
+
+.paper-tape {
+  position: absolute;
+  z-index: 6;
+  width: 112rpx;
+  height: 34rpx;
+  pointer-events: none;
+  background: rgba(255, 226, 160, 0.78);
+  border-left: 2rpx dashed rgba(116, 72, 40, 0.14);
+  border-right: 2rpx dashed rgba(116, 72, 40, 0.14);
+  box-shadow: 0 3rpx 6rpx rgba(116, 72, 40, 0.08);
+  transform: rotate(-4deg);
+}
+
+.paw-print {
+  position: absolute;
+  width: 56rpx;
+  height: 52rpx;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 22rpx 17rpx at 50% 73%, rgba(199, 121, 63, 0.22) 96%, rgba(199, 121, 63, 0) 100%),
+    radial-gradient(ellipse 9rpx 12rpx at 17% 43%, rgba(199, 121, 63, 0.22) 96%, rgba(199, 121, 63, 0) 100%),
+    radial-gradient(ellipse 9rpx 13rpx at 38% 20%, rgba(199, 121, 63, 0.22) 96%, rgba(199, 121, 63, 0) 100%),
+    radial-gradient(ellipse 9rpx 13rpx at 63% 20%, rgba(199, 121, 63, 0.22) 96%, rgba(199, 121, 63, 0) 100%),
+    radial-gradient(ellipse 9rpx 12rpx at 84% 43%, rgba(199, 121, 63, 0.22) 96%, rgba(199, 121, 63, 0) 100%);
+  background-repeat: no-repeat;
+}
+
+/* 纸剪云：浅色半透明，只做背景氛围，不抢主体 */
+.paper-cloud {
+  position: absolute;
+  z-index: 1;
+  width: 108rpx;
+  height: 38rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.58);
+  pointer-events: none;
+}
+
+.paper-cloud::before,
+.paper-cloud::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: inherit;
+}
+
+.paper-cloud::before {
+  left: 16rpx;
+  top: -22rpx;
+  width: 46rpx;
+  height: 46rpx;
+}
+
+.paper-cloud::after {
+  right: 14rpx;
+  top: -14rpx;
+  width: 32rpx;
+  height: 32rpx;
+}
+
+.cloud-mini {
+  width: 78rpx;
+  height: 28rpx;
+}
+
+.cloud-mini::before {
+  left: 12rpx;
+  top: -16rpx;
+  width: 34rpx;
+  height: 34rpx;
+}
+
+.cloud-mini::after {
+  right: 10rpx;
+  top: -10rpx;
+  width: 24rpx;
+  height: 24rpx;
+}
+
+/* 纸剪小星星：八角字形，用于点缀留白 */
+.paper-star {
+  position: absolute;
+  z-index: 1;
+  width: 16rpx;
+  height: 16rpx;
+  pointer-events: none;
+  background: rgba(199, 121, 63, 0.26);
+  clip-path: polygon(50% 0%, 60% 38%, 100% 50%, 60% 62%, 50% 100%, 40% 62%, 0% 50%, 40% 38%);
+}
+
+.paper-star-soft {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+/* 活页线圈：沿卡片左缘打孔 + 竖虚线折痕，给收藏本封面装订感 */
+.coil-bind {
+  position: absolute;
+  z-index: 2;
+  left: 7rpx;
+  top: 22rpx;
+  bottom: 22rpx;
+  width: 22rpx;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 50% 38%, rgba(116, 72, 40, 0.30) 0 4.5rpx, rgba(116, 72, 40, 0) 5.5rpx),
+    radial-gradient(circle at 50% 74%, rgba(255, 255, 255, 0.88) 0 3.5rpx, rgba(255, 255, 255, 0) 4.6rpx);
+  background-size: 22rpx 40rpx;
+  background-repeat: repeat-y;
+}
+
+.coil-bind::after {
+  content: '';
+  position: absolute;
+  top: 4rpx;
+  bottom: 4rpx;
+  right: -3rpx;
+  width: 2rpx;
+  background: repeating-linear-gradient(180deg, rgba(116, 72, 40, 0.16) 0 8rpx, rgba(116, 72, 40, 0) 8rpx 17rpx);
+}
+
+/* ---------- 手绘笔迹语汇 ---------- */
+/* 波浪下划线：像铅笔在标题下随手补的一道线 */
+.hand-wave {
+  position: relative;
+}
+
+.hand-wave::after {
+  content: '';
+  position: absolute;
+  left: -2rpx;
+  right: -2rpx;
+  bottom: -10rpx;
+  height: 12rpx;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 50% 100%, rgba(199, 121, 63, 0) 0 6.4rpx, rgba(199, 121, 63, 0.5) 6.4rpx 8.8rpx, rgba(199, 121, 63, 0) 8.8rpx);
+  background-size: 18rpx 12rpx;
+  background-repeat: repeat-x;
+}
+
+/* 短款波浪：居中一小段，用于大标题下的涂鸦 */
+.hand-wave-short::after {
+  left: 50%;
+  right: auto;
+  width: 180rpx;
+  margin-left: -90rpx;
+}
+
+/* 荧光笔：斜切高亮，压在文字背后 */
+.marker-highlight {
+  position: relative;
+  z-index: 0;
+}
+
+.marker-highlight::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: -8rpx;
+  right: -6rpx;
+  top: 16%;
+  bottom: 8%;
+  pointer-events: none;
+  border-radius: 4rpx 8rpx 6rpx 10rpx;
+  background: linear-gradient(96deg, rgba(255, 210, 92, 0) 0%, rgba(255, 210, 92, 0.62) 7%, rgba(255, 210, 92, 0.50) 55%, rgba(255, 210, 92, 0.66) 93%, rgba(255, 210, 92, 0) 100%);
+  transform: rotate(-1.2deg);
+}
+
+/* 柔和渐变面板 */
+.panel-warm {
+  background: linear-gradient(150deg, #ffeab8 0%, #ffd573 56%, #ffc85e 100%);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-caramel);
+}
+
+.panel-mint {
+  background: linear-gradient(150deg, #eaf7ec 0%, #d5eedd 100%);
+  border-radius: var(--r-lg);
+}
+
+.panel-sky {
+  background: linear-gradient(150deg, #eef5fd 0%, #dbe9f8 100%);
+  border-radius: var(--r-lg);
+}
+
+.panel-coral {
+  background: linear-gradient(150deg, #fff0e9 0%, #ffdfd2 100%);
+  border-radius: var(--r-lg);
+}
+
+/* ---------- 文本与徽标 ---------- */
+.en {
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+}
+
+.muted { color: var(--muted); }
+.faint { color: var(--faint); }
+
+/* 输入类统一占位色 */
+.textarea-placeholder { color: var(--faint); }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  color: var(--amber);
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 20rpx;
+  font-weight: 700;
+  letter-spacing: 3rpx;
+}
+
+.eyebrow-dot {
+  width: 10rpx;
+  height: 10rpx;
+  margin-right: 10rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffd25c, #f0912f);
+  box-shadow: 0 0 0 6rpx rgba(247, 183, 51, 0.16);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx 20rpx;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.72);
+  border: 2rpx solid var(--line);
+  color: var(--ink-2);
+  font-size: 21rpx;
+  font-weight: 700;
+}
+
+.pill-solid {
+  background: var(--amber-soft);
+  border-color: transparent;
+  color: var(--amber);
+}
+
+/* ---------- 通用布局 ---------- */
+.row { display: flex; align-items: center; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.divider {
+  height: 1rpx;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+}
+
+/* ---------- 加载 / 错误 ---------- */
+.loading {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+/* 加载与错误态统一用猫猫承接情绪，不再出现裸 spinner */
+.state-cat {
+  width: 176rpx !important;
+  height: 176rpx !important;
+}
+
+.spinner {
+  width: 52rpx;
+  height: 52rpx;
+  border-radius: 50%;
+  border: 5rpx solid rgba(168, 106, 17, 0.16);
+  border-top-color: var(--butter-2);
+  animation: spin 0.9s linear infinite;
+}
+
+.error-box {
+  margin: 100rpx 0 30rpx;
+  padding: 44rpx 34rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+  text-align: center;
+  background: var(--paper);
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-paper);
+}
+
+.error-text {
+  color: #b0503f;
+  font-size: 25rpx;
+  line-height: 1.7;
+}
+
+/* ---------- 底部固定操作栏 ---------- */
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  padding: 22rpx 32rpx calc(22rpx + env(safe-area-inset-bottom));
+  background-color: #fffaf0;
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(255, 244, 220, 0.22));
+  border-top: 2rpx dashed rgba(116, 72, 40, 0.20);
+  box-shadow: 0 -12rpx 28rpx rgba(116, 72, 40, 0.08);
+}
+
+.action-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+  font-size: 21rpx;
+  color: var(--muted);
+}
+
+.action-meta-strong {
+  font-size: 23rpx;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+/* ---------- 入场动效 ---------- */
+.enter { animation: rise 0.52s cubic-bezier(0.22, 0.8, 0.28, 1) both; }
+.d1 { animation-delay: 0.04s; }
+.d2 { animation-delay: 0.09s; }
+.d3 { animation-delay: 0.14s; }
+.d4 { animation-delay: 0.19s; }
+.d5 { animation-delay: 0.24s; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(20rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pop {
+  0% { opacity: 0; transform: scale(0.9); }
+  60% { opacity: 1; transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10rpx); }
+}
+
+@keyframes sheen {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(220%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter, .d1, .d2, .d3, .d4, .d5 {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .spinner { animation: none; }
+}
+
+/* 学习页通用的「看原文」入口：一小枚纸标签，不抢内容视觉 */
+.origin-entry {
+  display: flex;
+  justify-content: flex-end;
+  margin: 6rpx 0 14rpx;
+}
+
+.origin-entry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 24rpx;
+  border: 2rpx solid rgba(168, 106, 17, 0.34);
+  border-radius: 999rpx;
+  background: #fff8e6;
+  color: #8a5a0d;
+  font-size: 22rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  box-shadow: 3rpx 3rpx 0 rgba(168, 106, 17, 0.14);
+}
+
+.origin-entry-btn::before {
+  content: '';
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 999rpx;
+  background: #d08a2c;
+}

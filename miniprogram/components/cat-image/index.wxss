@@ -1,0 +1,55 @@
+.cat-wrap {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cat {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  animation: cat-bob 5.4s ease-in-out infinite;
+}
+
+.cat-halo {
+  position: absolute;
+  left: 2%;
+  right: 2%;
+  bottom: 4%;
+  height: 78%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 214, 120, 0.42), rgba(255, 214, 120, 0) 68%);
+}
+
+.cat-shadow {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: -2rpx;
+  height: 26rpx;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(116, 72, 40, 0.24) 0%, rgba(116, 72, 40, 0.08) 48%, rgba(116, 72, 40, 0) 74%);
+  animation: cat-shadow 5.4s ease-in-out infinite;
+}
+
+.small { width: 96rpx; height: 96rpx; }
+.medium { width: 152rpx; height: 152rpx; }
+.large { width: 206rpx; height: 206rpx; }
+.xl { width: 260rpx; height: 260rpx; }
+
+@keyframes cat-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8rpx) rotate(-1.2deg); }
+}
+
+@keyframes cat-shadow {
+  0%, 100% { transform: scaleX(1); opacity: 0.9; }
+  50% { transform: scaleX(0.86); opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cat, .cat-shadow { animation: none; }
+}

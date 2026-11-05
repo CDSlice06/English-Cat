@@ -1,0 +1,118 @@
+<view class="page profile tab-page">
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在读取云端记录…</text>
+  </view>
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新连接" bind:tap="load" />
+  </view>
+  <block wx:else>
+    <section-title eyebrow="MY SPACE" title="我的精读喵" description="认真学习，也认真休息。" />
+
+    <view class="id-card enter d1">
+      <view class="id-glow"></view>
+      <view class="id-tape"></view>
+      <view class="paper-star id-star"></view>
+      <view class="id-photo">
+        <cat-image custom-class="id-cat" name="pass-check" size="medium" />
+      </view>
+      <view class="id-copy">
+        <text class="id-kicker">DEEP READER</text>
+        <text class="id-name">深度阅读学习者</text>
+        <text class="id-goal">目标：吃透每一篇四级 / 六级文章</text>
+      </view>
+      <view class="id-badge">CET 4 / 6</view>
+    </view>
+
+    <view class="stat-grid enter d2">
+      <view class="stat-card tone-sun">
+        <text class="stat-value en">{{mastered}}</text>
+        <text class="stat-label">已掌握词汇</text>
+      </view>
+      <view class="stat-card tone-mint">
+        <text class="stat-value en">{{overview.passedDrills}}</text>
+        <text class="stat-label">累计通过题数</text>
+      </view>
+      <view class="stat-card tone-sky">
+        <text class="stat-value en">{{overview.masteredArticles}}<text class="stat-unit">篇</text></text>
+        <text class="stat-label">掌握篇数</text>
+      </view>
+    </view>
+
+    <view class="notebook-list enter d3">
+      <view class="shelf-card shelf-wordbook" bind:tap="goWordbook">
+        <view class="shelf-glow"></view>
+        <view class="shelf-tape"></view>
+        <view class="shelf-sticker">
+          <cat-image custom-class="shelf-cat" name="import-book" size="medium" />
+        </view>
+        <view class="shelf-copy">
+          <text class="shelf-kicker">MY WORDBOOK</text>
+          <text class="shelf-title">我的生词本</text>
+          <view class="shelf-split">
+            <view class="split-item">
+              <view class="dot dot-warn"></view>
+              <text>不记得 {{book.unknown}}</text>
+            </view>
+            <view class="split-item">
+              <view class="dot dot-ok"></view>
+              <text>记得 {{book.known}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="shelf-enter"></view>
+      </view>
+
+      <view class="shelf-card shelf-phrasebook" bind:tap="goPhrasebook">
+        <view class="shelf-glow"></view>
+        <view class="shelf-tape"></view>
+        <view class="shelf-sticker">
+          <cat-image custom-class="shelf-cat" name="reading-highlight" size="medium" />
+        </view>
+        <view class="shelf-copy">
+          <text class="shelf-kicker">MY PHRASEBOOK</text>
+          <text class="shelf-title">我的词组本</text>
+          <view class="shelf-split">
+            <view class="split-item">
+              <view class="dot dot-warn"></view>
+              <text>不记得 {{phraseBook.unknown}}</text>
+            </view>
+            <view class="split-item">
+              <view class="dot dot-ok"></view>
+              <text>记得 {{phraseBook.known}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="shelf-enter"></view>
+      </view>
+
+      <view class="shelf-card shelf-grammarbook" bind:tap="goGrammarbook">
+        <view class="shelf-glow"></view>
+        <view class="shelf-tape"></view>
+        <view class="shelf-sticker">
+          <cat-image custom-class="shelf-cat" name="idea-bulb" size="medium" />
+        </view>
+        <view class="shelf-copy">
+          <text class="shelf-kicker">MY GRAMMAR BOOK</text>
+          <text class="shelf-title">我的语法与句式本</text>
+          <view class="shelf-split">
+            <view class="split-item">
+              <view class="dot dot-coral"></view>
+              <text>已收藏 {{grammarBook.total}} 张语法卡</text>
+            </view>
+          </view>
+        </view>
+        <view class="shelf-enter"></view>
+      </view>
+    </view>
+
+    <text class="privacy">学习记录保存在你的云环境，上传的文档不会发送给第三方；换设备登录也能接着学。</text>
+
+    <view class="reset-zone enter d5">
+      <primary-button text="{{resetting ? '正在重置…' : '清除学习记录'}}" secondary="{{true}}" disabled="{{resetting}}" bind:tap="reset" />
+      <text class="version">英语精读喵 v1.0.0</text>
+    </view>
+  </block>
+</view>

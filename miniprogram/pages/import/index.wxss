@@ -1,0 +1,394 @@
+/* ---------- 步骤条 ---------- */
+.steps {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--card-gap);
+  padding: 20rpx 26rpx;
+  border-radius: var(--r-md);
+  background: rgba(255, 253, 249, 0.72);
+  border: 2rpx dashed rgba(168, 106, 17, 0.24);
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.step-num {
+  width: 36rpx;
+  height: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  background: linear-gradient(135deg, #ffd863, #f5b132);
+  color: #3a2a09;
+  font-size: var(--fs-note);
+  font-weight: 700;
+}
+
+.step-label {
+  color: var(--ink-2);
+  font-size: var(--fs-note);
+  font-weight: 700;
+}
+
+.step-line {
+  flex: 1;
+  height: 2rpx;
+  margin: 0 14rpx;
+  background: repeating-linear-gradient(90deg, rgba(168, 106, 17, 0.28) 0, rgba(168, 106, 17, 0.28) 8rpx, transparent 8rpx, transparent 16rpx);
+}
+
+/* ---------- 文件卡：一张卡的两态 ---------- */
+.file-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  border: 2rpx dashed rgba(168, 106, 17, 0.30);
+  background: #fffdf8;
+  box-shadow: var(--shadow-paper);
+  transition: border-color 0.16s ease;
+}
+
+/* 顶边一条胶带，把文件纸卡钉在页面上 */
+.file-tape {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 0;
+  width: 112rpx;
+  height: 28rpx;
+  margin-left: -56rpx;
+  pointer-events: none;
+  background: rgba(255, 226, 160, 0.9);
+  border-left: 2rpx dashed rgba(116, 72, 40, 0.14);
+  border-right: 2rpx dashed rgba(116, 72, 40, 0.14);
+  transform: rotate(-3deg);
+  transform-origin: left top;
+}
+
+/* 已选文件：虚线换成实线，像贴好的一张纸 */
+.file-card-on {
+  border-style: solid;
+  border-color: var(--paper-line);
+}
+
+.file-head {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  min-height: 148rpx;
+  padding: 24rpx 24rpx;
+}
+
+.file-head-hover {
+  background: rgba(255, 220, 139, 0.18);
+}
+
+.file-badge {
+  position: relative;
+  flex: 0 0 auto;
+  width: 84rpx;
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  background: linear-gradient(160deg, #ffe3a6, #f7bd45);
+}
+
+.file-badge-empty {
+  background: #fffdf9;
+  border: 2rpx dashed rgba(168, 106, 17, 0.34);
+}
+
+.file-badge-pdf {
+  background: linear-gradient(160deg, #ffd8cd, #f0977c);
+}
+
+.file-ext {
+  font-size: var(--fs-note);
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  color: #5a3f0d;
+}
+
+.file-badge-pdf .file-ext { color: #7a2f1d; }
+
+/* 空态徽章：手绘加号 */
+.file-plus {
+  position: relative;
+  width: 26rpx;
+  height: 26rpx;
+}
+
+.file-plus::before,
+.file-plus::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: #a2823f;
+  border-radius: 2rpx;
+}
+
+.file-plus::before {
+  width: 26rpx;
+  height: 3rpx;
+  transform: translate(-50%, -50%) rotate(-2deg);
+}
+
+.file-plus::after {
+  width: 3rpx;
+  height: 26rpx;
+  transform: translate(-50%, -50%) rotate(2deg);
+}
+
+.file-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.file-name {
+  font-size: var(--fs-sub);
+  font-weight: 700;
+  color: var(--ink);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.file-meta {
+  color: var(--muted);
+  font-size: var(--fs-note);
+  line-height: 1.5;
+}
+
+.file-remove {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  padding: 0 18rpx;
+  margin-right: -10rpx;
+  color: #a04b3f;
+  font-size: var(--fs-note);
+}
+
+/* 未选文件时的右缘箭头，提示这里可以点 */
+.file-enter {
+  flex: 0 0 auto;
+  width: 18rpx;
+  height: 18rpx;
+  margin-right: 8rpx;
+  border-top: 2rpx solid #a8957b;
+  border-right: 2rpx solid #a8957b;
+  border-radius: 0 2rpx 0 0;
+  transform: rotate(45deg);
+}
+
+.file-hint {
+  padding: 18rpx 24rpx 26rpx;
+  border-top: 2rpx dashed rgba(168, 106, 17, 0.22);
+  background: rgba(255, 248, 230, 0.52);
+}
+
+.file-hint-text {
+  display: block;
+  color: var(--muted);
+  font-size: var(--fs-note);
+  line-height: 1.7;
+}
+
+/* 整卷真题的裁剪提示：比普通说明更显眼，但保持纸卡风格（浅黄底 + 咖色左边线） */
+.file-hint-note {
+  display: block;
+  margin-top: 14rpx;
+  padding: 14rpx 18rpx;
+  border-left: 6rpx solid #d99a2b;
+  border-radius: var(--r-sm);
+  background: rgba(255, 242, 205, 0.72);
+  color: #7a5514;
+  font-size: var(--fs-note);
+  line-height: 1.72;
+}
+
+.file-hint-warn {
+  color: #a8551a;
+  font-weight: 700;
+}
+
+.file-tags {
+  display: flex;
+  gap: 10rpx;
+  margin-top: 14rpx;
+}
+
+.file-tag {
+  padding: 4rpx 14rpx;
+  border-radius: var(--r-pill);
+  background: #fff2cd;
+  color: #8a5a0d;
+  font-size: var(--fs-note);
+}
+
+/* ---------- 操作 ---------- */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+  margin-top: 30rpx;
+}
+
+.manual-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  min-height: 88rpx;
+  margin-top: 6rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+  text-decoration: underline;
+}
+
+.manual-arrow {
+  width: 14rpx;
+  height: 14rpx;
+  margin-top: -1rpx;
+  border-top: 2rpx solid currentColor;
+  border-right: 2rpx solid currentColor;
+  border-radius: 0 2rpx 0 0;
+  transform: rotate(45deg);
+}
+
+/* ---------- 解析浮层 ---------- */
+.processing-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 56rpx;
+  background: rgba(44, 37, 26, 0.42);
+}
+
+.processing-card {
+  width: 100%;
+  padding: 40rpx 34rpx 34rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-radius: var(--r-lg);
+  background: linear-gradient(165deg, #fffdf8 0%, #fff8e8 100%);
+  border: 2rpx solid var(--paper-line);
+  box-shadow: var(--shadow-paper);
+  animation: pop 0.3s ease both;
+}
+
+/* 解析浮层也按纸卡处理：顶边胶带 + 猫猫贴纸 */
+.processing-tape {
+  position: absolute;
+  top: -12rpx;
+  left: 50%;
+  width: 116rpx;
+  height: 28rpx;
+  margin-left: -58rpx;
+  pointer-events: none;
+  background: rgba(255, 226, 160, 0.94);
+  border-left: 2rpx dashed rgba(116, 72, 40, 0.14);
+  border-right: 2rpx dashed rgba(116, 72, 40, 0.14);
+  transform: rotate(-4deg);
+}
+
+.processing-sticker {
+  align-self: center;
+  padding: 5rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.18);
+  border-radius: var(--r-md);
+  background: #fffdf8;
+  box-shadow: 4rpx 5rpx 0 rgba(116, 72, 40, 0.12);
+  transform: rotate(-3deg);
+}
+
+.processing-title {
+  margin-top: 6rpx;
+  font-size: var(--fs-sub);
+  font-weight: 700;
+}
+
+.processing-text {
+  margin-top: 10rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+.processing-track {
+  width: 100%;
+  height: 12rpx;
+  margin-top: 26rpx;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: #f1e5cd;
+}
+
+.processing-fill {
+  width: 42%;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, #ffd25c, #f3ab27);
+  animation: processing-move 1.2s ease-in-out infinite;
+}
+
+/* 上传阶段改成真实进度：宽度由进度决定，不再来回扫 */
+.processing-fill-progress {
+  animation: none;
+  transition: width 0.2s linear;
+}
+
+.processing-cancel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  margin-top: 6rpx;
+  padding: 0 24rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+.processing-cancel text {
+  border-bottom: 2rpx dashed currentColor;
+  padding-bottom: 2rpx;
+}
+
+.processing-tip {
+  margin-top: 18rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+  line-height: 1.6;
+}
+
+@keyframes processing-move {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(250%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .file-card { transition: none; }
+  .processing-card { animation: none; }
+  /* 进度条是「还在处理」的功能性反馈，不能停成静止色块（会被当成卡死）；
+     减弱动态时放慢扫描速度，其余装饰动画照旧关闭 */
+  .processing-fill { animation-duration: 2s; }
+}

@@ -1,0 +1,95 @@
+<view class="page preview-page">
+  <view wx:if="{{loading}}" class="state">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text class="state-title">正在拆解这篇要学什么</text>
+    <text class="state-text">单词、词组、语法和译文需要十几秒，猫猫正在读…</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="state">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="state-title">{{mode === 'article' ? '这篇没打开' : '预览没有完成'}}</text>
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新预览" bind:tap="retry" />
+    <text class="state-link" bindtap="cancel">{{backText}}</text>
+  </view>
+
+  <block wx:else>
+    <view class="head enter">
+      <text class="kicker en">{{kicker}}</text>
+      <text class="head-title">{{headTitle}}</text>
+      <text class="head-meta">{{metaLine}} · {{wordCount}} words</text>
+      <text wx:if="{{total > 1}}" class="head-note">本次共 {{total}} 篇，这里预览第 1 篇，其余会一并存入题库</text>
+    </view>
+
+    <view class="paper-card enter d1">
+      <view class="preview-tape"></view>
+      <view class="card-head">
+        <text class="card-title">文章</text>
+        <text class="card-hint">原文只存放在你的账号</text>
+      </view>
+      <scroll-view class="origin-box" scroll-y enhanced show-scrollbar="{{false}}">
+        <text wx:for="{{articleParagraphs}}" wx:key="*this" class="origin-text en">{{item}}</text>
+      </scroll-view>
+    </view>
+
+    <view class="paper-card enter d2">
+      <view class="card-head">
+        <text class="card-title">译文</text>
+        <text wx:if="{{translationLoading}}" class="card-hint">生成中…</text>
+      </view>
+      <block wx:if="{{translationParagraphs.length}}">
+        <text wx:for="{{translationParagraphs}}" wx:key="*this" class="translation-text">{{item}}</text>
+      </block>
+      <view wx:elif="{{translationLoading}}" class="inline-state">
+        <text class="inline-text">猫猫正在逐句翻译…</text>
+      </view>
+      <view wx:else class="inline-state">
+        <text class="inline-text">{{translationError || '译文还没生成'}}</text>
+        <text class="retry-link" bindtap="retryTranslation">重试译文</text>
+      </view>
+    </view>
+
+    <view class="paper-card enter d3">
+      <view class="card-head">
+        <text class="card-title">这篇的学习目标</text>
+        <text class="card-hint">{{mode === 'article' ? '确认后按这个清单学' : '导入后按这个清单学'}}</text>
+      </view>
+
+      <view class="goal-row">
+        <view wx:for="{{goals}}" wx:key="key" class="goal-item">
+          <text class="goal-count en">{{item.count}}</text>
+          <text class="goal-label">{{item.label}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{wordList.length}}" class="list-block">
+        <text class="list-title">单词 · {{wordList.length}}</text>
+        <view wx:for="{{wordList}}" wx:key="word" class="list-row">
+          <text class="list-key en">{{item.word}}</text>
+          <text class="list-val">{{item.meaning}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{phraseList.length}}" class="list-block">
+        <text class="list-title">词组与固定搭配 · {{phraseList.length}}</text>
+        <view wx:for="{{phraseList}}" wx:key="phrase" class="list-row">
+          <text class="list-key en">{{item.phrase}}</text>
+          <text class="list-val">{{item.meaning}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{grammarList.length}}" class="list-block">
+        <text class="list-title">语法与句式 · {{grammarList.length}}</text>
+        <view wx:for="{{grammarList}}" wx:key="pattern" class="list-row list-row-block">
+          <text class="list-key">{{item.pattern}}</text>
+          <text class="list-sentence en">{{item.sentence}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="action-bar">
+      <text class="btn-ghost" bindtap="cancel">再看看</text>
+      <text class="btn-primary {{importing ? 'is-busy' : ''}}" bindtap="confirm">{{importing ? busyText : actionText}}</text>
+    </view>
+  </block>
+</view>

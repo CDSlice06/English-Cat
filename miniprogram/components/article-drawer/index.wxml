@@ -1,0 +1,24 @@
+<view wx:if="{{visible}}" class="origin-mask" bindtap="close" catchtouchmove="noop">
+  <view class="origin-sheet" catchtap="noop">
+    <view class="origin-head">
+      <view class="origin-title-wrap">
+        <text class="origin-kicker en">ORIGINAL TEXT</text>
+        <text class="origin-title">文章原文</text>
+      </view>
+      <text class="origin-close" bindtap="close">收起</text>
+    </view>
+
+    <scroll-view class="origin-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+      <view
+        wx:for="{{sentences}}"
+        wx:key="id"
+        class="origin-line {{item.active ? 'origin-active' : ''}}"
+      >
+        <text class="origin-text en">{{item.value}}</text>
+      </view>
+      <view class="origin-foot">
+        <text>原文只存放于你的账号，随手可对照</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>

@@ -1,0 +1,166 @@
+<view class="page wordbook" bind:tap="closeSuggest">
+  <section-title eyebrow="MY WORDBOOK" title="我的生词本" description="遇到不认识的词就收进来；真正记住以后，再亲手把它点亮。" />
+
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在读取你的词库…</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新加载" bind:tap="reload" />
+  </view>
+
+  <block wx:else>
+    <view class="shelf-hero enter d1">
+      <view class="coil-bind"></view>
+      <view class="shelf-glow"></view>
+      <view class="shelf-tape"></view>
+      <view class="shelf-sticker">
+        <cat-image custom-class="shelf-cat" name="import-book" size="medium" />
+      </view>
+      <view class="shelf-copy">
+        <text class="shelf-kicker">WORDS COLLECTED</text>
+        <view class="shelf-number-row">
+          <text class="shelf-number en">{{counts.total}}</text>
+          <text class="shelf-unit">个词</text>
+        </view>
+        <view class="shelf-split">
+          <view class="split-item">
+            <view class="dot dot-warn"></view>
+            <text>不记得 {{counts.unknown}}</text>
+          </view>
+          <view class="split-item">
+            <view class="dot dot-ok"></view>
+            <text>记得 {{counts.known}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="review-entry enter d2" hover-class="review-entry-hover" bindtap="goReview">
+      <view class="review-entry-icon">
+        <cat-image name="pass-check" size="small" />
+      </view>
+      <view class="review-entry-copy">
+        <text class="review-entry-title">今日复习</text>
+        <text class="review-entry-desc">{{counts.unknown ? '从「不记得」的 ' + counts.unknown + ' 个词里挑一批，最久没看的先来' : '「不记得」列表已经清空，暂时没有要复习的词'}}</text>
+      </view>
+      <text class="review-entry-go">开始</text>
+    </view>
+
+    <view class="add-card enter d2" catchtap="noop">
+      <view class="add-row">
+        <input
+          class="add-input"
+          value="{{draft}}"
+          placeholder="输入不认识的单词，例如 cognitive"
+          placeholder-class="add-placeholder"
+          confirm-type="done"
+          bind:input="onInput"
+          bind:confirm="submitWord"
+          bind:focus="onFocus"
+          bindkeyboardheightchange="onKeyboardHeightChange"
+        />
+        <view class="add-btn {{draft ? '' : 'add-btn-off'}}" bind:tap="submitWord">{{adding ? '添加中' : '收进词库'}}</view>
+      </view>
+
+      <scroll-view
+        wx:if="{{suggestions.length}}"
+        class="suggest-box"
+        style="max-height: {{suggestMax}}px"
+        scroll-y
+        catchtap="noop"
+      >
+        <view
+          wx:for="{{suggestions}}"
+          wx:key="word"
+          class="suggest-item"
+          hover-class="suggest-item-hover"
+          bind:tap="pickSuggest"
+          data-word="{{item.word}}"
+        >
+          <view class="suggest-main">
+            <text class="suggest-word en">{{item.word}}</text>
+            <text class="suggest-phonetic">{{item.phonetic}}</text>
+          </view>
+          <text class="suggest-def">{{item.meaningText}}</text>
+        </view>
+      </scroll-view>
+
+      <text class="add-hint">输入两个字母以上会给查询建议，点一下直接补全拼写；词表里查不到的词也能先收进来。</text>
+    </view>
+
+    <view class="segmented enter d3">
+      <view class="seg {{tab === 'unknown' ? 'seg-on' : ''}}" bind:tap="switchTab" data-tab="unknown">
+        <text>不记得</text>
+        <text class="seg-count">{{counts.unknown}}</text>
+      </view>
+      <view class="seg {{tab === 'known' ? 'seg-on' : ''}}" bind:tap="switchTab" data-tab="known">
+        <text>记得</text>
+        <text class="seg-count">{{counts.known}}</text>
+      </view>
+    </view>
+
+    <view class="freq-legend" bind:tap="showFreqHelp">
+      <text>词频星级取自 COCA / BNC 真实语料排名</text>
+      <text class="freq-legend-mark">?</text>
+    </view>
+
+    <view class="list">
+      <view
+        wx:for="{{words}}"
+        wx:key="id"
+        class="wb-card {{item.state === 'known' ? 'wb-known' : ''}}"
+      >
+        <view class="wb-accent"></view>
+        <view class="wb-top">
+          <view class="wb-main">
+            <text class="wb-word en">{{item.word}}</text>
+            <text class="wb-phonetic">{{item.phonetic}}</text>
+            <view wx:if="{{item.freq}}" class="wb-meta">
+              <view class="wb-stars">
+                <view
+                  wx:for="{{[1, 2, 3]}}"
+                  wx:for-item="level"
+                  wx:key="*this"
+                  class="wb-star {{level <= item.freq ? 'wb-star-on' : ''}}"
+                ></view>
+              </view>
+              <text class="wb-freq">{{item.freq >= 3 ? '高频' : (item.freq === 2 ? '中频' : '低频')}}</text>
+            </view>
+            <view class="wb-speak"><speak-btn word="{{item.word}}" /></view>
+          </view>
+          <view class="wb-remove" bind:tap="removeItem" data-id="{{item.id}}">移除</view>
+        </view>
+
+        <meaning-list wx:if="{{item.meanings.length}}" meanings="{{item.meanings}}" />
+        <text wx:else class="wb-nomap">暂未收录释义，回到原文结合语境记忆更牢。</text>
+
+        <view class="wb-foot">
+          <text class="wb-source">{{item.sourceLabel}}</text>
+          <view
+            wx:if="{{item.state !== 'known'}}"
+            class="wb-know {{busyId === item.id ? 'wb-know-busy' : ''}}"
+            bind:tap="tapKnown"
+            data-id="{{item.id}}"
+          >
+            <view class="wb-check"></view>
+            <text>{{busyId === item.id ? '保存中…' : '我记住了'}}</text>
+          </view>
+          <view wx:else class="wb-done">
+            <view class="wb-done-mark"></view>
+            <text>已记住</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{!words.length}}" class="empty">
+      <cat-image name="{{tab === 'known' ? 'complete-halo' : 'not-found'}}" size="large" />
+      <text class="empty-title">{{tab === 'known' ? '记住的词还没有搬进来' : '词库空着，猫趴在上面打盹'}}</text>
+      <text class="empty-text">{{tab === 'known' ? '在不记得列表点「我记住了」，它就搬到这里住下。' : '读到不认识的词，点「加入生词本」，它就归你了。'}}</text>
+    </view>
+  </block>
+</view>

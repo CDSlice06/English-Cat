@@ -1,0 +1,127 @@
+<view class="page grammarbook">
+  <section-title eyebrow="MY GRAMMAR BOOK" title="我的语法与句式本" description="收藏难理解的结构，把理解、翻译和例句留在同一页。" />
+
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在翻开你的语法笔记…</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新加载" bind:tap="reload" />
+  </view>
+
+  <block wx:else>
+    <view class="shelf-hero enter d1">
+      <view class="coil-bind"></view>
+      <view class="shelf-glow"></view>
+      <view class="shelf-tape"></view>
+      <view class="shelf-sticker">
+        <cat-image custom-class="shelf-cat" name="idea-bulb" size="medium" />
+      </view>
+      <view class="shelf-copy">
+        <text class="shelf-kicker">GRAMMAR COLLECTED</text>
+        <view class="shelf-number-row">
+          <text class="shelf-number en">{{counts.total}}</text>
+          <text class="shelf-unit">张语法卡</text>
+        </view>
+        <text class="shelf-caption">跨文章收藏，随时回来重读</text>
+      </view>
+    </view>
+
+    <view class="grammar-list enter d2">
+      <view wx:for="{{items}}" wx:key="id" class="grammar-card">
+        <view class="grammar-head">
+          <view class="grammar-heading">
+            <text class="grammar-key">{{item.key}}</text>
+            <text class="grammar-title">{{item.title}}</text>
+          </view>
+          <view class="grammar-remove" bind:tap="removeItem" data-id="{{item.id}}">{{removingId === item.id ? '移除中…' : '移除'}}</view>
+        </view>
+
+        <view wx:if="{{item.sentence}}" class="grammar-sentence">
+          <text class="grammar-label">文章原句</text>
+          <text class="grammar-sentence-text en">{{item.sentence}}</text>
+        </view>
+
+        <view wx:if="{{item.understanding}}" class="grammar-understanding">
+          <text class="grammar-label">怎么理解</text>
+          <text class="grammar-body">{{item.understanding}}</text>
+          <view wx:if="{{item.steps.length}}" class="step-list">
+            <view
+              wx:for="{{item.steps}}"
+              wx:for-item="step"
+              wx:for-index="stepIndex"
+              wx:key="title"
+              class="step-row"
+            >
+              <text class="step-index en">{{stepIndex + 1}}</text>
+              <view class="step-body">
+                <text class="step-title">{{step.title}}</text>
+                <text class="step-detail">{{step.detail}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{item.translation}}" class="grammar-section">
+          <text class="grammar-label">怎么翻译</text>
+          <view wx:if="{{item.chunks.length}}" class="chunk-list">
+            <view wx:for="{{item.chunks}}" wx:for-item="chunk" wx:key="en" class="chunk-row">
+              <text class="chunk-en en">{{chunk.en}}</text>
+              <text class="chunk-arrow">→</text>
+              <text class="chunk-zh">{{chunk.zh}}</text>
+            </view>
+            <text class="chunk-label">整句连起来</text>
+          </view>
+          <text class="grammar-body">{{item.translation}}</text>
+        </view>
+
+        <view wx:if="{{item.usageTip || item.usage}}" class="grammar-section usage-block">
+          <text class="grammar-label">用法要点</text>
+          <text wx:if="{{item.usageTip}}" class="usage-tip">{{item.usageTip}}</text>
+          <text wx:if="{{item.usage.summary}}" class="usage-summary">{{item.usage.summary}}</text>
+          <view
+            wx:for="{{item.usage.items}}"
+            wx:for-item="note"
+            wx:key="q"
+            class="usage-item"
+          >
+            <text class="usage-q">{{note.q}}</text>
+            <text class="usage-a">{{note.a}}</text>
+            <view wx:if="{{note.good}}" class="usage-example usage-good">
+              <view class="usage-mark"></view>
+              <text class="usage-example-text en">{{note.good}}</text>
+            </view>
+            <view wx:if="{{note.bad}}" class="usage-example usage-bad">
+              <view class="usage-mark"></view>
+              <text class="usage-example-text en">{{note.bad}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{item.examples.length}}" class="grammar-section">
+          <text class="grammar-label">同结构例句</text>
+          <view class="example-list">
+            <view wx:for="{{item.examples}}" wx:for-item="example" wx:for-index="exampleIndex" wx:key="exampleIndex" class="example-card">
+              <text class="example-en en">{{example.en}}</text>
+              <text class="example-zh">{{example.zh}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="grammar-foot">
+          <text class="grammar-source">{{item.sourceLabel}}</text>
+          <text class="grammar-stamp">已收藏</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{!items.length}}" class="empty">
+      <cat-image name="not-found" size="large" />
+      <text class="empty-title">语法本还没夹进第一页</text>
+      <text class="empty-text">在「语法与句式」页点「收藏到语法本」，难懂的结构就留在手边。</text>
+    </view>
+  </block>
+</view>

@@ -1,0 +1,3 @@
+<view class="button {{secondary ? 'secondary' : ''}} {{disabled ? 'disabled' : ''}} custom-class" hover-class="pressed" hover-stay-time="80" bindtap="handleTap">
+  <text class="button-text">{{text}}</text>
+</view>

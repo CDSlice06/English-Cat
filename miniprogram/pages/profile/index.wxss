@@ -1,0 +1,361 @@
+.id-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: 30rpx 28rpx;
+  border-radius: var(--r-lg);
+  background: linear-gradient(150deg, #fff7e0 0%, #ffe9b0 55%, #ffdd94 100%);
+  border: 2rpx solid rgba(116, 72, 40, 0.22);
+  box-shadow: var(--shadow-caramel);
+}
+
+.id-glow {
+  position: absolute;
+  top: -100rpx;
+  left: -40rpx;
+  width: 260rpx;
+  height: 260rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 244, 214, 0.9), rgba(255, 233, 182, 0) 70%);
+}
+
+/* 会员卡左上角贴纸胶带，压在卡片边缘内侧（卡片 overflow:hidden） */
+.id-tape {
+  position: absolute;
+  z-index: 3;
+  left: 26rpx;
+  top: 0;
+  width: 104rpx;
+  height: 30rpx;
+  pointer-events: none;
+  background: rgba(255, 248, 226, 0.82);
+  border-left: 2rpx dashed rgba(116, 72, 40, 0.16);
+  border-right: 2rpx dashed rgba(116, 72, 40, 0.16);
+  transform: rotate(-5deg);
+  transform-origin: left top;
+}
+
+.id-star {
+  right: 150rpx;
+  bottom: 18rpx;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+/* 证件照式白卡相框：白边 + 硬影 + 微微歪贴 */
+.id-photo {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  padding: 8rpx 8rpx 6rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.28);
+  border-radius: var(--r-md);
+  background: #fffdf8;
+  box-shadow: 4rpx 5rpx 0 rgba(116, 72, 40, 0.14);
+  transform: rotate(-4deg);
+}
+
+.id-cat {
+  position: relative !important;
+  z-index: 1;
+  width: 140rpx !important;
+  height: 140rpx !important;
+  flex-shrink: 0;
+}
+
+.id-copy {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+  margin-left: 20rpx;
+}
+
+.id-kicker {
+  display: block;
+  color: #8a5a0d;
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 18rpx;
+  font-weight: 700;
+  letter-spacing: 2.5rpx;
+}
+
+.id-name {
+  display: block;
+  margin-top: 10rpx;
+  color: #33280f;
+  font-size: var(--fs-sub);
+  font-weight: 700;
+}
+
+.id-goal {
+  display: block;
+  margin-top: 10rpx;
+  color: #7a5713;
+  font-size: var(--fs-note);
+  line-height: 1.6;
+}
+
+.id-badge {
+  position: absolute;
+  right: 24rpx;
+  top: 22rpx;
+  padding: 6rpx 16rpx;
+  border-radius: var(--r-pill);
+  background: rgba(255, 253, 249, 0.78);
+  color: #8a5a0d;
+  font-size: 20rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+/* ---------- 数据 ---------- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14rpx;
+  margin: 24rpx 0;
+}
+
+/* 三张统计卡改成撕口小票：虚线边 + 各自歪一点，像夹在本子里的收据 */
+.stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx 10rpx 22rpx;
+  border-radius: var(--r-sm);
+  border: 2rpx dashed rgba(116, 72, 40, 0.24);
+  background: rgba(255, 251, 240, 0.92);
+}
+
+.stat-card:nth-child(1) { transform: rotate(-1.4deg); }
+.stat-card:nth-child(2) { transform: rotate(1deg); }
+.stat-card:nth-child(3) { transform: rotate(-0.8deg); }
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 12rpx;
+  left: 50%;
+  width: 14rpx;
+  height: 14rpx;
+  margin-left: -7rpx;
+  border-radius: 50%;
+}
+
+/* 小票底部的锯齿撕口 */
+.stat-card::after {
+  content: '';
+  position: absolute;
+  left: 12rpx;
+  right: 12rpx;
+  bottom: 7rpx;
+  height: 6rpx;
+  background-image: radial-gradient(circle at 50% 0, rgba(116, 72, 40, 0.16) 0 2.4rpx, rgba(116, 72, 40, 0) 2.6rpx);
+  background-size: 12rpx 6rpx;
+  background-repeat: repeat-x;
+}
+
+.tone-sun::before { background: #f0b43c; }
+.tone-mint::before { background: #5fa87c; }
+.tone-sky::before { background: #7fa9d0; }
+
+.stat-value {
+  color: var(--ink);
+  font-size: 44rpx;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.stat-unit {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.stat-label {
+  margin-top: 8rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+/* ---------- 三个笔记本入口 ---------- */
+.notebook-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.shelf-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: var(--card-pad-y);
+  border-radius: var(--r-lg);
+  background: #fffdf9;
+  border: 2rpx solid var(--paper-line);
+  box-shadow: var(--shadow-paper);
+  transition: transform 0.16s ease;
+}
+
+.shelf-card:active { transform: scale(0.99); }
+
+/* 笔记本色标：像三本不同颜色的本子立在书架上 */
+.shelf-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 30rpx;
+  bottom: 30rpx;
+  width: 9rpx;
+  border-radius: 0 8rpx 8rpx 0;
+  background: #e5b055;
+  opacity: 0.9;
+}
+
+.shelf-phrasebook::before { background: #7fa9d0; }
+.shelf-grammarbook::before { background: #ef8368; }
+
+/* 三张卡共用同一种纸底，只保留同一处暖色光晕 */
+.shelf-glow {
+  position: absolute;
+  top: -120rpx;
+  right: -60rpx;
+  width: 260rpx;
+  height: 260rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 214, 120, 0.34), rgba(255, 214, 120, 0) 70%);
+}
+
+/* 每本笔记本顶边压一条和纸胶带，像手帐里贴上去的索引贴 */
+.shelf-tape {
+  position: absolute;
+  z-index: 3;
+  left: 40rpx;
+  top: 2rpx;
+  width: 96rpx;
+  height: 26rpx;
+  pointer-events: none;
+  background: rgba(255, 232, 176, 0.86);
+  border-left: 2rpx dashed rgba(116, 72, 40, 0.14);
+  border-right: 2rpx dashed rgba(116, 72, 40, 0.14);
+  transform: rotate(-5deg);
+}
+
+.shelf-phrasebook .shelf-tape { background: rgba(206, 229, 248, 0.9); }
+.shelf-grammarbook .shelf-tape { background: rgba(255, 216, 203, 0.9); }
+
+/* 猫猫贴成白边贴纸，脱离卡片底色 */
+.shelf-sticker {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  padding: 4rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.18);
+  border-radius: var(--r-md);
+  background: #fffdf8;
+  box-shadow: 3rpx 4rpx 0 rgba(116, 72, 40, 0.12);
+  transform: rotate(-4deg);
+}
+
+.shelf-phrasebook .shelf-sticker { transform: rotate(3deg); }
+.shelf-grammarbook .shelf-sticker { transform: rotate(-3deg); }
+
+.shelf-cat {
+  position: relative !important;
+  z-index: 1;
+  width: 116rpx !important;
+  height: 116rpx !important;
+  flex-shrink: 0;
+}
+
+.shelf-copy {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+.shelf-kicker {
+  display: block;
+  color: var(--muted);
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 18rpx;
+  font-weight: 700;
+  letter-spacing: 2.5rpx;
+}
+
+.shelf-wordbook .shelf-kicker { color: #8a5a0d; }
+.shelf-phrasebook .shelf-kicker { color: #4a6f92; }
+.shelf-grammarbook .shelf-kicker { color: #a04b3f; }
+
+.shelf-title {
+  display: block;
+  margin-top: 6rpx;
+  color: var(--ink);
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.shelf-split {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-top: 10rpx;
+}
+
+.split-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+}
+
+.dot-warn { background: #ef8368; }
+.dot-ok { background: #5fa87c; }
+.dot-coral { background: #ef8368; }
+
+.shelf-enter {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 22rpx;
+  height: 22rpx;
+  margin-right: 10rpx;
+  border-right: 2rpx solid #a8957b;
+  border-bottom: 2rpx solid #a8957b;
+  border-radius: 0 0 3rpx 0;
+  transform: rotate(-45deg);
+}
+
+.privacy {
+  display: block;
+  margin: 20rpx 8rpx 0;
+  color: var(--muted);
+  font-size: var(--fs-note);
+  line-height: 1.7;
+}
+
+.reset-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  margin-top: 32rpx;
+}
+
+.version {
+  text-align: center;
+  color: var(--faint);
+  font-size: 20rpx;
+  letter-spacing: 1rpx;
+}

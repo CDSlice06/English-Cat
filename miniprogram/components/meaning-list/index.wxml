@@ -1,0 +1,7 @@
+<view class="list">
+  <view wx:for="{{list}}" wx:key="key" class="item {{compact ? 'compact' : ''}}">
+    <text class="pos pos-{{item.tone}}">{{item.pos}}</text>
+    <text wx:if="{{item.rare}}" class="rare-tag">生义</text>
+    <text class="definition {{item.rare ? 'definition-rare' : ''}}">{{item.definition}}</text>
+  </view>
+</view>

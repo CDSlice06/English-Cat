@@ -1,0 +1,276 @@
+/* ---------- 概览 ---------- */
+.overview-card {
+  position: relative;
+  overflow: hidden;
+  padding: var(--card-pad-y);
+  border-radius: var(--r-lg);
+  background-color: #fffdf6;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(111, 145, 173, 0.07) 0,
+    rgba(111, 145, 173, 0.07) 1rpx,
+    transparent 1rpx,
+    transparent 52rpx
+  );
+  border: 2rpx solid rgba(111, 145, 173, 0.34);
+  box-shadow: 7rpx 8rpx 0 rgba(111, 145, 173, 0.16);
+}
+
+/* 顶部贴一条和纸胶带，和首页保持同一套贴纸语言 */
+.overview-card::before {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  top: 3rpx;
+  left: 32rpx;
+  width: 116rpx;
+  height: 30rpx;
+  background: rgba(255, 226, 160, 0.9);
+  border-left: 2rpx dashed rgba(116, 72, 40, 0.14);
+  border-right: 2rpx dashed rgba(116, 72, 40, 0.14);
+  pointer-events: none;
+  transform: rotate(-7deg);
+}
+
+.overview-copy {
+  padding-right: 120rpx;
+}
+
+.overview-kicker {
+  display: block;
+  color: var(--amber);
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 18rpx;
+  font-weight: 700;
+  letter-spacing: 2.5rpx;
+}
+
+.overview-title {
+  display: block;
+  margin-top: 8rpx;
+  color: var(--ink);
+  font-size: var(--fs-sub);
+  font-weight: 700;
+}
+
+.overview-sub {
+  display: block;
+  margin-top: 6rpx;
+  color: var(--muted);
+  font-size: 21rpx;
+}
+
+.overview-badge {
+  position: absolute;
+  right: 22rpx;
+  top: 26rpx;
+  padding: 6rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(168, 106, 17, 0.09);
+  color: #8a6a2d;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+/* 猫猫直接贴成一张带白边的贴纸 */
+.overview-cat {
+  position: absolute !important;
+  right: 14rpx;
+  bottom: 12rpx;
+  width: 84rpx !important;
+  height: 84rpx !important;
+  padding: 5rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.22);
+  border-radius: var(--r-md);
+  background: #fffdf8;
+  box-shadow: 3rpx 4rpx 0 rgba(116, 72, 40, 0.10);
+  transform: rotate(5deg);
+}
+
+/* ---------- 词组卡 ---------- */
+.phrase-card {
+  position: relative;
+  margin-top: var(--card-gap);
+  padding: var(--card-pad-y);
+  overflow: hidden;
+  border: 2rpx solid rgba(111, 145, 173, 0.26);
+  border-radius: 22rpx 30rpx 24rpx 28rpx;
+  background-color: #fffef9;
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0,
+    transparent 55rpx,
+    rgba(111, 145, 173, 0.065) 55rpx,
+    rgba(111, 145, 173, 0.065) 56rpx
+  );
+  box-shadow: 5rpx 6rpx 0 rgba(111, 145, 173, 0.12);
+}
+
+/* 卡顶那一条改成和纸胶带的质感 */
+.phrase-card::before {
+  content: '';
+  position: absolute;
+  top: 3rpx;
+  left: 24rpx;
+  width: 84rpx;
+  height: 22rpx;
+  border-radius: 2rpx;
+  border-left: 2rpx dashed rgba(75, 64, 52, 0.10);
+  border-right: 2rpx dashed rgba(75, 64, 52, 0.10);
+  background: rgba(111, 145, 173, 0.26);
+  transform: rotate(-2deg);
+}
+
+.phrase-seen {
+  border-color: rgba(199, 121, 63, 0.46);
+  box-shadow: 5rpx 6rpx 0 rgba(199, 121, 63, 0.14);
+}
+
+.phrase-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+}
+
+.pos-tag {
+  flex: none;
+  margin-top: 4rpx;
+  padding: 4rpx 12rpx;
+  border: 2rpx solid rgba(111, 145, 173, 0.24);
+  border-radius: 7rpx 11rpx 8rpx 10rpx;
+  background: #eaf2f7;
+  color: #567892;
+  font-size: 18rpx;
+  font-weight: 700;
+}
+
+.phrase-title-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.phrase-title {
+  display: block;
+  color: var(--ink);
+  font-size: 30rpx;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.phrase-matched {
+  display: block;
+  margin-top: 4rpx;
+  color: var(--faint);
+  font-size: 19rpx;
+}
+
+.phrase-toggle {
+  flex: none;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(168, 106, 17, 0.08);
+  color: #8a6a2d;
+  font-size: 19rpx;
+  font-weight: 700;
+}
+
+.phrase-meaning {
+  display: block;
+  margin-top: 12rpx;
+  color: var(--ink-2);
+  font-size: 25rpx;
+  line-height: 1.7;
+}
+
+.phrase-note {
+  margin-top: 14rpx;
+  padding: 14rpx 16rpx;
+  border: 2rpx solid rgba(199, 121, 63, 0.16);
+  border-radius: 12rpx 18rpx 14rpx 16rpx;
+  background: #fff3cf;
+  box-shadow: 3rpx 3rpx 0 rgba(199, 121, 63, 0.10);
+  color: #7a5713;
+  font-size: 21rpx;
+  line-height: 1.7;
+}
+
+.phrase-sentence {
+  margin-top: 14rpx;
+  padding: 14rpx 16rpx;
+  border: 2rpx dashed rgba(111, 145, 173, 0.30);
+  border-radius: 16rpx 20rpx 14rpx 18rpx;
+  background: rgba(246, 250, 252, 0.88);
+  border-left: 5rpx solid rgba(111, 145, 173, 0.56);
+}
+
+.sentence-label {
+  display: block;
+  margin-bottom: 6rpx;
+  color: var(--faint);
+  font-size: 18rpx;
+  letter-spacing: 0.5rpx;
+}
+
+.sentence-text {
+  display: block;
+  color: var(--ink-2);
+  font-size: 22rpx;
+  line-height: 1.75;
+}
+
+.phrase-foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx solid var(--line-2);
+}
+
+.add-btn {
+  padding: 6rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(168, 106, 17, 0.09);
+  color: #8a6a2d;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.add-done {
+  background: rgba(79, 154, 113, 0.14);
+  color: #3d7a58;
+}
+
+.empty-analysis {
+  margin-top: 24rpx;
+  padding: 60rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  border: 2rpx solid var(--line);
+  color: var(--muted);
+  font-size: 23rpx;
+  text-align: center;
+}
+
+.bar-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  min-height: 88rpx;
+  margin-top: 6rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+.bar-arrow {
+  width: 13rpx;
+  height: 13rpx;
+  border-top: 2rpx solid currentColor;
+  border-right: 2rpx solid currentColor;
+  border-radius: 0 2rpx 0 0;
+  transform: rotate(45deg);
+}

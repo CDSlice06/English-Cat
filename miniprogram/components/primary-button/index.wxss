@@ -1,0 +1,80 @@
+.button {
+  position: relative;
+  width: 100%;
+  min-height: 96rpx;
+  padding: 0 34rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(135deg, #ffd16b 0%, #f2ab45 54%, #e99437 100%);
+  border: 2rpx solid #744828;
+  border-radius: var(--r-lg) var(--r-md) var(--r-lg) var(--r-md);
+  box-shadow: 6rpx 7rpx 0 #744828, inset 0 2rpx 0 rgba(255, 255, 255, 0.58);
+  color: #33280f;
+  font-size: 31rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  line-height: 1.4;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.button::after {
+  content: '';
+  position: absolute;
+  right: 24rpx;
+  top: 17rpx;
+  width: 58rpx;
+  height: 54rpx;
+  opacity: 0.18;
+  pointer-events: none;
+  transform: rotate(-16deg);
+  background-image:
+    radial-gradient(ellipse 22rpx 17rpx at 50% 73%, #744828 96%, transparent 100%),
+    radial-gradient(ellipse 9rpx 12rpx at 17% 43%, #744828 96%, transparent 100%),
+    radial-gradient(ellipse 9rpx 13rpx at 38% 20%, #744828 96%, transparent 100%),
+    radial-gradient(ellipse 9rpx 13rpx at 63% 20%, #744828 96%, transparent 100%),
+    radial-gradient(ellipse 9rpx 12rpx at 84% 43%, #744828 96%, transparent 100%);
+  background-repeat: no-repeat;
+}
+
+.button-text { position: relative; z-index: 1; }
+
+.pressed {
+  transform: translate(4rpx, 5rpx);
+  box-shadow: 2rpx 2rpx 0 #744828, inset 0 2rpx 0 rgba(255, 255, 255, 0.5);
+}
+
+.secondary {
+  background: #fffdf8;
+  border: 2rpx solid rgba(75, 64, 52, 0.56);
+  box-shadow: 5rpx 6rpx 0 rgba(75, 64, 52, 0.16);
+  color: #4a4236;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.secondary::after { opacity: 0.10; }
+
+.secondary.pressed {
+  transform: translate(3rpx, 4rpx);
+  box-shadow: 2rpx 2rpx 0 rgba(75, 64, 52, 0.16);
+}
+
+.disabled {
+  background: #f0e7d6;
+  border-color: rgba(75, 64, 52, 0.18);
+  color: #ad9d86;
+  box-shadow: none;
+}
+
+.disabled::after { opacity: 0.06; }
+
+.secondary.disabled {
+  background: rgba(255, 253, 249, 0.7);
+  color: #b5a894;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button, .pressed { transition: none; transform: none; }
+}

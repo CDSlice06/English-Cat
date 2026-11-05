@@ -1,0 +1,10 @@
+<view
+  class="speak-btn {{playing ? 'playing' : ''}}"
+  hover-class="speak-press"
+  hover-stay-time="80"
+  catch:tap="onTap"
+  aria-role="button"
+  aria-label="朗读单词 {{word}}"
+>
+  <view class="speaker"></view>
+</view>

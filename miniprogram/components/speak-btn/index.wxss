@@ -1,0 +1,43 @@
+/* 热区扩到 88rpx，视觉圆圈保持 52rpx 不变 */
+.speak-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+  margin: -18rpx;
+  background: transparent;
+}
+
+.speak-press .speaker {
+  transform: translate(1rpx, 1rpx);
+  box-shadow: 1rpx 1rpx 0 rgba(116, 72, 40, 0.12);
+}
+
+/* 喇叭图标：矢量图，避免小尺寸下伪元素拼形状失真 */
+.speaker {
+  width: 52rpx;
+  height: 52rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.24);
+  border-radius: 50%;
+  background-color: #fff3d4;
+  box-shadow: 2rpx 2rpx 0 rgba(116, 72, 40, 0.12);
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNCA5LjJoMy4xTDExLjkgNS40djEzLjJMNy4xIDE0LjhINGExIDEgMCAwIDEtMS0xdi0zLjZhMSAxIDAgMCAxIDEtMXoiIGZpbGw9IiM4YTVhMGQiLz48cGF0aCBkPSJNMTUuMiA5LjdhMy4yIDMuMiAwIDAgMSAwIDQuNiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjOGE1YTBkIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxwYXRoIGQ9Ik0xOC4xIDdhNy4yIDcuMiAwIDAgMSAwIDEwIiBmaWxsPSJub25lIiBzdHJva2U9IiM4YTVhMGQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PC9zdmc+");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 30rpx 30rpx;
+}
+
+.playing .speaker {
+  animation: speak-pulse 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes speak-pulse {
+  from { transform: scale(1); opacity: 0.55; }
+  to { transform: scale(1.08); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .playing .speaker { animation: none; }
+}

@@ -1,0 +1,316 @@
+.editor-card {
+  position: relative;
+  padding: 26rpx 24rpx 20rpx;
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  border: 2rpx solid var(--line);
+  box-shadow: var(--shadow-2);
+}
+
+/* 原文纸卡顶边贴一条胶带，像把稿纸压在桌面上 */
+.editor-tape {
+  position: absolute;
+  z-index: 3;
+  left: 32rpx;
+  top: 0;
+  width: 110rpx;
+  height: 28rpx;
+  pointer-events: none;
+  background: rgba(255, 226, 160, 0.88);
+  border-left: 2rpx dashed rgba(116, 72, 40, 0.14);
+  border-right: 2rpx dashed rgba(116, 72, 40, 0.14);
+  transform: rotate(-5deg);
+  transform-origin: left top;
+}
+
+.editor-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.editor-label {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  color: var(--ink-2);
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.editor-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffd25c, #f0912f);
+}
+
+.count-pill {
+  padding: 5rpx 14rpx;
+  border-radius: 999rpx;
+  background: #f7f0e2;
+  color: var(--muted);
+  font-size: 19rpx;
+}
+
+.editor {
+  width: 100%;
+  min-height: 320rpx;
+  padding: 20rpx;
+  border-radius: 20rpx;
+  background-color: #fffcf4;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(168, 106, 17, 0.09) 0,
+    rgba(168, 106, 17, 0.09) 1rpx,
+    transparent 1rpx,
+    transparent 52rpx
+  );
+  color: var(--ink-2);
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 27rpx;
+  line-height: 2.05;
+}
+
+.editor-foot {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 14rpx;
+  color: var(--faint);
+  font-size: 19rpx;
+}
+
+.editor-foot-dot { opacity: 0.6; }
+
+/* ---------- 置信度 ---------- */
+.confidence-card {
+  margin-top: 22rpx;
+  padding: 24rpx;
+  border-radius: 32rpx;
+  background: linear-gradient(155deg, #fff8e4 0%, #ffefc8 100%);
+  border: 2rpx solid rgba(168, 106, 17, 0.10);
+  box-shadow: var(--shadow-1);
+}
+
+/* 提取结果里的猫猫贴成白边贴纸 */
+.confidence-sticker {
+  flex: 0 0 auto;
+  padding: 3rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.16);
+  border-radius: 14rpx;
+  background: #fffdf8;
+  box-shadow: 2rpx 3rpx 0 rgba(116, 72, 40, 0.12);
+  transform: rotate(-4deg);
+}
+
+.confidence-top {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.confidence-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.confidence-title {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.confidence-desc {
+  display: block;
+  margin-top: 6rpx;
+  color: #8a6a2d;
+  font-size: 20rpx;
+  line-height: 1.6;
+}
+
+.confidence-badge {
+  flex-shrink: 0;
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.8);
+  color: #a86a11;
+  font-size: 17rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+.parse-warn {
+  margin-top: 16rpx;
+  padding: 14rpx 18rpx;
+  border-radius: 18rpx;
+  background: rgba(255, 255, 255, 0.72);
+  color: #79540f;
+  font-size: 20rpx;
+  line-height: 1.65;
+}
+
+.manual-tip {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 22rpx;
+  padding: 22rpx 24rpx;
+  border-radius: var(--r-md);
+  background: linear-gradient(155deg, #f3f9ff 0%, #e2eefa 100%);
+  border: 2rpx solid rgba(63, 107, 156, 0.12);
+}
+
+.manual-tip-text {
+  flex: 1;
+  color: #4a6d92;
+  font-size: 21rpx;
+  line-height: 1.65;
+}
+
+/* ---------- 出处标注 ---------- */
+.origin-card {
+  position: relative;
+  margin-top: 22rpx;
+  padding: 22rpx 24rpx 24rpx;
+  border-radius: var(--r-lg) var(--r-md) var(--r-lg) var(--r-md);
+  border: 2rpx solid var(--paper-line);
+  background: var(--paper);
+  box-shadow: var(--shadow-paper);
+}
+
+.origin-tape {
+  position: absolute;
+  z-index: 3;
+  right: 40rpx;
+  top: 0;
+  width: 96rpx;
+  height: 26rpx;
+  pointer-events: none;
+  background: rgba(206, 229, 248, 0.9);
+  border-left: 2rpx dashed rgba(116, 72, 40, 0.14);
+  border-right: 2rpx dashed rgba(116, 72, 40, 0.14);
+  transform: rotate(4deg);
+  transform-origin: right top;
+}
+
+.origin-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  margin-bottom: 16rpx;
+}
+
+.origin-title {
+  color: var(--ink);
+  font-size: var(--fs-sub);
+  font-weight: 700;
+}
+
+.origin-hint {
+  color: var(--faint);
+  font-size: var(--fs-note);
+  line-height: 1.5;
+}
+
+.target-tabs {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 22rpx;
+}
+
+.target-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  padding: 10rpx 16rpx;
+  border-radius: var(--r-md);
+  border: 2rpx solid rgba(168, 106, 17, 0.22);
+  background: rgba(255, 253, 249, 0.82);
+  color: var(--muted);
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.target-on {
+  border-color: var(--amber);
+  background: var(--amber-soft);
+  color: var(--ink);
+}
+
+.origin-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.origin-cell {
+  flex: 1 1 28%;
+  min-width: 148rpx;
+  min-height: 88rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4rpx;
+  padding: 10rpx 16rpx;
+  border-radius: var(--r-md);
+  border: 2rpx solid rgba(168, 106, 17, 0.22);
+  background: rgba(255, 253, 249, 0.82);
+}
+
+.origin-label {
+  color: var(--faint);
+  font-size: 20rpx;
+  letter-spacing: 1rpx;
+}
+
+.origin-value {
+  max-width: 100%;
+  color: var(--ink);
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 24rpx;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.editor-placeholder {
+  color: var(--faint);
+}
+
+/* ---------- 提示 ---------- */
+.demo-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  margin-top: 22rpx;
+  padding: 0 6rpx;
+  color: var(--muted);
+  font-size: 21rpx;
+  line-height: 1.65;
+}
+
+.demo-tip-line {
+  flex-shrink: 0;
+  width: 4rpx;
+  height: 30rpx;
+  margin-top: 6rpx;
+  border-radius: 4rpx;
+  background: linear-gradient(180deg, #ffd25c, #f3ab27);
+}
+
+.analyze-error {
+  margin-top: 16rpx;
+  padding: 16rpx 20rpx;
+  border-radius: 18rpx;
+  background: #ffe7de;
+  color: #b0503f;
+  font-size: 21rpx;
+  line-height: 1.6;
+}
