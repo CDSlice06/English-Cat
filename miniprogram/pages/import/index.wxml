@@ -61,7 +61,51 @@
       </view>
     </view>
 
-    <view class="actions enter d3">
+    <!-- 拍照卡：纸质卷子没有文字层，拍正文直接逐页识别，不用先转成 PDF -->
+    <view class="file-card photo-card enter d3 {{images.length ? 'file-card-on' : ''}}">
+      <view class="file-tape"></view>
+      <view class="file-head" hover-class="file-head-hover" bind:tap="chooseImages">
+        <view class="photo-badge">
+          <view class="photo-cam"></view>
+        </view>
+        <view class="file-copy">
+          <block wx:if="{{images.length}}">
+            <text class="file-name">已选 {{images.length}} 张照片</text>
+            <text class="file-meta">逐张识别，每张约十几秒</text>
+          </block>
+          <block wx:else>
+            <text class="file-name">拍照 / 从相册选图</text>
+            <text class="file-meta">纸质卷子拍这两篇正文就行，最多 4 张</text>
+          </block>
+        </view>
+        <view wx:if="{{images.length}}" class="file-remove" catchtap="clearImages">清空</view>
+        <view wx:else class="file-enter"></view>
+      </view>
+
+      <view wx:if="{{images.length}}" class="photo-thumbs">
+        <view wx:for="{{images}}" wx:key="path" class="photo-thumb">
+          <image src="{{item.path}}" mode="aspectFill" />
+          <view class="photo-thumb-x" catchtap="removeImage" data-index="{{index}}">
+            <view class="photo-x-badge"></view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{images.length}}" class="photo-action">
+        <primary-button text="{{parsing ? stageText : '识别这几张照片'}}" disabled="{{parsing}}" bind:tap="parseImages" />
+      </view>
+
+      <view wx:if="{{!images.length}}" class="file-hint">
+        <text class="file-hint-text">只拍 <text class="file-hint-warn">Passage 1 / Passage 2 的正文</text>，尽量平整、避开阴影和反光；别把选择题一起拍进来，识别会更准。</text>
+        <view class="file-tags">
+          <text class="file-tag">相机</text>
+          <text class="file-tag">相册</text>
+          <text class="file-tag">≤ 4 张</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="actions enter d4">
       <primary-button text="{{parsing ? stageText : '提取文章原文'}}" disabled="{{!file || parsing}}" bind:tap="parse" />
       <primary-button text="从题库抽一篇" secondary="{{true}}" bind:tap="goBank" />
       <view class="manual-link" bind:tap="goManual">
@@ -85,7 +129,7 @@
           style="{{uploading || ocrRunning ? 'width:' + (progress > 6 ? progress : 6) + '%' : ''}}"
         ></view>
       </view>
-      <text class="processing-tip">Word 通常几秒完成；PDF 页数多时会久一点，请保持页面打开</text>
+      <text class="processing-tip">Word 通常几秒完成；PDF 或照片识别会久一点，请保持页面打开</text>
       <view wx:if="{{uploading || ocrRunning}}" class="processing-cancel" bind:tap="cancelParse">
         <text>{{uploading ? '取消上传' : '取消识别'}}</text>
       </view>

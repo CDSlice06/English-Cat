@@ -111,7 +111,7 @@ Page({
           passageTab: 0,
           docMeta: {
             fileName: draft.fileName || '已上传文档',
-            kindLabel: draft.kind === 'pdf' ? 'PDF' : 'Word',
+            kindLabel: draft.kind === 'pdf' ? 'PDF' : (draft.kind === 'photo' ? '照片' : 'Word'),
             paragraphs: draft.paragraphs || 0,
             warnings: draft.warnings || []
           },
