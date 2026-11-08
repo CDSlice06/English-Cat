@@ -59,6 +59,18 @@
       </view>
     </view>
 
+    <view class="pet-entry" hover-class="pet-entry-hover" data-url="/pages/pet/index" bindtap="go">
+      <view class="pet-entry-photo">
+        <cat-image custom-class="pet-entry-cat" name="sleepy-nap" size="small" />
+      </view>
+      <view class="pet-entry-copy">
+        <text class="pet-entry-kicker">MY PET</text>
+        <text class="pet-entry-title">去照顾团子</text>
+        <text class="pet-entry-desc">喂食、玩耍，陪它一起长大</text>
+      </view>
+      <view class="unit-arrow"></view>
+    </view>
+
     <view class="list-head">
       <view class="list-title-wrap">
         <text class="list-stamp en">STATIONS</text>

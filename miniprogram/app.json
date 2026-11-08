@@ -16,7 +16,8 @@
     "pages/phrasebook/index",
     "pages/grammarbook/index",
     "pages/onboarding/index",
-    "pages/library/index"
+    "pages/library/index",
+    "pages/pet/index"
   ],
   "window": {
     "navigationBarBackgroundColor": "#fdf7ea",

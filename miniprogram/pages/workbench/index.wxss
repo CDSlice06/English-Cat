@@ -509,3 +509,60 @@
   border-radius: 999rpx;
   background: rgba(255, 226, 160, 0.9);
 }
+
+/* ---------- 电子宠物入口 ---------- */
+.pet-entry {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  margin-top: 22rpx;
+  padding: 20rpx 24rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.36);
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, #fff8e8 0%, #ffe9c2 100%);
+  box-shadow: 0 10rpx 24rpx rgba(140, 90, 40, 0.1);
+}
+
+.pet-entry-hover {
+  background: linear-gradient(135deg, #fff3d8 0%, #ffdfa8 100%);
+}
+
+.pet-entry-photo {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.82);
+  border: 2rpx dashed rgba(180, 120, 60, 0.4);
+}
+
+.pet-entry-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pet-entry-kicker {
+  color: #a97a37;
+  font-family: 'Iowan Old Style', Georgia, serif;
+  font-size: 17rpx;
+  font-weight: 700;
+  letter-spacing: 2.4rpx;
+}
+
+.pet-entry-title {
+  margin-top: 4rpx;
+  color: #3d2d1c;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.pet-entry-desc {
+  margin-top: 4rpx;
+  color: #8a6a4d;
+  font-size: 21rpx;
+}
