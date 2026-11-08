@@ -87,9 +87,9 @@ function splitSentences(value) {
     .filter((item) => item.length > 12 && /[a-zA-Z]/.test(item))
 }
 
-// 精讲版本：4 表示句型名必须与句子实际结构一致（旧卡会出现「介词+which」配 that 从句）
-// 版本升级后，旧文章会在下次增强时整体重做
-const DRILL_VERSION = 4
+// 精讲版本：5 表示讲解里点名的术语必须真的出现在原句（旧卡会出现「没 whether 却讲 whether 语序」）
+// 版本升级后，旧文章会在下次增强时整体重做，共享缓存也按版本号自动失效
+const DRILL_VERSION = 5
 
 function sanitizeExamples(value) {
   if (!Array.isArray(value)) return []
@@ -300,6 +300,22 @@ function patternFitsSentence(pattern, sentence) {
   return true
 }
 
+// 讲解正文里点名的引导词必须真的出现在原句里：句中没有 whether / if 却在讲它们的语序，
+// 等于把别的句型的话术套到这一句上（翻译反馈里出现过同类问题，用户一眼就能看出对不上）。
+// 「不是/并非 whether」这类对比说明不算。
+const NEGATED_TERM = /(不是|并非|没有|不用|无需|不含|不涉及|区别于|不同于|而非)[^。；;,.，]{0,8}(whether|if|倒装)/
+const EXPLAIN_TERMS = [
+  [/whether|if\s*引导/i, /\b(whether|if)\b/i],
+  [/倒装/, /\b(not|only|hardly|seldom|never|no sooner|nor)\b/i]
+]
+
+function explanationFitsSentence(body, sentence) {
+  const text = String(body || '')
+  if (!text) return true
+  const corpus = String(sentence || '')
+  return !EXPLAIN_TERMS.some((pair) => pair[0].test(text) && !pair[1].test(corpus) && !NEGATED_TERM.test(text))
+}
+
 async function ensureCacheCollection() {
   if (!db || cacheReady) return
   try {
@@ -433,6 +449,16 @@ function applyExplanation(item, point, sentenceKeys, previous) {
   // 模型没给出合格的分步/分块时，沿用上一次（规则兜底）的同句讲解，避免退回只有一段总述
   const steps = sanitizeSteps(item.steps)
   const chunks = sanitizeChunks(item.chunks, point.sentence)
+  // 讲解和原句对不上就直接丢卡，宁可少一张，也不给用户看与句子无关的语法说明
+  const explainBody = [
+    understanding,
+    clip(item.structure, 120),
+    steps.map((step) => `${step.title || ''}${step.detail || ''}`).join(' ')
+  ].join(' ')
+  if (!explanationFitsSentence(explainBody, point.sentence)) {
+    console.log('[ai-analyze][grammar] explanation mismatch', { id: point.id, pattern })
+    return null
+  }
   return {
     id: point.id,
     key: cacheKey(pattern),
@@ -648,7 +674,8 @@ function wordKeyOf(value) {
 // 跨文章词义缓存：同一个词只让模型解释一次，后面的文章命中直接复用。
 // 按词条全局共享（不含个人信息），版本号变化时旧缓存自动失效
 const WORD_CACHE = 'word_cache'
-const WORD_CACHE_VERSION = 1
+// 2：释义改为「词库释义 + 模型补全」合并，旧的「模型整体替换」结果作废，需要重新问一遍
+const WORD_CACHE_VERSION = 2
 const cacheCommand = db && db.command ? db.command : null
 let wordCacheReady = false
 
@@ -723,6 +750,21 @@ async function writeWordCache(entries) {
       // 并发写入冲突：忽略这一次，后续文章还会重新写入
     }
   }))
+}
+
+// 释义合并：词库释义是准的，原样放在前面；模型只补词库没有的词性义项（补全释义、补原文语境义）。
+// 早期版本是整体替换，出现过 leading 只剩「导致」、把「主要的」这类常用义丢掉的问题
+function mergeSenses(base, extra, limit) {
+  const out = []
+  const all = (Array.isArray(base) ? base : []).concat(Array.isArray(extra) ? extra : [])
+  all.forEach((sense) => {
+    const pos = sense && sense.pos
+    const definition = String((sense && sense.definition) || '').trim()
+    if (!pos || !definition || out.length >= limit) return
+    if (out.some((item) => item.pos === pos)) return
+    out.push({ pos, definition, rare: !!(sense && sense.rare) })
+  })
+  return out
 }
 
 async function enhanceWords(text, level, vocabulary) {
@@ -815,8 +857,8 @@ async function enhanceWords(text, level, vocabulary) {
     if (patch.rare && !wasPending && categories.indexOf('familiar') < 0) categories.push('familiar')
     changed = true
     return Object.assign({}, item, {
-      // 整体替换：模型已按书面语常用度重排并剔除口语义项
-      meanings: patch.senses,
+      // 词库释义在前、模型补全在后，两边合并；词库没收的待补全词直接用模型结果
+      meanings: wasPending ? patch.senses : mergeSenses(item.meanings, patch.senses, 4),
       categories,
       phonetic: item.phonetic || (patch.ph ? `/${patch.ph}/` : ''),
       // 词库外的占位词补全释义后取消 pending
@@ -1089,4 +1131,4 @@ async function enhanceUnit(text, level, unitData, options) {
   }
 }
 
-module.exports = { enhanceUnit, translateFullText, DRILL_VERSION }
+module.exports = { enhanceUnit, translateFullText, DRILL_VERSION, explanationFitsSentence }

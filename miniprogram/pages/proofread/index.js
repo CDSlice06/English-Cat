@@ -111,7 +111,7 @@ Page({
           passageTab: 0,
           docMeta: {
             fileName: draft.fileName || '已上传文档',
-            kindLabel: draft.kind === 'pdf' ? 'PDF' : (draft.kind === 'photo' ? '照片' : 'Word'),
+            kindLabel: draft.kind === 'pdf' ? 'PDF' : 'Word',
             paragraphs: draft.paragraphs || 0,
             warnings: draft.warnings || []
           },
@@ -305,7 +305,8 @@ Page({
       return
     }
     if (this.data.isDemo) {
-      wx.navigateTo({ url: '/pages/vocabulary/index' })
+      // 示例文章没有入库动作，同样顶替校对页，返回键直接回上一级
+      wx.redirectTo({ url: '/pages/vocabulary/index' })
       return
     }
 
@@ -338,7 +339,8 @@ Page({
         if (firstArticle && firstArticle._id && firstArticle.aiStatus !== 'ready') {
           triggerEnhance(firstArticle._id)
         }
-        const go = () => wx.navigateTo({ url: '/pages/vocabulary/index' })
+        // 顶替校对页：文章已经存好并在学了，往回退到校对页只会让人重复点一遍解析
+        const go = () => wx.redirectTo({ url: '/pages/vocabulary/index' })
         if (failed) {
           wx.showModal({
             title: '有文章没准备好',

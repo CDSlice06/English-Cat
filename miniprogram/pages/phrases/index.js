@@ -30,13 +30,18 @@ Page({
   },
 
   loadPage() {
-    this.setData({ loading: true, error: '' })
+    // 页面上已有内容时（从其它页面切回来）：不闪加载态，刷新结果没变化就不重建
+    const warm = !!this.ready
+    if (!warm) this.setData({ loading: true, error: '' })
     loadStudy(true)
       .then((study) => {
-        this.applyStudy(study)
+        this.ready = true
+        this.applyStudy(study, warm)
         this.syncWordbook()
       })
       .catch((error) => {
+        // 回页刷新失败时保留已有内容，别把渲染好的页面换成错误页
+        if (warm) return
         this.setData({ loading: false, error: errorMessage(error) })
       })
   },
@@ -55,7 +60,7 @@ Page({
     this.setData({ originOpen: false })
   },
 
-  applyStudy(study) {
+  applyStudy(study, quiet) {
     const article = study.article
     const unit = study.unit
     const unitData = article.unitData || {}
@@ -75,7 +80,7 @@ Page({
 
     const viewedCount = phrases.filter((item) => item.viewed).length
 
-    this.setData({
+    const payload = {
       loading: false,
       article,
       unit,
@@ -83,7 +88,19 @@ Page({
       viewedCount,
       nextReady: !phrases.length || viewedCount === phrases.length,
       expanded
-    }, () => this.scrollToResume())
+    }
+    // 签名只取影响界面的关键字段：一致就不 setData，回页不再整页重建
+    const signature = JSON.stringify([
+      article._id,
+      article.aiStatus || '',
+      article.extractVersion || 0,
+      article.updatedAt || 0,
+      phrases.map((item) => `${item.id}:${item.viewed ? 1 : 0}:${JSON.stringify(item).length}`),
+      viewedCount
+    ])
+    if (quiet && signature === this.renderSignature) return
+    this.renderSignature = signature
+    this.setData(payload, () => this.scrollToResume())
   },
 
   scrollToResume() {

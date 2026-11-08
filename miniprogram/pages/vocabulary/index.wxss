@@ -255,6 +255,53 @@
   line-height: 1;
 }
 
+/* ---------- 星级标尺 ---------- */
+/* 四级 / 六级两套星级：切换控件放在筛选栏下方，切换只换显示，不重新请求 */
+.cet-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin: 0 0 8rpx;
+  padding: 0 4rpx;
+}
+
+.cet-bar-label {
+  color: var(--muted);
+  font-size: 22rpx;
+}
+
+.cet-seg {
+  display: flex;
+  align-items: center;
+  padding: 4rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.22);
+  border-radius: var(--r-pill);
+  background: rgba(255, 253, 249, 0.94);
+  box-shadow: 2rpx 3rpx 0 rgba(103, 73, 40, 0.08);
+}
+
+/* 热区按 88rpx 给足，视觉上是一枚小胶囊 */
+.cet-seg-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 104rpx;
+  min-height: 88rpx;
+  padding: 0 22rpx;
+  border-radius: var(--r-pill);
+  color: var(--muted);
+  font-size: var(--fs-note);
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.cet-seg-on {
+  background: linear-gradient(135deg, #ffdf82 0%, #f8bc4b 100%);
+  color: #3a2a09;
+  font-weight: 700;
+  box-shadow: 2rpx 3rpx 0 rgba(116, 72, 40, 0.18);
+}
+
 /* ---------- 单词卡 ---------- */
 .word-list {
   display: flex;

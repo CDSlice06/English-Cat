@@ -68,10 +68,11 @@ Page({
     loading: true,
     error: '',
     title: '',
-    progress: { completed: 0, total: 4, percent: 0, practicePassed: 0, drillTotal: 0, grammarViewed: 0, phrasesViewed: 0 },
+    progress: { completed: 0, total: 4, percent: 0, practicePassed: 0, drillTotal: 0, grammarViewed: 0, grammarTotal: 0, phrasesViewed: 0, phraseTotal: 0 },
     mastered: 0,
     hasProgress: false,
     nextUnit: { label: '第 1 站 · 词汇', url: '/pages/vocabulary/index', hint: '' },
+    stations: [],
     features: [],
     catName: 'welcome-wave',
     catBubble: '',
@@ -139,10 +140,18 @@ Page({
       loading: false,
       title: article.title,
       progress,
-      mastered: unit.masteredWords.length,
+      // 与词汇页同口径：只统计本篇词表里真实存在的已掌握词
+      mastered: vocab.mastered,
       // 有真实文章，或任何一处已有动作，就不再是「还没有开始」
       hasProgress: !article.isDemo || unit.masteredWords.length > 0 || progress.completed > 0 || progress.practicePassed > 0,
       nextUnit: resolveNextUnit(unit, progress, unitData),
+      // 四个站点各自通关才亮，不再按顺序假装（先做完词组不该把「词汇」点亮）
+      stations: [
+        { label: '词汇', done: vocab.mastered >= vocab.total },
+        { label: '词组', done: progress.phrasesViewed >= progress.phraseTotal },
+        { label: '语法', done: progress.grammarViewed >= grammarTotal },
+        { label: '输出', done: progress.practicePassed >= progress.drillTotal }
+      ],
       features: [
         { name: '词汇筛选', desc: '五类重点词，一屏释义', url: '/pages/vocabulary/index', tag: `${vocab.mastered}/${vocab.total}`, cat: 'vocab-magnifier', tone: 'sun' },
         { name: '语法与句式', desc: '逐点讲透，配双向翻译', url: '/pages/analysis/index', tag: `${unit.grammarViewed.length}/${grammarTotal}`, cat: 'idea-bulb', tone: 'mint' }

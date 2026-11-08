@@ -422,13 +422,11 @@ function assemblePassages(event) {
   }
   // 扫描阶段的提示（拆页、跳过前几页）要一路带到校对页，别在合并时丢掉
   const carried = Array.isArray(event.warnings) ? event.warnings.filter((item) => typeof item === 'string' && item) : []
-  // 照片和扫描件同一条通道，但提示里要说清来源，别让用户以为是 PDF 里来的
-  const sourceLabel = event.kind === 'photo' ? '照片' : '扫描件'
+  // 扫描件走逐页识别，提示里要说清来源，别让用户以为是 PDF 里直接提出的文字
   return packageText(content, {
-    // 照片与扫描件同属「图片识别」，来源标签在校对页要能区分开
-    kind: event.kind === 'pdf' ? 'pdf' : (event.kind === 'photo' ? 'photo' : 'docx'),
+    kind: event.kind === 'pdf' ? 'pdf' : 'docx',
     fileName: typeof event.fileName === 'string' ? event.fileName : '扫描件',
-    warnings: carried.concat(`${sourceLabel}已逐页识别，文字可能有少量错字，进入校对页先通读一遍。`),
+    warnings: carried.concat('扫描件已逐页识别，文字可能有少量错字，进入校对页先通读一遍。'),
     usedOcr: true,
     ocrFailed: [],
     limitMs: Number(event.limitMs) || 0

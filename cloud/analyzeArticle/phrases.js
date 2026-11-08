@@ -1,7 +1,7 @@
 // 词组与固定搭配库：在文章里按变体匹配，命中后生成词组卡
 // alts 为原文中可能出现的写法（小写），meaning 必带词性 phr.
 
-const PHRASES = [
+const RAW_PHRASES = [
   { alts: ['account for'], meaning: '解释；占（比例）', note: '既能表示“说明原因”，也能表示“占据多少比例”' },
   { alts: ['result in'], meaning: '导致，造成', note: 'result in 后接结果；result from 后接原因' },
   { alts: ['result from'], meaning: '由……造成，起因于', note: '与 result in 方向相反' },
@@ -548,8 +548,206 @@ const PHRASES = [
   { alts: ['even so'], meaning: '即便如此' },
   { alts: ['to name a few'], meaning: '仅举几例' },
   { alts: ['as such'], meaning: '因此；作为这样的' },
-  { alts: ['in part'], meaning: '部分地' }
+  { alts: ['in part'], meaning: '部分地' },
+
+  // ── 第三批：考研与六级阅读高频（补漏 + 常用搭配）──
+  { alts: ['cut down on'], meaning: '削减，减少', note: '比 cut down 更常接被削减的对象：cut down on sugar' },
+  { alts: ['take care of'], meaning: '照顾；处理，负责' },
+  { alts: ['in addition to'], meaning: '除……之外（还）', note: '后接名词或动名词；in addition 单独用时是状语「此外」' },
+  { alts: ['make a difference to'], meaning: '对……产生影响' },
+  { alts: ['attend to'], meaning: '处理，照料；注意' },
+  { alts: ['attribute to'], meaning: '把……归因于', note: 'attribute A to B：把 A 归因于 B' },
+  { alts: ['fall short of'], meaning: '未达到（标准、期望）' },
+  { alts: ['owing to'], meaning: '由于，因为', note: '后接名词，不接句子' },
+  { alts: ['aside from'], meaning: '除……之外；除……以外还', note: '与 apart from 同义' },
+  { alts: ['but for'], meaning: '要不是，如果没有', note: '常用于虚拟语气：But for your help, I would have failed.' },
+  { alts: ['in case of'], meaning: '万一，如果发生', note: '后接名词；in case 后面则接句子' },
+  { alts: ['in case'], meaning: '以防，万一', note: '后面接句子：Take an umbrella in case it rains.' },
+  { alts: ['on the verge of'], meaning: '濒临，即将进入' },
+  { alts: ['at the mercy of'], meaning: '任由……摆布，完全受……支配' },
+  { alts: ['an array of'], meaning: '一系列，大量' },
+  { alts: ['the bulk of'], meaning: '大部分' },
+  { alts: ['to a large extent'], meaning: '在很大程度上' },
+  { alts: ['take measures'], meaning: '采取措施' },
+  { alts: ['take the initiative'], meaning: '主动采取行动' },
+  { alts: ['arrive at'], meaning: '达成（结论、协议）；到达' },
+  { alts: ['reach out to'], meaning: '主动联系，向……伸出援手' },
+  { alts: ['look up to'], meaning: '仰慕，尊敬' },
+  { alts: ['look down on', 'look down upon'], meaning: '轻视，看不起' },
+  { alts: ['get through'], meaning: '通过；度过（难关）' },
+  { alts: ['get by'], meaning: '勉强维持，凑合过' },
+  { alts: ['take to'], meaning: '开始喜欢；养成……的习惯' },
+  { alts: ['bring out'], meaning: '使显现；出版，推出' },
+  { alts: ['give priority to'], meaning: '优先考虑' },
+  { alts: ['attach importance to'], meaning: '重视' },
+  { alts: ['put emphasis on', 'place emphasis on'], meaning: '强调，注重' },
+  { alts: ['take note of'], meaning: '注意到，留心' },
+  { alts: ['make sense of'], meaning: '理解，弄懂' },
+  { alts: ['lose sight of'], meaning: '忽略，忘记（初衷、目标）' },
+  { alts: ['come to mind'], meaning: '浮现在脑海中' },
+  { alts: ['come into being'], meaning: '形成，产生' },
+  { alts: ['come into effect'], meaning: '生效，开始实施' },
+  { alts: ['come into play'], meaning: '开始起作用' },
+  { alts: ['come to light'], meaning: '被发现，被揭露' },
+  { alts: ['put into practice'], meaning: '把……付诸实践' },
+  { alts: ['a wealth of'], meaning: '大量的，丰富的' },
+  { alts: ['a growing number of'], meaning: '越来越多的' },
+  { alts: ['the advent of'], meaning: '……的到来，……的出现' },
+  { alts: ['the pursuit of'], meaning: '对……的追求' },
+  { alts: ['the notion of'], meaning: '……的观念，……的概念' },
+  { alts: ['the prospect of'], meaning: '……的前景，……的可能性' },
+  { alts: ['the essence of'], meaning: '……的本质，……的精髓' },
+  { alts: ['the scale of'], meaning: '……的规模，……的程度' },
+  { alts: ['be short of'], meaning: '缺少，不足' },
+  { alts: ['be wary of'], meaning: '对……警惕' },
+  { alts: ['be mindful of'], meaning: '留意，注意' },
+  { alts: ['be typical of'], meaning: '是……的典型，具有……的典型特征' },
+  { alts: ['be indicative of'], meaning: '表明，显示出' },
+  { alts: ['be renowned for'], meaning: '以……闻名' },
+  { alts: ['be notorious for'], meaning: '因……而臭名昭著' },
+  { alts: ['be noted for'], meaning: '以……著称' },
+  { alts: ['be liable to'], meaning: '易于，可能' },
+  { alts: ['to date'], meaning: '迄今为止' },
+  { alts: ['for the time being'], meaning: '暂时，眼下' },
+  { alts: ['in due course'], meaning: '在适当的时候，到时候' },
+  { alts: ['at hand'], meaning: '在手边；即将到来' },
+  { alts: ['at length'], meaning: '最终；详细地' },
+  { alts: ['on occasion'], meaning: '有时，偶尔' },
+  { alts: ['at the outset'], meaning: '在一开始' },
+  { alts: ['in the midst of'], meaning: '在……之中，在……过程中' },
+  { alts: ['by virtue of'], meaning: '凭借，由于' },
+  { alts: ['in proportion to'], meaning: '与……成比例，与……相称' },
+  { alts: ['up to date'], meaning: '最新的，跟上时代的' },
+  { alts: ['at intervals'], meaning: '间隔地，不时' },
+  { alts: ['irrespective of'], meaning: '不论，不管' },
+  { alts: ['what is more', "what's more"], meaning: '而且，更重要的是' },
+  { alts: ['in itself'], meaning: '本身，本质上' },
+  { alts: ['needless to say'], meaning: '不用说，显然' },
+  { alts: ['that being said'], meaning: '话虽如此' },
+  { alts: ['all things considered'], meaning: '综合考虑，总的来说' },
+  { alts: ['when it comes to'], meaning: '谈到，涉及' },
+  { alts: ['as far as {gap} concerned'], canonical: 'as far as … be concerned', meaning: '就……而言', note: '中间接人：as far as I am concerned 就我而言' },
+
+  // ── 第四批：动词短语补漏（真题与外刊改写高频）──
+  { alts: ['care for'], meaning: '照顾；喜欢' },
+  { alts: ['come up'], meaning: '出现；被提出', note: '问题 come up 是「被提出」；come up with 才是「想出」' },
+  { alts: ['turn into'], meaning: '变成，转变为' },
+  { alts: ['go over'], meaning: '复习；检查' },
+  { alts: ['see through', 'saw through'], meaning: '看穿，识破' },
+  { alts: ['draw up'], meaning: '起草，拟定（文件、计划）' },
+  { alts: ['put out'], meaning: '扑灭；熄灭' },
+  { alts: ['break up'], meaning: '分手；解散，散会' },
+  { alts: ['build up'], meaning: '积累，逐步增强' },
+  { alts: ['die down'], meaning: '逐渐平息，减弱' },
+  { alts: ['play down'], meaning: '淡化，轻描淡写' },
+  { alts: ['stand by'], meaning: '支持，站在……一边；袖手旁观' },
+  { alts: ['stand up for'], meaning: '维护，为……辩护' },
+  { alts: ['hold onto'], meaning: '抓住不放；保住' },
+  { alts: ['make room for'], meaning: '为……腾出空间' },
+  { alts: ['take pride in'], meaning: '以……为自豪', note: 'pride 前可加 great 等修饰：take great pride in' },
+  { alts: ['take delight in'], meaning: '以……为乐' },
+  { alts: ['take account of'], meaning: '考虑到，顾及', note: '与 take into account 同义' },
+  { alts: ['keep an eye on'], meaning: '留意，照看' },
+  { alts: ['pay tribute to'], meaning: '赞扬，致敬' },
+  { alts: ['give thought to'], meaning: '认真考虑' },
+  { alts: ['have a say', 'has a say'], meaning: '有发言权，有决定权', note: '常与 in / on 连用：have a say in the matter' },
+  { alts: ['spark debate'], meaning: '引发争论' },
+  { alts: ['gain ground'], meaning: '取得进展，占上风' },
+  { alts: ['gain momentum'], meaning: '势头增强，加速发展' },
+
+  // ── 第四批：be + 分词/形容词 补漏 ──
+  { alts: ['be to blame'], meaning: '该受责备，责任在……' },
+  { alts: ['be under way'], meaning: '在进行中', note: '也写作 underway' },
+
+  // ── 第四批：介词与衔接固定表达补漏 ──
+  { alts: ['in advance'], meaning: '提前，预先' },
+  { alts: ['ahead of time', 'ahead of schedule'], meaning: '提前，早于预定时间' },
+  { alts: ['in a sense'], meaning: '在某种意义上' },
+  { alts: ['in a row'], meaning: '连续地，接连' },
+  { alts: ['in the process of'], meaning: '在……的过程中' },
+  { alts: ['in the course of'], meaning: '在……期间，在……过程中' },
+  { alts: ['in search of'], meaning: '寻找，寻求' },
+  { alts: ['in honor of'], meaning: '为纪念；向……致敬' },
+  { alts: ['in memory of'], meaning: '为纪念' },
+  { alts: ['in place of'], meaning: '代替' },
+  { alts: ['instead of'], meaning: '代替；而不是', note: '后接名词或动名词，不接句子' },
+  { alts: ['in exchange for'], meaning: '作为……的交换' },
+  { alts: ['in view of'], meaning: '鉴于，考虑到' },
+  { alts: ['in excess of'], meaning: '超过，多于' },
+  { alts: ['in control of'], meaning: '控制着，掌管' },
+  { alts: ['under control'], meaning: '处于控制之中' },
+  { alts: ['under no circumstances'], meaning: '在任何情况下都不', note: '置于句首时句子要倒装' },
+  { alts: ['on no account'], meaning: '决不', note: '置于句首时句子要倒装' },
+  { alts: ['in no way'], meaning: '决不，一点也不', note: '置于句首时句子要倒装' },
+  { alts: ['at the risk of'], meaning: '冒着……的风险' },
+  { alts: ['for fear of'], meaning: '以免，唯恐', note: '后接名词或动名词；for fear that 后面才接句子' },
+  { alts: ['more or less'], meaning: '或多或少，大约' },
+  { alts: ['sooner or later'], meaning: '迟早，早晚' },
+  { alts: ['from time to time'], meaning: '不时，偶尔' },
+  { alts: ['once in a while'], meaning: '偶尔，有时' },
+  { alts: ['by chance'], meaning: '偶然地，碰巧' },
+  { alts: ['by accident'], meaning: '偶然地，意外地' },
+  { alts: ['far from'], meaning: '远非，一点也不', note: 'far from enough 远不够；字面义是「离……远」' },
+  { alts: ['anything but'], meaning: '绝不是，一点也不', note: 'anything but easy 一点也不容易；对比 nothing but 只是' },
+  { alts: ['all but'], meaning: '几乎，差不多', note: 'all but disappeared 几乎消失；后接名词时意为「除……外全部」' },
+  { alts: ['out of date'], meaning: '过时的' },
+  { alts: ['on purpose'], meaning: '故意地' },
+
+  // ── 第四批：话题名词搭配补漏 ──
+  { alts: ['aging population', 'ageing population'], meaning: '人口老龄化' },
+  { alts: ['birth rate'], meaning: '出生率' },
+  { alts: ['death rate'], meaning: '死亡率' },
+  { alts: ['greenhouse effect'], meaning: '温室效应' },
+  { alts: ['interest rate'], meaning: '利率' },
+  { alts: ['labor force', 'labour force'], meaning: '劳动力' },
+  { alts: ['carbon footprint'], meaning: '碳足迹' },
+  { alts: ['life span', 'lifespan'], meaning: '寿命' },
+  { alts: ['mass media'], meaning: '大众传媒' },
+  { alts: ['social welfare'], meaning: '社会福利' },
+  { alts: ['public awareness'], meaning: '公众意识' },
+  { alts: ['physical activity'], meaning: '体育活动，身体活动' },
+  { alts: ['mental illness'], meaning: '精神疾病' },
+  { alts: ['natural disaster', 'natural disasters'], meaning: '自然灾害' },
+  { alts: ['extreme weather'], meaning: '极端天气' }
 ]
+
+// ── 词组分类：按词条开头的词判类型，卡片上显示成小标签 ──
+// 加载时派生而不是逐条手写：以后往表里补词条会自动归类，不会漏标
+const TYPE_GAP_RE = /\{gap\}|\{gaps\}|…/
+const TYPE_PREP_HEADS = new Set([
+  'in', 'on', 'at', 'by', 'for', 'with', 'of', 'to', 'as', 'from', 'without', 'despite',
+  'during', 'through', 'over', 'under', 'after', 'before', 'beyond', 'apart', 'due',
+  'thanks', 'prior', 'regardless', 'according', 'compared', 'along', 'between', 'among',
+  'against', 'about', 'into', 'since', 'until', 'unless', 'per', 'instead'
+])
+const TYPE_NOUN_HEADS = new Set([
+  'a', 'an', 'the', 'climate', 'global', 'carbon', 'fossil', 'renewable', 'greenhouse',
+  'natural', 'food', 'water', 'air', 'public', 'mental', 'health', 'life', 'living',
+  'standard', 'social', 'income', 'economic', 'labor', 'labour', 'supply', 'consumer',
+  'peer', 'critical', 'work-life', 'digital', 'academic', 'job', 'cost', 'minimum',
+  'urban', 'energy', 'side', 'root', 'gender', 'generation', 'research', 'case', 'policy',
+  'sense', 'quality', 'cultural', 'mass', 'birth', 'death', 'interest', 'aging', 'ageing', 'extreme'
+])
+const TYPE_EXPR_HEADS = new Set([
+  'above', 'all', 'but', 'even', 'first', 'last', 'not', 'no', 'more', 'most', 'much',
+  'other', 'rather', 'such', 'so', 'than', 'that', 'whether', 'while', 'if', 'let',
+  'once', 'twice', 'half', 'up', 'what', "what's", 'needless', 'irrespective',
+  'given', 'provided', 'contrary', 'owing', 'aside'
+])
+
+function typeOfPhrase(item) {
+  const alts = item && Array.isArray(item.alts) ? item.alts : []
+  const flat = [item && item.canonical ? item.canonical : ''].concat(alts).join(' | ')
+  if (TYPE_GAP_RE.test(flat)) return '关联连词'
+  const first = String((item && (item.canonical || alts[0])) || '').toLowerCase().replace(/[{}…]/g, ' ').trim().split(/\s+/)[0] || ''
+  if (first === 'be') return 'be 结构'
+  if (TYPE_PREP_HEADS.has(first)) return '介词短语'
+  if (TYPE_NOUN_HEADS.has(first)) return '名词搭配'
+  if (TYPE_EXPR_HEADS.has(first)) return '固定表达'
+  return '动词短语'
+}
+
+const PHRASES = RAW_PHRASES.map((item) => Object.assign({ type: typeOfPhrase(item) }, item))
 
 // 常见不规则动词的变形，用于让词组匹配能认出 took / taken / taking 这类写法
 const IRREGULAR = {
@@ -600,7 +798,9 @@ const NOT_VERB_HEAD = new Set([
   'a', 'an', 'the', 'in', 'on', 'at', 'by', 'for', 'with', 'of', 'to', 'as', 'from',
   'not', 'no', 'more', 'most', 'other', 'rather', 'such', 'so', 'than', 'that', 'there',
   'whether', 'while', 'without', 'prior', 'due', 'thanks', 'according', 'compared',
-  'regardless', 'apart', 'along', 'half', 'twice', 'once', 'be', 'used'
+  'regardless', 'apart', 'along', 'half', 'twice', 'once', 'be', 'used',
+  // 新一批以连接词/副词/代词开头的固定短语：不做动词变形，避免 butted / ups / what'sing 这类误命中
+  'but', 'owing', 'aside', 'up', 'much', 'what', "what's", 'irrespective'
 ])
 
 function escapeRe(text) {
@@ -724,10 +924,11 @@ function findPhrases(text) {
       canonical: hit.canonical,
       meaning: hit.item.meaning,
       note: hit.item.note || '',
+      type: hit.item.type || '',
       sentence: source.slice(start, end).trim()
     })
   }
   return result
 }
 
-module.exports = { PHRASES, findPhrases }
+module.exports = { PHRASES, findPhrases, typeOfPhrase }

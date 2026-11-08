@@ -90,10 +90,7 @@
 
       <progress-bar percent="{{progress.percent}}" label="四个学习单元 · 全部完成即通关" />
       <view class="step-row">
-        <view class="step-chip {{progress.completed >= 1 ? 'step-on' : ''}}"><view class="step-pip"></view><text>词汇</text></view>
-        <view class="step-chip {{progress.completed >= 2 ? 'step-on' : ''}}"><view class="step-pip"></view><text>词组</text></view>
-        <view class="step-chip {{progress.completed >= 3 ? 'step-on' : ''}}"><view class="step-pip"></view><text>语法</text></view>
-        <view class="step-chip {{progress.completed >= 4 ? 'step-on' : ''}}"><view class="step-pip"></view><text>输出</text></view>
+        <view wx:for="{{stations}}" wx:key="label" class="step-chip {{item.done ? 'step-on' : ''}}"><view class="step-pip"></view><text>{{item.label}}</text></view>
       </view>
 
       <view class="continue-action">

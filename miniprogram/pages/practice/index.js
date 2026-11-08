@@ -1,5 +1,6 @@
 const { loadStudy, savePractice } = require('../../services/study')
-const { errorMessage } = require('../../utils/error')
+const { errorMessage, isTimeoutError } = require('../../utils/error')
+const { playTapSound, playCorrectSound, playWrongSound } = require('../../utils/sound')
 
 function hasOwn(object, key) {
   return Object.prototype.hasOwnProperty.call(object, key)
@@ -80,6 +81,7 @@ Page({
     showHint: false,
     showReference: false,
     evaluating: false,
+    retrying: false,
     referenceLocked: false,
     rewriteHint: '',
     nextIndex: -1
@@ -90,8 +92,11 @@ Page({
   },
 
   load() {
-    this.setData({ loading: true, error: '' })
+    // 页面上已有内容时（从其它页面切回来）：不闪加载态，数据没变化就不重建
+    const warm = !!this.ready
+    if (!warm) this.setData({ loading: true, error: '' })
     loadStudy(true).then(({ article, unit }) => {
+      this.ready = true
       const unitData = article.unitData || {}
       const sourceItems = collectDrills(unitData)
       const rawRecords = unit.practiceRecords || {}
@@ -114,7 +119,8 @@ Page({
       const answer = item.id && hasOwn(answers, item.id) ? answers[item.id] : ''
       const currentRecord = item.id ? records[item.id] || null : null
       const passed = items.filter((practice) => practice.passed).length
-      this.setData(Object.assign({
+      const nextIndex = nextQuestionIndex(items, index)
+      const payload = Object.assign({
         loading: false,
         items,
         index,
@@ -126,17 +132,40 @@ Page({
         record: currentRecord,
         passed,
         nextReady: !items.length || passed === items.length,
-        nextIndex: nextQuestionIndex(items, index),
+        nextIndex,
         showHint: false,
         showReference: false
-      }, rewriteState(currentRecord)))
+      }, rewriteState(currentRecord))
+      // 签名只取影响界面的关键字段：和上次一致就跳过 setData，回页不再整页重建
+      const signature = JSON.stringify([
+        article._id,
+        article.aiStatus || '',
+        article.extractVersion || 0,
+        article.updatedAt || 0,
+        items.map((practice) => `${practice.id}:${practice.passed ? 1 : 0}:${String(practice.prompt || '').length}`).join(','),
+        index,
+        item.id || '',
+        (answer || '').length,
+        Object.keys(records).sort().map((key) => `${key}:${records[key].result || ''}:${records[key].attempt || 0}:${records[key].rule || ''}:${records[key].tip ? 1 : 0}:${records[key].usage ? 1 : 0}:${records[key].improvements ? records[key].improvements.length : 0}:${records[key].checklist ? records[key].checklist.map((entry) => `${entry.ok ? 1 : 0}-${(entry.zh || '').length}-${(entry.note || '').length}`).join('|') : ''}`).join(','),
+        passed,
+        nextIndex
+      ])
+      if (warm && signature === this.renderSignature) return
+      this.renderSignature = signature
+      this.setData(payload)
     }).catch((error) => {
+      // 回页刷新失败时保留已有内容，别把渲染好的页面换成错误页
+      if (warm) return
       this.setData({ loading: false, error: errorMessage(error) })
     })
   },
 
   selectQuestion(event) {
-    this.showQuestion(Number(event.currentTarget.dataset.index))
+    const index = Number(event.currentTarget.dataset.index)
+    if (index < 0 || index >= this.data.items.length) return
+    // 底部的上一题 / 跳过这一题带点击音效；上方的题目标签切换不加，避免太吵
+    if (event.currentTarget.dataset.sound) playTapSound()
+    this.showQuestion(index)
   },
 
   showQuestion(index) {
@@ -157,11 +186,15 @@ Page({
   },
 
   onAnswerInput(event) {
-    if (!this.data.item.id) return
+    const id = this.data.item.id
+    if (!id) return
     const answer = event.detail.value
-    const answers = Object.assign({}, this.data.answers)
-    answers[this.data.item.id] = answer
-    this.setData({ answers, answer, answerLength: answer.length })
+    // 只更新这一题的答案字段：不再每次按键复制并回传整份 answers
+    this.setData({
+      [`answers.${id}`]: answer,
+      answer,
+      answerLength: answer.length
+    })
   },
 
   toggleHint() {
@@ -191,8 +224,15 @@ Page({
     const attempt = previous && previous.result !== 'pass'
       ? (Number(previous.attempt) || 1) + 1
       : 1
-    this.setData({ evaluating: true })
-    savePractice(item.id, answer, attempt).then((record) => {
+    this.setData({ evaluating: true, retrying: false })
+    // 判题是幂等的（同一答案在服务端会复用已存结果）：超时类失败自动重试一次，
+    // 解决「第一次报错、再点一次提交才好」；首次超时后服务端会短路走本地判定，重试很快返回
+    const run = () => savePractice(item.id, answer, attempt)
+    run().catch((error) => {
+      if (!isTimeoutError(error)) throw error
+      this.setData({ retrying: true })
+      return run()
+    }).then((record) => {
       const records = Object.assign({}, this.data.records, { [item.id]: record })
       const items = this.data.items.map((practice) => Object.assign({}, practice, {
         passed: !!(records[practice.id] && records[practice.id].result === 'pass')
@@ -200,6 +240,7 @@ Page({
       const passed = items.filter((practice) => practice.passed).length
       const changes = Object.assign({
         evaluating: false,
+        retrying: false,
         records,
         items,
         passed,
@@ -211,9 +252,15 @@ Page({
         changes.showReference = false
       }
       this.setData(changes)
+      // 判定结果的声音反馈：通过播「答对啦」，未通过播「答错了」
+      if (record.result === 'pass') playCorrectSound()
+      else if (record.result === 'fail') playWrongSound()
+      if (record.saved === false) {
+        wx.showToast({ title: '这次结果没存上，下次进来会重新判定', icon: 'none', duration: 2500 })
+      }
     }).catch((error) => {
-      this.setData({ evaluating: false })
-      wx.showToast({ title: errorMessage(error), icon: 'none', duration: 2500 })
+      this.setData({ evaluating: false, retrying: false })
+      wx.showToast({ title: errorMessage(error, '评估服务响应慢，请再点一次提交'), icon: 'none', duration: 2500 })
     })
   },
 

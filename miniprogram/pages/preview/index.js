@@ -5,6 +5,20 @@ const { errorMessage: baseErrorMessage } = require('../../utils/error')
 
 const LEVEL_LABEL = { cet4: '四级', cet6: '六级' }
 
+// 导入成功后回题库：栈里已经有题库页就直接退回它，把导入页、校对页、本页一起出栈，
+// 否则退回最底层页面。避免用户按返回时又落回校对页，被反复要求「选择导入」
+function backToLibrary() {
+  const pages = getCurrentPages()
+  const target = pages.findIndex((page) => page.route === 'pages/library/index')
+  const delta = target >= 0 ? pages.length - 1 - target : pages.length - 1
+  if (delta > 0) {
+    wx.navigateBack({ delta })
+    return
+  }
+  // 兜底：栈里没有上一页时直接顶替当前页，保证不会又落回解析预览
+  wx.redirectTo({ url: '/pages/library/index' })
+}
+
 // 预览页兜底文案：其余错误处理逻辑统一走 utils/error
 const errorMessage = (error) => baseErrorMessage(error, '预览没有完成，请稍后重试')
 
@@ -302,7 +316,7 @@ Page({
         wx.showToast({ title: '已存入题库', icon: 'success', duration: 900 })
         this.redirectTimer = setTimeout(() => {
           this.redirectTimer = null
-          wx.redirectTo({ url: '/pages/library/index' })
+          backToLibrary()
         }, 900)
       })
       .catch((error) => {

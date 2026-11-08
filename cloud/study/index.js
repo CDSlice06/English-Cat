@@ -54,7 +54,11 @@ const PROGRESS_FIELDS = ['masteredWords', 'grammarViewed', 'phrasesViewed']
 // 9：关联连词只收完整结构（not only … but also），不再出现孤立的 not only
 // 10：词组库扩容到 500+ 条，补齐 be + 分词、动词短语、话题名词搭配与衔接语
 // 11：词汇分核心/拓展，并按 COCA/BNC 真实语料排名标注三档词频
-const EXTRACT_VERSION = 11
+// 12：词库补齐考研与高频外刊词，词组库补 76 条常用搭配
+// 13：语法库补时态/被动/情态/地点状语从句/关联连词/插入语；词组加类型标签并补漏 74 条；熟词生义扩到 314 条
+// 14：单词释义改为「词库释义 + 模型补全」合并；星级改为四六级常考度口径（大纲级别 + 语料词频）
+// 15：星级拆成四级 / 六级两套标尺（freq4 / freq6），页面按当前备考级别切换
+const EXTRACT_VERSION = 15
 
 // 「已认识」词表：每人一条文档，记录生词本里的词和在别的文章里点过掌握的词。
 // 解析新文章时命中只做标记、不再让模型解释，省下这部分 token
@@ -332,7 +336,7 @@ function vocabProgressOf(unit, vocabulary) {
   return { vocabTotal: list.length, vocabMastered: list.filter((item) => item && mastered.has(item.id)).length }
 }
 
-// 与前端 getProgress 同一口径：四个学习站各占 25%
+// 与前端 getProgress 同一口径：四站各占 25%，站内按完成条数比例连续计分
 function percentOf(article, unit) {
   if (!unit) return 0
   const data = (article && article.unitData) || {}
@@ -354,14 +358,12 @@ function percentOf(article, unit) {
   const passed = Object.keys(records)
     .filter((key) => drillIds.has(key) && records[key].result === 'pass').length
   const vocab = vocabProgressOf(unit, vocabulary)
-  const checks = [
-    // 词汇站要求本篇单词全部掌握
-    vocab.vocabMastered >= vocab.vocabTotal,
-    !grammarPoints.length || (unit.grammarViewed || []).length >= grammarPoints.length,
-    !phrases.length || (unit.phrasesViewed || []).length >= phrases.length,
-    !drills.length || passed >= drills.length
-  ]
-  return checks.filter(Boolean).length * 25
+  // 站内按比例计分：学会 5/20 个词就是 6%，不等整站通关
+  const ratio = (done, total) => (total > 0 ? Math.min(1, done / total) : 1)
+  return Math.round((ratio(vocab.vocabMastered, vocab.vocabTotal)
+    + ratio((unit.phrasesViewed || []).length, phrases.length)
+    + ratio((unit.grammarViewed || []).length, grammarPoints.length)
+    + ratio(passed, drills.length)) * 25)
 }
 
 // 换文章的限制：当前这篇学超过 35% 就锁住。
@@ -751,6 +753,8 @@ async function importArticle(openid, event) {
     // 预览带来的解析结果只在旧文章还没解析或版本过旧时补写
     if (previewUnit && (!existing.unitData || isExtractOutdated(existing))) {
       patch.unitData = _.set(previewUnit)
+      // 站点总数缓存跟着解析结果一起更新，题库列表才能算进度
+      patch.unitTotals = _.set(unitTotalsOf(previewUnit))
       patch.aiStatus = 'pending'
       patch.wordsPending = false
       patch.aiAt = null
@@ -768,6 +772,8 @@ async function importArticle(openid, event) {
         queued: true,
         startedOn: '',
         unitData: previewUnit,
+        // 解析结果随导入一起带进来时，顺手缓存站点总数（空则留空，等列表补算）
+        unitTotals: previewUnit ? unitTotalsOf(previewUnit) : null,
         aiStatus: 'pending',
         aiAt: null,
         status: 'ready',
@@ -843,6 +849,7 @@ async function listArticles(openid) {
       passage: true,
       wordCount: true,
       topic: true,
+      unitTotals: true,
       createdAt: true
     })
     .orderBy('createdAt', 'desc')
@@ -869,7 +876,126 @@ async function listArticles(openid) {
   // 列表里缺主题的文章就地补一次，否则用户必须逐篇点开才看得到。
   // 只取缺主题的、最多 12 篇，避免一次拉回几十万字正文
   await fillTopics(openid, items)
+  // 「已学完 / 学了 x%」标记：进度文档与站点总数合起来算
+  await attachProgress(openid, items, result.data || [])
   return success(items)
+}
+
+// 学习单元里有多少条内容要学：站点总数变了解析结果才变，
+// 所以只在保存解析结果时算一次，缓存在文章文档上给列表用
+function unitTotalsOf(unitData) {
+  const data = unitData || {}
+  const grammarPoints = Array.isArray(data.grammarPoints) ? data.grammarPoints : []
+  // 与 percentOf / 前端 getProgress 同一口径：同方向同题干只算一道题
+  const seen = new Set()
+  const drillIds = []
+  grammarPoints.forEach((point) => {
+    ;(point && point.drills || []).forEach((drill) => {
+      const key = `${drill.mode || ''}|${String(drill.prompt || '').trim().toLowerCase()}`
+      if (!drill.id || seen.has(key)) return
+      seen.add(key)
+      drillIds.push(drill.id)
+    })
+  })
+  return {
+    vocabulary: Array.isArray(data.vocabulary) ? data.vocabulary.length : 0,
+    grammarPoints: grammarPoints.length,
+    phrases: Array.isArray(data.phrases) ? data.phrases.length : 0,
+    drillIds
+  }
+}
+
+// 进度文档里有没有动过：用来区分「收藏进题库但没学」和「学了一点」
+function unitStarted(unit) {
+  if (!unit) return false
+  const records = unit.practiceRecords || {}
+  return (unit.masteredWords || []).length > 0
+    || (unit.grammarViewed || []).length > 0
+    || (unit.phrasesViewed || []).length > 0
+    || Object.keys(records).length > 0
+}
+
+// 与 percentOf 同一口径：四站各 25%，站内按完成条数比例连续计分。
+// totals 缺失（老文章还没补算）时 percent 返回 null，前端只显示「学过」
+function progressOf(totals, unit) {
+  const mastered = (unit && Array.isArray(unit.masteredWords) ? unit.masteredWords : []).length
+  if (!totals) return { percent: null, studied: unitStarted(unit), mastered, total: 0 }
+  const records = (unit && unit.practiceRecords) || {}
+  const drillIds = Array.isArray(totals.drillIds) ? totals.drillIds : []
+  const passed = drillIds.filter((id) => records[id] && records[id].result === 'pass').length
+  const grammarViewed = (unit && Array.isArray(unit.grammarViewed) ? unit.grammarViewed : []).length
+  const phrasesViewed = (unit && Array.isArray(unit.phrasesViewed) ? unit.phrasesViewed : []).length
+  const ratio = (done, total) => (total > 0 ? Math.min(1, done / total) : 1)
+  const percent = Math.round((ratio(mastered, Number(totals.vocabulary) || 0)
+    + ratio(phrasesViewed, Number(totals.phrases) || 0)
+    + ratio(grammarViewed, Number(totals.grammarPoints) || 0)
+    + ratio(passed, drillIds.length)) * 25)
+  return { percent, studied: unitStarted(unit), mastered, total: Number(totals.vocabulary) || 0 }
+}
+
+// 列表项补上进度字段：进度数组来自 article_units，站点总数来自文章上的 unitTotals
+async function attachProgress(openid, items, rows) {
+  if (!items.length) return
+  const ids = items.map((item) => item._id)
+  const units = new Map()
+  try {
+    const res = await db.collection('article_units')
+      .where({ openid, articleId: _.in(ids) })
+      .field({
+        articleId: true,
+        masteredWords: true,
+        grammarViewed: true,
+        phrasesViewed: true,
+        practiceRecords: true
+      })
+      .limit(100)
+      .get()
+    ;(res.data || []).forEach((unit) => units.set(unit.articleId, unit))
+  } catch (error) {
+    // 进度只是列表标记，查不到不影响题库本身
+    return
+  }
+  const totals = new Map(rows.map((row) => [row._id, row.unitTotals || null]))
+  // 老文章没缓存过站点总数：只给已经学过的补算，最多 20 篇一次，
+  // 补完写回 unitTotals，下次列表直接读缓存
+  const missing = items.filter((item) => units.has(item._id)
+    && unitStarted(units.get(item._id)) && !totals.get(item._id)).slice(0, 20)
+  if (missing.length) {
+    const filled = await backfillTotals(openid, missing.map((item) => item._id))
+    filled.forEach((value, id) => totals.set(id, value))
+  }
+  items.forEach((item) => {
+    const progress = progressOf(totals.get(item._id), units.get(item._id))
+    item.percent = progress.percent
+    item.studied = progress.studied
+    item.mastered = progress.mastered
+    item.vocabulary = progress.total
+  })
+}
+
+// 旧文章补算站点总数：单独查一次解析结果（不带正文），算完回写文章文档
+async function backfillTotals(openid, ids) {
+  const filled = new Map()
+  try {
+    const res = await db.collection('articles')
+      .where({ openid, _id: _.in(ids) })
+      .field({ unitData: true })
+      .limit(ids.length)
+      .get()
+    await Promise.all((res.data || []).map(async (row) => {
+      if (!row.unitData) return
+      const totals = unitTotalsOf(row.unitData)
+      filled.set(row._id, totals)
+      try {
+        await db.collection('articles').doc(row._id).update({ data: { unitTotals: totals } })
+      } catch (error) {
+        // 回写失败不影响本次展示，下次列表再补
+      }
+    }))
+  } catch (error) {
+    // 查询失败就都不标，下次再试
+  }
+  return filled
 }
 
 // 给列表里没有主题的文章补算：查正文 → 关键词打分 → 回写数据库并更新返回值
@@ -1052,6 +1178,8 @@ async function saveUnit(openid, event) {
     data: {
       // 文档里 unitData 初始是 null，必须整体替换，不能拆成点号路径
       unitData: _.set(incoming),
+      // 站点总数缓存：题库列表按它算「已学完 / 学了 x%」
+      unitTotals: _.set(unitTotalsOf(incoming)),
       // 规则结果已就绪，AI 精讲由工作台随后异步触发
       aiStatus: 'pending',
       // 重新解析后旧的「超纲词未补全」标记作废，等新一轮精讲重新判定

@@ -330,13 +330,16 @@ function savePractice(questionId, answer, attempt) {
     attempt: attempt || 1
   })
     .then((data) => {
+      const record = data.record
+      // 判定成功但进度没写进库（云函数侧两次重试都失败）：标出来让页面提示一下
+      if (record && data.saved === false) record.saved = false
       // 判题期间切了文章：记录照常返回，但不写入当前缓存
       if (cache && cache.article && cache.article._id === articleId) {
-        cache.unit.practiceRecords = Object.assign({}, cache.unit.practiceRecords, { [questionId]: data.record })
+        cache.unit.practiceRecords = Object.assign({}, cache.unit.practiceRecords, { [questionId]: record })
         cache.unit.version = data.version
         remember(cache)
       }
-      return data.record
+      return record
     })
 }
 
@@ -385,6 +388,13 @@ function getProgress(unit, unitData) {
     !drills.length || practicePassed >= drills.length
   ]
   const completed = checks.filter(Boolean).length
+  // 进度条要能连续走：四站各占 25%，站内再按完成条数的比例计分，
+  // 不再等到整站通过才跳一个 25%（没内容的站按满额计，与云端 percentOf 同一口径）
+  const ratio = (done, total) => (total > 0 ? Math.min(1, done / total) : 1)
+  const percent = Math.round((ratio(vocab.mastered, vocab.total)
+    + ratio(phrasesViewed, phrases.length)
+    + ratio(grammarViewed, grammarPoints.length)
+    + ratio(practicePassed, drills.length)) * 25)
   return {
     completed,
     total: 4,
@@ -394,7 +404,7 @@ function getProgress(unit, unitData) {
     grammarTotal: grammarPoints.length,
     phrasesViewed,
     phraseTotal: phrases.length,
-    percent: completed * 25
+    percent
   }
 }
 

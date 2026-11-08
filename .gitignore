@@ -5,6 +5,9 @@ project.private.config.json
 .pai/
 .codely-cli/
 
+# 本地私有数据：真题抓取的登录态与原文缓存，绝不进仓库
+.local/
+
 # 依赖与系统文件
 node_modules/
 .DS_Store

@@ -144,7 +144,8 @@ function suggest(prefix, limit) {
   })
 }
 
-// 词频星级：只读词库、不调模型；早期收藏的词没存频次，进页面时批量补一次
+// 星级：只读词库、不调模型，返回四级 / 六级两套星级 { [word]: { freq4, freq6 } }，
+// 页面按用户当前选的备考标尺取用；生词本只存词条，进页面时批量补一次
 function freqsOf(words) {
   const list = (Array.isArray(words) ? words : []).filter(Boolean).slice(0, 200)
   if (!list.length) return Promise.resolve({})
@@ -154,9 +155,10 @@ function freqsOf(words) {
       data: { action: 'freqs', words: list },
       success(res) {
         const result = (res && res.result) || {}
-        resolve(result.code === 0 && result.data ? result.data : {})
+        // 请求失败返回 null，页面不要把星级缓存成 0（那会把已有星星抹掉）
+        resolve(result.code === 0 && result.data ? result.data : null)
       },
-      fail() { resolve({}) }
+      fail() { resolve(null) }
     })
   })
 }

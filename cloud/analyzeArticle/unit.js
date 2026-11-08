@@ -158,6 +158,7 @@ function buildPhrases(text, limit = 60, skipKeys) {
       phrase: item.canonical,
       matched: item.phrase,
       pos: 'phr.',
+      type: item.type || '',
       meaning: item.meaning,
       note: item.note,
       sentence: item.sentence

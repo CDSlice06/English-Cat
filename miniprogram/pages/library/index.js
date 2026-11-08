@@ -1,6 +1,7 @@
 const { LEVELS, listOf, findByLevel, findById } = require('../../content/bank')
 const { startBankArticle } = require('../../services/article')
 const { listArticles, previewArticle, deleteArticle, setArticleYear } = require('../../services/study')
+const { playTapSound } = require('../../utils/sound')
 
 // 列表已经按年份分组，单条出处不再重复年份，只留「6月 · 第2套 · Passage 1」
 function issueShort(item) {
@@ -9,6 +10,23 @@ function issueShort(item) {
   if (item.paper) parts.push(`第${item.paper}套`)
   if (item.passage) parts.push(`Passage ${item.passage}`)
   return parts.join(' · ') || '真题'
+}
+
+// 学过的篇章在列表里留个标记：下次挑文章时不用逐篇点开确认
+function markProgress(item) {
+  const studied = item.studied === true
+  const percent = Number(item.percent)
+  let label = ''
+  let done = false
+  if (studied) {
+    if (percent >= 100) {
+      label = '已学完'
+      done = true
+    } else {
+      label = percent > 0 ? `学了 ${percent}%` : '已开始'
+    }
+  }
+  return Object.assign({}, item, { progressLabel: label, progressDone: done })
 }
 
 // 真题按年份归档：年份倒序，年内按月份、套数、篇号排，没填年份的收在最后一组
@@ -115,8 +133,9 @@ Page({
     const scoped = this.mineAll.filter((item) => item.level === level)
     // 归档归属以用户导入时的选择为准；旧数据没有 kind 时按年份兜底
     const isReal = (item) => item.kind === 'real' || (!item.kind && item.year > 0)
-    const real = scoped.filter(isReal).map((item) => Object.assign({}, item, { issue: issueShort(item) }))
-    const imported = scoped.filter((item) => !isReal(item))
+    const real = scoped.filter(isReal)
+      .map((item) => markProgress(Object.assign({}, item, { issue: issueShort(item) })))
+    const imported = scoped.filter((item) => !isReal(item)).map(markProgress)
     const groups = groupByYear(real)
     const years = yearChips(groups)
     // 切级别或删文章后，原来选中的年份可能已经空了，退回「全部」
@@ -278,6 +297,8 @@ Page({
   },
 
   goImport() {
+    // 先出声再跳转，让「这里能点」有即时反馈
+    playTapSound()
     // 带上当前分类，导入页据此预选归档位置，导入完还能回到同一分类
     const archive = this.data.source === 'real' ? '&archive=real'
       : (this.data.source === 'imported' ? '&archive=custom' : '')

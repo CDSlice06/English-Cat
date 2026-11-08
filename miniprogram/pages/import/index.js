@@ -2,8 +2,6 @@ const { loadStudy } = require('../../services/study')
 
 const MAX_BYTES = 8 * 1024 * 1024
 const ALLOWED_EXT = ['docx', 'pdf']
-// 一次最多识别 4 张照片：够拍 Passage 1 / Passage 2 的正文，逐页识别也不会撞云函数超时
-const MAX_IMAGES = 4
 
 function formatSize(bytes) {
   if (!bytes) return '0 KB'
@@ -14,14 +12,6 @@ function formatSize(bytes) {
 function extensionOf(name) {
   const match = String(name || '').toLowerCase().match(/\.([a-z0-9]+)$/)
   return match ? match[1] : ''
-}
-
-// 照片第一行就是真题页首（带年份或考试名）时拿来当文件名，
-// 校对页会据此自动填好级别、年份、月份和套数
-function examHeaderOf(texts) {
-  const first = (texts || []).find((item) => String(item || '').trim())
-  const line = String(first || '').split('\n')[0].trim().slice(0, 40)
-  return /(20\d{2})\s*年|真题|四级|六级|cet/i.test(line) ? line : ''
 }
 
 // 分页 OCR 需要连续多次调用，统一包成 Promise
@@ -41,8 +31,6 @@ Page({
     loading: true,
     error: '',
     file: null,
-    // 拍照 / 相册选中的图片：与文档二选一，最多 MAX_IMAGES 张
-    images: [],
     parsing: false,
     uploading: false,
     // 扫描件逐页识别阶段：进度条改为真实页数，并可取消
@@ -118,169 +106,6 @@ Page({
     if (this.data.parsing) return
     this.cleanupUploaded()
     this.setData({ file: null })
-  },
-
-  // ---------- 拍照 / 相册识别 ----------
-  // 纸质卷子和扫描件一样没有文字层，走同一条通道：上传图片 → 逐页 ocrPage → assemble 合并。
-  // 一次只识别一页，所以只拍需要的那两篇比上传整卷更快，也不受 8MB 文件上限限制
-  chooseImages() {
-    if (this.data.parsing) return
-    const room = MAX_IMAGES - this.data.images.length
-    if (room <= 0) {
-      wx.showToast({ title: `一次最多识别 ${MAX_IMAGES} 张`, icon: 'none' })
-      return
-    }
-    wx.chooseMedia({
-      count: room,
-      mediaType: ['image'],
-      sourceType: ['album', 'camera'],
-      sizeType: ['compressed'],
-      success: (result) => {
-        const picked = (result.tempFiles || []).filter((item) => item && item.tempFilePath)
-        if (picked.length) this.acceptImages(picked)
-      },
-      fail: (error) => {
-        if (error.errMsg && error.errMsg.indexOf('cancel') >= 0) return
-        wx.showToast({ title: '照片选择失败，请重试', icon: 'none' })
-      }
-    })
-  },
-
-  acceptImages(picked) {
-    const room = MAX_IMAGES - this.data.images.length
-    const accepted = picked.slice(0, room).map((item) => ({ path: item.tempFilePath }))
-    if (accepted.length < picked.length) {
-      wx.showToast({ title: `一次最多识别 ${MAX_IMAGES} 张`, icon: 'none' })
-    }
-    // 照片和文档是两条路，选了照片就把文档收起来，避免同时摆着两个入口
-    this.cleanupUploaded()
-    this.setData({ images: this.data.images.concat(accepted), file: null, lastError: '' })
-  },
-
-  removeImage(event) {
-    if (this.data.parsing) return
-    const index = Number(event.currentTarget.dataset.index)
-    const images = this.data.images.slice()
-    images.splice(index, 1)
-    this.setData({ images })
-  },
-
-  clearImages() {
-    if (this.data.parsing) return
-    this.setData({ images: [] })
-  },
-
-  parseImages() {
-    const images = this.data.images
-    if (!images.length) {
-      wx.showToast({ title: '请先拍照或选择照片', icon: 'none' })
-      return
-    }
-    if (this.data.parsing) return
-    this.abandoned = false
-    this.uploadAborted = false
-    this.ocrAborted = false
-    this.imageTasks = []
-    this.cleanupOcrFiles()
-    this.setData({
-      parsing: true,
-      uploading: true,
-      ocrRunning: false,
-      progress: 0,
-      lastError: '',
-      stageText: '正在压缩照片…'
-    })
-    this.runImageOcr(images)
-  },
-
-  // 上传 → 逐页识别 → 合并；任何一步失败都会清掉已上传的图片，重试时重新上传一遍
-  async runImageOcr(images) {
-    let fileIDs
-    try {
-      fileIDs = await this.uploadImages(images)
-    } catch (error) {
-      if (this.uploadAborted || this.abandoned) return
-      console.error('照片上传失败', error)
-      this.failParse({
-        code: 'UPLOAD',
-        message: '照片上传失败，请检查网络后重试',
-        retryable: true,
-        retry: () => this.parseImages()
-      })
-      return
-    }
-    if (this.abandoned) {
-      this.cleanupOcrFiles()
-      return
-    }
-    this.runOcrPages(fileIDs.map((fileID) => ({ fileID })), {
-      kind: 'photo',
-      // 页首能认出年份或考试名就拿它当文件名，校对页会自动填好出处
-      fileName: (texts) => examHeaderOf(texts) || '拍照识别',
-      pageWord: '照片',
-      emptyHint: '照片里没有识别出英文正文，可以只拍 Passage 1 / Passage 2 的正文再试，或直接把原文粘贴进来',
-      assembleHint: '（只拍正文、别把选择题一起拍进去，识别会更准）',
-      retry: () => this.parseImages()
-    })
-  },
-
-  // 手机直出照片 2-4MB：先压缩再传，识别质量不受影响，上传快很多
-  compressImage(src) {
-    return new Promise((resolve) => {
-      wx.compressImage({
-        src,
-        quality: 80,
-        success: (result) => resolve((result && result.tempFilePath) || src),
-        // 压不了就用原图，不阻断流程
-        fail: () => resolve(src)
-      })
-    })
-  },
-
-  // 两路并行上传：单张几秒，四张也不至于等太久
-  async uploadImages(images) {
-    const total = images.length
-    const prepared = []
-    for (let index = 0; index < total; index += 1) {
-      if (this.uploadAborted || this.abandoned) throw new Error('已取消上传')
-      this.setData({ stageText: `正在压缩照片 ${index + 1}/${total}…` })
-      prepared.push(await this.compressImage(images[index].path))
-    }
-    const fileIDs = new Array(total).fill('')
-    let cursor = 0
-    let uploaded = 0
-    const worker = async () => {
-      while (cursor < total) {
-        const index = cursor
-        cursor += 1
-        if (this.uploadAborted || this.abandoned) return
-        fileIDs[index] = await this.uploadOne(prepared[index], index)
-        uploaded += 1
-        this.setData({
-          progress: Math.round((uploaded / total) * 100),
-          stageText: `正在上传照片 ${uploaded}/${total}…`
-        })
-      }
-    }
-    await Promise.all([worker(), worker()])
-    if (this.uploadAborted || this.abandoned) throw new Error('已取消上传')
-    return fileIDs
-  },
-
-  uploadOne(filePath, index) {
-    return new Promise((resolve, reject) => {
-      const task = wx.cloud.uploadFile({
-        cloudPath: `ocr/${Date.now()}-${index + 1}.jpg`,
-        filePath,
-        success: (result) => {
-          // 登记进清理列表：中途取消或离开页面都不会留下孤儿图片
-          this.ocrFiles = (this.ocrFiles || []).concat([result.fileID])
-          resolve(result.fileID)
-        },
-        fail: (error) => reject(error)
-      })
-      if (task && task.abort) this.imageTasks.push(task)
-    })
   },
 
   parse() {
@@ -390,23 +215,19 @@ Page({
     }
   },
 
-  // 中止在途任务：文档上传与照片上传共用
+  // 中止在途的文档上传任务
   abortTasks() {
-    const tasks = [this.uploadTask].concat(this.imageTasks || [])
+    const task = this.uploadTask
     this.uploadTask = null
-    this.imageTasks = []
-    tasks.forEach((task) => {
-      if (task && task.abort) {
-        try { task.abort() } catch (error) { /* 已结束时 abort 会抛错，忽略 */ }
-      }
-    })
+    if (task && task.abort) {
+      try { task.abort() } catch (error) { /* 已结束时 abort 会抛错，忽略 */ }
+    }
   },
 
   cancelUpload() {
     if (!this.data.uploading) return
     this.uploadAborted = true
     this.clearUploadTimer()
-    // 文档是单个任务、照片是多张并行：统一中止，再清掉已经传上去的图
     this.abortTasks()
     this.cleanupOcrFiles()
     this.setData({ parsing: false, uploading: false, progress: 0, stageText: '' })
@@ -462,7 +283,6 @@ Page({
             kind: data.kind,
             fileName: data.fileName || file.name,
             warnings: data.warnings || [],
-            pageWord: '扫描页',
             retry: () => this.startParse(1)
           })
           return
@@ -510,10 +330,9 @@ Page({
   },
 
   // 逐页识别：一次只认一页，单次十几秒，页数再多也不会超时。
-  // 扫描件与照片共用同一条通道，pages: [{ fileID }]，清理列表由调用方登记进 this.ocrFiles
+  // pages: [{ fileID }]，清理列表由调用方登记进 this.ocrFiles
   async runOcrPages(pages, options) {
     const opts = options || {}
-    const pageWord = opts.pageWord || '扫描页'
     const total = pages.length
     const texts = new Array(total).fill('')
     this.ocrAborted = false
@@ -521,7 +340,7 @@ Page({
       ocrRunning: true,
       uploading: false,
       progress: 0,
-      stageText: `正在识别${pageWord} 1/${total}…`
+      stageText: `正在识别扫描页 1/${total}…`
     })
 
     let cursor = 0
@@ -554,7 +373,7 @@ Page({
         this.setData({
           progress: Math.round((done / total) * 100),
           stageText: done < total
-            ? `正在识别${pageWord} ${done + 1}/${total}…`
+            ? `正在识别扫描页 ${done + 1}/${total}…`
             : '正在整理文章…'
         })
       }
@@ -569,7 +388,6 @@ Page({
       this.failParse({
         code: 'EOCR',
         message: (lastError && (lastError.message || lastError.errMsg))
-          || opts.emptyHint
           || '这几页没有识别出文字，请换一份文件或直接粘贴原文',
         retryable: true,
         retry: opts.retry
@@ -577,7 +395,7 @@ Page({
       return
     }
     this.setData({ stageText: '正在整理文章…' })
-    const fileName = typeof opts.fileName === 'function' ? opts.fileName(texts) : opts.fileName
+    const fileName = opts.fileName
     try {
       const result = await callParse({
         action: 'assemble',
@@ -591,8 +409,7 @@ Page({
         this.cleanupOcrFiles()
         this.failParse({
           code: `E${Number(result.code) || '?'}`,
-          // 照片拍进了选择题之类的取景问题，在云端的提示后面补一句可操作的引导
-          message: (result.message || '识别结果整理失败，请重试') + (opts.assembleHint || ''),
+          message: result.message || '识别结果整理失败，请重试',
           retryable: true,
           retry: opts.retry
         })
@@ -668,7 +485,7 @@ Page({
       lastError: info.message
     })
     const retryable = info.retryable !== false
-    // 文档与照片的重试入口不同：调用方可以指定自己的重试方式
+    // 默认重跑文档提取；扫描件识别会带上自己的重试方式
     const retry = typeof info.retry === 'function' ? info.retry : () => this.startParse(1)
     wx.showModal({
       title: '没能提取到原文',
@@ -694,6 +511,13 @@ Page({
   },
 
   goBank() {
-    wx.navigateTo({ url: '/pages/library/index' })
+    // 栈里已经有题库页就直接退回它，否则顶替当前页；压入第二个题库会让返回键来回打转
+    const pages = getCurrentPages()
+    const target = pages.findIndex((page) => page.route === 'pages/library/index')
+    if (target >= 0 && pages.length - 1 - target > 0) {
+      wx.navigateBack({ delta: pages.length - 1 - target })
+      return
+    }
+    wx.redirectTo({ url: '/pages/library/index' })
   }
 })

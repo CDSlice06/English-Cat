@@ -55,11 +55,15 @@ function sanitizeText(value, maxLength) {
   return typeof value === 'string' ? value.trim().slice(0, maxLength) : ''
 }
 
-function normalizeWord(raw) {
+// 词组校验：省略号（so … that / not only … but also）和点号是词组本身的一部分，
+// 单词仍只收纯英文，避免把句子或符号塞进词库
+function normalizeWord(raw, entryType) {
+  const phrase = entryType === 'phrase'
   const word = String(raw || '').trim().toLowerCase().replace(/\s+/g, ' ')
-  if (!word) return { message: '请输入一个单词' }
-  if (word.length > 40) return { message: '单词太长了' }
-  if (!/^[a-z][a-z' -]*$/.test(word)) return { message: '只支持英文单词' }
+  if (!word) return { message: phrase ? '请输入一个词组' : '请输入一个单词' }
+  if (word.length > 40) return { message: phrase ? '词组太长了' : '单词太长了' }
+  const pattern = phrase ? /^[a-z][a-z' .\u2026-]*$/ : /^[a-z][a-z' -]*$/
+  if (!pattern.test(word)) return { message: phrase ? '只支持英文词组' : '只支持英文单词' }
   return { word }
 }
 
@@ -126,10 +130,10 @@ async function list(openid) {
 }
 
 async function add(openid, event) {
-  const normalized = normalizeWord(event.word)
+  const entryType = event.entryType === 'phrase' ? 'phrase' : 'word'
+  const normalized = normalizeWord(event.word, entryType)
   if (normalized.message) return failure(400, normalized.message)
 
-  const entryType = event.entryType === 'phrase' ? 'phrase' : 'word'
   const word = normalized.word
   const id = entryId(openid, entryType, word)
   const existing = await findById(id)

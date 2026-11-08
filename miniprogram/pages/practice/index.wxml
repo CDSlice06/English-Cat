@@ -69,6 +69,19 @@
         <text>{{answerLength}}/500</text>
       </view>
 
+      <view wx:if="{{evaluating}}" class="evaluating">
+        <cat-image name="sleepy-nap" size="small" />
+        <view class="evaluating-body">
+          <text class="evaluating-title">{{retrying ? '网络有点慢，正在自动重试…' : '正在逐句评估…'}}</text>
+          <text class="evaluating-desc">{{retrying ? '刚才那次评估超时了，不用再点，重试马上出结果。' : '比对整句的结构与用词，通常需要几秒。'}}</text>
+        </view>
+        <view class="evaluating-dots">
+          <view class="evaluating-dot"></view>
+          <view class="evaluating-dot"></view>
+          <view class="evaluating-dot"></view>
+        </view>
+      </view>
+
       <view wx:if="{{showHint}}" class="hint">
         <cat-image name="idea-bulb" size="small" />
         <text class="hint-text">{{item.hint}}</text>
@@ -80,9 +93,43 @@
           <text class="feedback-title">{{record.result === 'pass' ? '回答通过' : (record.result === 'fail' ? '再完善一下' : '暂未判定')}}</text>
         </view>
         <text class="feedback-text">{{record.feedback}}</text>
-        <view wx:if="{{record.tip}}" class="feedback-tip">
+        <view wx:if="{{record.checklist.length}}" class="feedback-check">
+          <text class="feedback-check-label">逐点核对</text>
+          <view
+            wx:for="{{record.checklist}}"
+            wx:for-item="check"
+            wx:key="index"
+            class="feedback-check-item {{check.ok ? '' : 'check-item-miss'}}"
+          >
+            <view class="check-mark {{check.ok ? 'check-ok' : 'check-miss'}}"></view>
+            <view class="check-body">
+              <text class="check-zh">{{check.zh}}</text>
+              <text wx:if="{{check.note}}" class="check-note">{{check.note}}</text>
+            </view>
+          </view>
+        </view>
+        <view wx:if="{{record.tip || record.usage}}" class="feedback-tip">
           <text class="feedback-tip-label">正确用法</text>
-          <text class="feedback-tip-text">{{record.tip}}</text>
+          <block wx:if="{{record.usage}}">
+            <text wx:if="{{record.usage.point}}" class="feedback-tip-text">{{record.usage.point}}</text>
+            <view wx:if="{{record.usage.wrong || record.usage.correct}}" class="feedback-tip-fix">
+              <text wx:if="{{record.usage.wrong}}" class="feedback-tip-wrong">你写的：{{record.usage.wrong}}</text>
+              <text wx:if="{{record.usage.correct}}" class="feedback-tip-right">这样写：{{record.usage.correct}}</text>
+            </view>
+            <text wx:if="{{record.usage.example}}" class="feedback-tip-example">例句：{{record.usage.example}}{{record.usage.exampleZh ? '（' + record.usage.exampleZh + '）' : ''}}</text>
+          </block>
+          <text wx:else class="feedback-tip-text">{{record.tip}}</text>
+        </view>
+        <view wx:if="{{record.improvements.length}}" class="feedback-improve">
+          <text class="feedback-improve-label">可以写得更好</text>
+          <view wx:for="{{record.improvements}}" wx:key="index" class="feedback-improve-item">
+            <view class="feedback-improve-fix">
+              <text class="improve-wrong">{{item.wrong}}</text>
+              <text class="improve-arrow">→</text>
+              <text class="improve-right">{{item.correct}}</text>
+            </view>
+            <text class="feedback-improve-point">{{item.point}}</text>
+          </view>
         </view>
         <view wx:if="{{rewriteHint}}" class="rewrite-hint">
           <text>{{rewriteHint}}</text>
@@ -99,7 +146,7 @@
       </view>
     </view>
 
-    <text class="demo-text">判定看整句意思与句型结构，不会直接告诉你缺哪个词；汉译英没通过时会附上这条语法的正确用法，照着改一遍更有效。</text>
+    <text class="demo-text">判定看整句意思与句型结构，不会直接写出缺的英文单词；汉译英会逐点核对你写到的信息，并附「正确用法」，照着改一遍更有效。</text>
 
     <next-station
       id="next-station"
@@ -120,16 +167,16 @@
       <text>{{passed}} 道已通过</text>
     </view>
     <primary-button
-      text="{{evaluating ? '评估中…' : (record && record.result === 'pass' ? (nextIndex < 0 ? '查看学习报告' : '下一题') : (referenceLocked ? '按讲解重写并提交' : '提交并评估'))}}"
+      text="{{evaluating ? (retrying ? '正在重试…' : '评估中…') : (record && record.result === 'pass' ? (nextIndex < 0 ? '查看学习报告' : '下一题') : (referenceLocked ? '按讲解重写并提交' : '提交并评估'))}}"
       disabled="{{evaluating || !item.id}}"
       bind:tap="primaryAction"
     />
     <view class="bar-nav">
-      <view class="bar-nav-item {{index === 0 ? 'nav-disabled' : ''}}" data-index="{{index - 1}}" bindtap="selectQuestion">
+      <view class="bar-nav-item {{index === 0 ? 'nav-disabled' : ''}}" data-index="{{index - 1}}" data-sound="1" bindtap="selectQuestion">
         <view class="nav-arrow nav-arrow-left"></view>
         <text>上一题</text>
       </view>
-      <view class="bar-nav-item {{index === items.length - 1 ? 'nav-disabled' : ''}}" data-index="{{index + 1}}" bindtap="selectQuestion">
+      <view class="bar-nav-item {{index === items.length - 1 ? 'nav-disabled' : ''}}" data-index="{{index + 1}}" data-sound="1" bindtap="selectQuestion">
         <text>跳过这一题</text>
         <view class="nav-arrow nav-arrow-right"></view>
       </view>

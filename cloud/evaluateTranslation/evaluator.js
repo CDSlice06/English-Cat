@@ -233,8 +233,8 @@ const ZH2EN_MIN_COVERAGE = 0.5
 const ZH2EN_MIN_ORDER = 0.5
 // 汉译英：相邻词对重合度
 const ZH2EN_MIN_PAIR = 0.35
-// 英译汉：中文字数比例门槛（防止只写几个关键词就通过）
-const EN2ZH_MIN_CHAR_RATIO = 0.7
+// 英译汉：中文字数比例门槛（防止只写几个关键词就通过；学生译文比参考精炼属正常，比例从宽）
+const EN2ZH_MIN_CHAR_RATIO = 0.6
 // 英译汉：中文二元组重合度门槛（配合字数门槛，拦住无关内容和复读）
 const EN2ZH_MIN_BIGRAM = 0.2
 // 英译汉：重合度足够高时不再要求关键词齐全
@@ -427,22 +427,32 @@ function fail(feedback, tip) {
 }
 
 const RULE_TIPS = {
-  incomplete: '完整句子要有主语和谓语；whether / if / 介词 / 冠词 / 助动词后面必须还有成分。例：I don\'t know whether he will come.',
+  incomplete: '句子要有完整的主谓结构：主语和谓语缺一不可，介词、冠词、助动词后面也还要有成分。例：The meeting was cancelled.（✗ The meeting was）',
   tail: '题目里的每一部分都要译出来，不能只写前半句就停下。',
   clause: 'whether / if 引导的是陈述语序：whether + 主语 + 谓语。例：I don\'t know whether he will come.（✗ whether will he come）',
   'clause-predicate': 'whether / if 后面必须是一个完整从句，从句要有自己的主语和谓语。例：I don\'t know whether he is ready.',
   'clause-subject': 'whether / if 本身就是引导词，一个从句只用一个，不能再和 that 叠加；后面必须接「主语 + 谓语」。例：I don\'t know whether he will come.（✗ whether is right）',
   subjectOrder: '陈述句里主语在谓语前面。例：The plan works well.（✗ Works the plan well.）',
   subjectGap: '主语和谓语要连在一起，介词短语（时间、地点、方式）放句首或句尾。例：She went to the park in the morning.',
-  tense: '描述过去发生的事，谓语要用过去式；不规则动词要单独记。例：She finished the task yesterday.（✗ She finish the task yesterday.）',
+  tense: '时态要和句中的时间对应：过去的事用过去式，已经开始并延续到现在的事用 have / has + 过去分词；不规则动词要单独记。例：She finished the task yesterday.（✗ She finish the task yesterday.）',
   modal: '情态动词后面接动词原形，不加 -ed / -s。例：You must finish it today.（✗ must finished）',
   agreement: '主语是第三人称单数、时态是现在时，动词要加 -s。例：He works here.（✗ He work here.）',
   determiner: '可数名词单数前面要有 a / an / the 或物主代词。例：This is a book.（✗ This is book.）',
   quantity: '表示「很多」时，可数名词用复数形式，前面用 many。例：Many students joined.（✗ many student）',
   inversion: '句首否定/only 类状语后面要部分倒装：状语 + 助动词 + 主语 + 谓语。例：Not only did he come, but he also stayed.',
   soThat: 'so + 形容词/副词 + that + 从句。例：It is so cold that we stayed home.（✗ so that cold）',
+  comparison: '比较结构要把比较的两头写完整：more / -er + 形容词 + than + 一个完整的从句或名词短语。例：The second test was harder than the first one.（✗ harder than the first was hard）',
+  adverbial: '状语从句要由引导词带出完整主谓：As / Since / Because / Although + 主语 + 谓语，再接主句。介词短语里没有主谓，不能直接当状语从句。',
+  prep: '介词后面接名词或动名词（doing），不能直接跟句子；介词短语也不能单独当句子主干。',
+  relative: '定语从句要把关系词放在从句开头，从句自带主谓：the book that I bought。关系词在从句里充当成分，不能重复写出被替换的词。',
+  subjunctive: '虚拟语气里，从句用过去式、主句用 would / could + 动词原形。例：If I had time, I would read more.',
+  nonfinite: '非谓语要和对应用法匹配：作主语或宾语用 doing，表目的用 to do，作状语时它的逻辑主语要和主句一致。',
+  parallel: '并列结构两边要对称：not only … but also …、both … and … 后面接同一种成分，不能一边是短语、一边是完整句子。',
+  passive: '被动语态是 be + 过去分词，时态体现在 be 上。例：The road was repaired last year.',
+  formalIt: '形式主语或形式宾语用 it 占位，真正的主语、宾语放到句子后面：It is important to keep trying.',
+  thereBe: '表示「存在」用 there be：there + be + 名词 + 地点或时间，不要和 have 混用。',
   order: '按「主语 + 谓语 + 其他成分」的顺序组织句子，先摆主干再补修饰。',
-  info: '先把句子的主干（谁、做什么、怎么样）译出来，再补细节。'
+  info: '先把句子的主干（谁、做什么、怎么样）译出来，再补细节：题目里的定语、状语、从句等每一块信息都要有对应表达，不能整块跳过。'
 }
 
 // 反向索引：讲解文案 → 错误类型 key，供重写循环和学习报告统计使用

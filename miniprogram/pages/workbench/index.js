@@ -3,8 +3,8 @@ const { loadStudy, getProgress, vocabStats, triggerEnhance, analyzeText, saveUni
 // 精讲要串两次模型调用（选点 + 讲解），最长接近一分钟，
 // 刷新窗口必须覆盖这段耗时，否则提示会一直挂着不动
 const MAX_AI_POLLS = 20
-// 精讲版本：4 表示句型名必须与句子实际结构一致，旧卡片需要重新精讲
-const DRILL_VERSION = 4
+// 精讲版本：5 表示讲解术语必须与原句一致，旧卡片需要重新精讲
+const DRILL_VERSION = 5
 
 Page({
   data: { loading: true, error: '', title: '', progress: {}, units: [], aiPending: false, aiFailed: false, aiStalled: false, repairing: false, resume: null },

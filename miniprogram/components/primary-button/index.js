@@ -1,3 +1,5 @@
+const { playTapSound } = require('../../utils/sound')
+
 Component({
   externalClasses: ['custom-class'],
   properties: {
@@ -6,6 +8,11 @@ Component({
     secondary: { type: Boolean, value: false }
   },
   methods: {
-    handleTap() { if (!this.data.disabled) this.triggerEvent('tap') }
+    handleTap() {
+      if (this.data.disabled) return
+      // 全站主按钮统一带点击音效，让「按下去」有即时反馈
+      playTapSound()
+      this.triggerEvent('tap')
+    }
   }
 })

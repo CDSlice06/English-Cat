@@ -15,7 +15,11 @@ const GRAMMAR_COLLECTION = 'grammarbooks'
 // 共享精讲缓存：同一篇正文 + 级别 + 精讲版本只生成一次，其他用户导入同一篇时直接复用
 const ARTICLE_CACHE = 'article_cache'
 // 抽取规则版本：规则一变，共享缓存必须跟着失效（与 study 的 EXTRACT_VERSION 对齐）
-const EXTRACT_VERSION = 11
+// 12：词库补齐考研与高频外刊词，词组库补 76 条常用搭配
+// 13：语法库补时态/被动/情态/地点状语从句/关联连词/插入语；词组加类型标签并补漏 74 条；熟词生义扩到 314 条
+// 14：单词释义改为「词库释义 + 模型补全」合并；星级改为四六级常考度口径（大纲级别 + 语料词频）
+// 15：星级拆成四级 / 六级两套标尺（freq4 / freq6），页面按当前备考级别切换
+const EXTRACT_VERSION = 15
 
 function knownDocId(openid) {
   return `kw_${openid}`
@@ -152,9 +156,10 @@ function dict() {
     Object.keys(common).forEach((word) => {
       if (!merged[word]) merged[word] = common[word]
     })
-    // 精选补充词库：大纲外的外刊进阶词、科技/健康/社科议题词、基础词缺口
+    // 精选补充词库：大纲外的外刊进阶词、科技/健康/社科议题词、基础词缺口。
+    // 这些条目的 tags 是「难度标签」而不是大纲标记，标 outside 让星级按超纲算
     Object.keys(extra).forEach((word) => {
-      if (!merged[word]) merged[word] = extra[word]
+      if (!merged[word]) merged[word] = Object.assign({ outside: true }, extra[word])
     })
     Object.keys(senses).forEach((word) => {
       merged[word] = mergeEntries(merged[word] || { ph: '', tags: 'core', frq: 0, bnc: 0, collins: 0, rank: 1500, meanings: [] }, senses[word])
@@ -657,17 +662,17 @@ function verbFormIndex() {
 // 词库没收录的超纲词返回 entry: null，交给后面的「超纲词」分支处理
 function resolveHead(surface) {
   const DICT = dict()
-  if (DICT[surface]) return { head: surface, entry: DICT[surface] }
+  if (DICT[surface]) return { head: surface, key: surface, entry: DICT[surface] }
   const base = verbFormIndex()[surface]
-  if (base && DICT[base]) return { head: base, entry: DICT[base] }
+  if (base && DICT[base]) return { head: base, key: base, entry: DICT[base] }
   const lemma = toLemma(surface)
   if (lemma && DICT[lemma]) {
     // 原形是动词才改写；corporations 这类名词复数保留原文写法，只借用原形释义
     return hasVerbSense(DICT[lemma])
-      ? { head: lemma, entry: DICT[lemma] }
-      : { head: surface, entry: DICT[lemma] }
+      ? { head: lemma, key: lemma, entry: DICT[lemma] }
+      : { head: surface, key: lemma, entry: DICT[lemma] }
   }
-  return { head: surface, entry: null }
+  return { head: surface, key: surface, entry: null }
 }
 
 // 派生词：implementation / abusive / dramatically 这类词库没单收，
@@ -885,26 +890,59 @@ const HIGH_SCHOOL_LIMIT = 2
 // 词库外的进阶词上限：真正没见过的难词多半不在词库里，名额要给足
 const EXTRA_LIMIT = 20
 
-// 词频星级只依据词库里的真实语料排名（ECDICT 收录的 COCA frq / BNC bnc / 柯林斯星级），
-// 没有数据的词宁可留空也不估算。阈值取自覆盖率研究：COCA 前 3000 词族覆盖约 85% 的
-// 书面文本，前 9000 词族覆盖九成以上，因此用 3000 / 9000 划高、中、低频
-const FREQ_HIGH_MAX = 3000
-const FREQ_MID_MAX = 9000
+// 星级口径：按「备考标尺」分四级、六级两套，同一个词在两套标尺下星级可以不同。
+// 标尺先看词在不在该级别的大纲里（词表标签 c4 = 四级大纲，c6 = 六级大纲；六级考试覆盖
+// 四级词，所以六级标尺把带 c4 / c6 的词都算在范围内）。
+// 星级优先读 exam-stars.json：那是 238 套真题正文的实测覆盖率（四级 76 套 / 六级 76 套），
+// ★★★ = 出现在 10% 以上试卷，★★ = 2.5% 以上，其余大纲词 ★；大纲外词一律 ★。
+// 表里查不到时才退回旧的 COCA / BNC 语料排名口径，保证任何词都有兜底星级。
+const CET_HIGH_MAX = 3000
+const CET_MID_MAX = 9000
 
-function freqLevelOf(entry) {
+let examStars = null
+let examStarsError = ''
+function starTable() {
+  if (examStars) return examStars
+  try {
+    examStars = require('./exam-stars.json')
+  } catch (error) {
+    examStars = {}
+    examStarsError = error && error.message ? error.message : String(error)
+    console.error('exam-stars.json 加载失败，星级退回语料排名口径：', examStarsError)
+  }
+  return examStars
+}
+
+function freqLevelFor(word, entry, target) {
   if (!entry) return 0
+  const key = String(word || '').trim().toLowerCase()
+  const hit = key ? starTable()[key] : null
+  if (hit) return target === 'cet6' ? (Number(hit[1]) || 0) : (Number(hit[0]) || 0)
+  const tags = entry.tags || ''
+  // 大纲外补充收录的外刊进阶词 / 话题词：对哪一级都是超纲，两个标尺都算一星
+  if (entry.outside) return 1
+  // 基础词（高中及以前就该掌握）在哪个级别的真题里出现频率都最高，两个标尺都给满星
+  if (tags.indexOf('core') >= 0) return 3
+  const cet4 = tags.indexOf('c4') >= 0
+  const cet6 = tags.indexOf('c6') >= 0
+  const inSyllabus = target === 'cet6' ? (cet4 || cet6) : cet4
+  if (!inSyllabus) return 1
   const rank = Number(entry.frq) || Number(entry.bnc) || 0
   if (rank > 0) {
-    if (rank <= FREQ_HIGH_MAX) return 3
-    if (rank <= FREQ_MID_MAX) return 2
+    if (rank <= CET_HIGH_MAX) return 3
+    if (rank <= CET_MID_MAX) return 2
     return 1
   }
-  // 没有 COCA / BNC 排名时只信柯林斯星级，仍取不到就返回 0（页面不显示星星）
   const collins = Number(entry.collins) || 0
   if (collins >= 5) return 3
   if (collins >= 4) return 2
   if (collins >= 1) return 1
   return 0
+}
+
+// 两套星级一次算好随文章一起存下，页面按用户选中的备考标尺取对应的那套
+function freqLevelsOf(word, entry) {
+  return { freq4: freqLevelFor(word, entry, 'cet4'), freq6: freqLevelFor(word, entry, 'cet6') }
 }
 
 // 超纲词判定：词库没收录不等于不该学，multinational / relentless 这类必须进生词表。
@@ -972,6 +1010,7 @@ function pickVocabulary(sentences, level, learned) {
           if (!hasRare(entry) || familiarCount >= HIGH_SCHOOL_LIMIT) return
           familiarCount += 1
         }
+        const levels = freqLevelsOf(resolved.key || head, entry)
         item = {
           id: '',
           word: head,
@@ -980,8 +1019,9 @@ function pickVocabulary(sentences, level, learned) {
           categories,
           forms: entry.forms || {},
           derivatives: entry.der || [],
-          // 词频星级：3 高频 / 2 中频 / 1 低频 / 0 语料未收录
-          freq: freqLevelOf(entry),
+          // 星级：四级 / 六级两套（3 高频 / 2 常考 / 1 低频 / 0 未收录）
+          freq4: levels.freq4,
+          freq6: levels.freq6,
           score: difficultyScore(entry, level)
         }
       } else {
@@ -995,6 +1035,7 @@ function pickVocabulary(sentences, level, learned) {
           ? categoriesOf(info.entry).filter((key) => key === 'cet4' || key === 'cet6')
           : []
         const meanings = info ? info.senses : []
+        const levels = freqLevelsOf(info && info.baseWord, info && info.entry)
         item = {
           id: '',
           word: head,
@@ -1004,8 +1045,9 @@ function pickVocabulary(sentences, level, learned) {
           forms: {},
           derivatives: [],
           baseWord: info ? info.baseWord : '',
-          // 词库外的进阶词没有语料排名，不猜星级，页面不显示星星
-          freq: freqLevelOf(info && info.entry),
+          // 词库外的派生词沿用词根的真题星级，词根本身没星级时才留空
+          freq4: levels.freq4,
+          freq6: levels.freq6,
           pending: !meanings.length,
           score: 6200 + head.length * 40 + Math.min(freq[lower] || 1, 5) * 120
         }
@@ -1076,6 +1118,232 @@ function buildUnitData(text, level, learned) {
   }
 }
 
+// ---------- 同根词与形近词 ----------
+// 词卡除了变形，还想看到「同根词」和「拼写很像的词」，方便联想记忆。
+// 词库的 der 只登记了一部分词根的派生词，其余按词干归并补足；
+// 形近词按「首二字母 / 尾三字母」分桶后算编辑距离，避免全表两两比较
+let relatedIndex = null
+
+// 长后缀优先，剥到 3 个字母为止，最多两轮
+const STEM_SUFFIXES = [
+  'ologically', 'ological', 'ologists', 'ologist', 'ologies', 'ology',
+  'ization', 'isation', 'ational', 'ations', 'ation', 'itions', 'ition',
+  'ments', 'ment', 'nesses', 'ness', 'ities', 'ity', 'ances', 'ance', 'ences', 'ence',
+  'ency', 'ancy', 'antly', 'ent', 'ant', 'ables', 'able', 'ibles', 'ible',
+  'ically', 'ally', 'ical', 'ics', 'ic',
+  'ives', 'ive', 'ings', 'ing', 'eds', 'ed', 'ers', 'er', 'ors', 'or',
+  'ists', 'ist', 'isms', 'ism', 'ious', 'ous', 'ship', 'hood', 'ward', 'wise',
+  'cratic', 'cracy', 'crat', 'ique',
+  'ly', 'ion', 'ate', 'ize', 'ise', 'al'
+]
+
+function stemOf(word) {
+  let stem = word
+  for (let round = 0; round < 4; round += 1) {
+    // 逐轮剥后缀，直到剥不动；第二轮起不剥两个字母的后缀（generate 会被 er 削成 gen），
+    // 并且不剥 ic（implic 会变成 impl，和 implant 撞车）
+    const minLeft = round === 0 ? 3 : 4
+    const minSuffix = round === 0 ? 1 : 3
+    let hit = false
+    for (let i = 0; i < STEM_SUFFIXES.length; i += 1) {
+      const suffix = STEM_SUFFIXES[i]
+      if (round > 0 && suffix === 'ic') continue
+      if (suffix.length >= minSuffix && stem.endsWith(suffix) && stem.length - suffix.length >= minLeft) {
+        stem = stem.slice(0, -suffix.length)
+        hit = true
+        break
+      }
+    }
+    if (!hit) break
+  }
+  // 只在词干够长时去词尾 e（nature → natur），否则 implement 会变成 impl、和 implant 撞车
+  if (stem.endsWith('e') && stem.length >= 6) stem = stem.slice(0, -1)
+  // academy / academic、economy / economic：去掉词尾 y 后再比词干
+  if (stem.endsWith('y')) stem = stem.slice(0, -1)
+  return stem
+}
+
+function pushBucket(map, key, word) {
+  const list = map.get(key)
+  if (list) list.push(word)
+  else map.set(key, [word])
+}
+
+// 词干只差一两个字母也算同根（generate / generative、nation / native），
+// 短词干不放宽，避免 implement 和 implant 这类误并
+function sameStem(a, b) {
+  if (a === b) return true
+  const short = a.length <= b.length ? a : b
+  const long = short === a ? b : a
+  return short.length >= 5 && long.startsWith(short) && long.length - short.length <= 2
+}
+
+function buildRelatedIndex() {
+  if (relatedIndex) return relatedIndex
+  const all = dict()
+  const stems = new Map()
+  const owners = new Map()
+  const head2 = new Map()
+  const tail3 = new Map()
+  Object.keys(all).forEach((word) => {
+    if (!/^[a-z]{3,}$/.test(word)) return
+    pushBucket(stems, stemOf(word), word)
+    const der = Array.isArray(all[word].der) ? all[word].der : []
+    der.forEach((item) => {
+      const child = String((item && item.w) || '').toLowerCase()
+      // 只认第一次登记的词根，避免同一个派生词挂到多个词根上
+      if (child && !owners.has(child)) owners.set(child, word)
+    })
+    if (word.length >= 4) {
+      pushBucket(head2, word.slice(0, 2), word)
+      pushBucket(tail3, word.slice(-3), word)
+    }
+  })
+  relatedIndex = { stems, owners, head2, tail3 }
+  return relatedIndex
+}
+
+// 带相邻字母互换的编辑距离（quite / quiet 只算一步）
+function editDistance(a, b) {
+  const m = a.length
+  const n = b.length
+  let prev2 = null
+  let prev = new Array(n + 1)
+  for (let j = 0; j <= n; j += 1) prev[j] = j
+  for (let i = 1; i <= m; i += 1) {
+    const row = new Array(n + 1)
+    row[0] = i
+    for (let j = 1; j <= n; j += 1) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      let value = Math.min(prev[j] + 1, row[j - 1] + 1, prev[j - 1] + cost)
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        value = Math.min(value, prev2[j - 2] + 1)
+      }
+      row[j] = value
+    }
+    prev2 = prev
+    prev = row
+  }
+  return prev[n]
+}
+
+function commonPrefixLength(a, b) {
+  let i = 0
+  while (i < a.length && i < b.length && a[i] === b[i]) i += 1
+  return i
+}
+
+function commonSuffixLength(a, b) {
+  let i = 0
+  while (i < a.length && i < b.length && a[a.length - 1 - i] === b[b.length - 1 - i]) i += 1
+  return i
+}
+
+// 词频越小越常见，和联想词同一套排序口径
+function relatedRank(word) {
+  const entry = dict()[word]
+  if (!entry) return 9000
+  if (entry.frq > 0) return entry.frq
+  return (String(entry.tags || '').indexOf('core') >= 0) ? 4000 : (entry.rank || 6000)
+}
+
+function relatedItem(word) {
+  const entry = dict()[word]
+  if (!entry) return null
+  const meaning = (entry.meanings || [])[0] || {}
+  return {
+    w: word,
+    pos: meaning.pos || '',
+    def: meaning.def ? String(meaning.def).split(/[,，;；]/)[0] : ''
+  }
+}
+
+// 词卡上的两块补充：同根（派生 / 词根 / 兄弟词）与形近（拼写只差一点）
+function relatedOf(raw) {
+  const key = String(raw || '').trim().toLowerCase()
+  const all = dict()
+  const entry = all[key]
+  if (!entry) return { family: [], similar: [] }
+  const index = buildRelatedIndex()
+  const family = []
+  const seen = new Set([key])
+  const push = (candidate) => {
+    if (!candidate || candidate === key || seen.has(candidate) || family.length >= 4) return
+    if (!all[candidate]) return
+    seen.add(candidate)
+    const item = relatedItem(candidate)
+    if (item) family.push(item)
+  }
+  // 自己登记的派生词：accept → acceptance / acceptable
+  ;(Array.isArray(entry.der) ? entry.der : []).forEach((item) => {
+    const child = String((item && item.w) || '').toLowerCase()
+    if (!child || child === key || seen.has(child) || family.length >= 4) return
+    seen.add(child)
+    family.push({
+      w: child,
+      pos: (item && item.pos) || '',
+      def: (item && item.def) ? String(item.def).split(/[,，;；]/)[0] : ''
+    })
+  })
+  // 自己就是派生词：补上词根和兄弟词，acceptance → accept / acceptable
+  const root = index.owners.get(key)
+  if (root) {
+    push(root)
+    ;((all[root] && all[root].der) || []).forEach((item) => {
+      push(String((item && item.w) || '').toLowerCase())
+    })
+  }
+  // 同词干：academy / academic、generate / generation；三个字母的词干太容易撞车（create / creed），不用
+  const stem = stemOf(key)
+  if (stem.length >= 4) (index.stems.get(stem) || []).forEach(push)
+  ;(index.head2.get(key.slice(0, 2)) || []).forEach((candidate) => {
+    const other = stemOf(candidate)
+    // 三个字母的词干很容易碰巧相同：create / creed、apply / appal，要求词本身前四个字母也一致；
+    // nation / native 这种真同根能留下
+    if (other.length >= 4 || commonPrefixLength(key, candidate) >= 4) {
+      if (sameStem(other, stem)) push(candidate)
+    }
+  })
+
+  // 形近：拼写只差一个字母（含相邻互换）；差两个字母的只在没有更近候选时补位
+  const similar = []
+  const buckets = []
+  ;(index.head2.get(key.slice(0, 2)) || []).forEach((word) => buckets.push(word))
+  ;(index.tail3.get(key.slice(-3)) || []).forEach((word) => buckets.push(word))
+  const near = []
+  const far = []
+  const relaxed = []
+  const taken = new Set()
+  buckets.forEach((candidate) => {
+    if (candidate === key || seen.has(candidate) || taken.has(candidate)) return
+    if (Math.abs(candidate.length - key.length) > 2) return
+    if (sameStem(stemOf(candidate), stemOf(key))) return
+    taken.add(candidate)
+    const distance = editDistance(key, candidate)
+    if (distance > 2) return
+    const shared = commonPrefixLength(key, candidate) + commonSuffixLength(key, candidate)
+    if (distance === 1) near.push({ word: candidate, distance, shared })
+    else if (shared >= 5) far.push({ word: candidate, distance, shared })
+    else relaxed.push({ word: candidate, distance, shared })
+  })
+  const compare = (a, b) => (b.shared - a.shared) || (a.distance - b.distance)
+    || (Math.abs(a.word.length - key.length) - Math.abs(b.word.length - key.length))
+    || (relatedRank(a.word) - relatedRank(b.word))
+  near.sort(compare)
+  far.sort(compare)
+  relaxed.sort(compare)
+  // 一个字母之差的候选够多时不再掺两个字母的，避免凑数
+  let pool = near.length >= 2 ? near : near.concat(far)
+  // 一个同根词都没有、也没有近邻（absorb / alarm / people）：放宽到共享两个字母的二级近邻，
+  // 总比空着强；有同根词时宁缺毋滥
+  if (!pool.length && !family.length) pool = relaxed.filter((item) => item.shared >= 2)
+  pool.slice(0, 4).forEach((item) => {
+    const related = relatedItem(item.word)
+    if (related) similar.push(related)
+  })
+  return { family, similar }
+}
+
 // 单词查询：供个人词库补全音标、词性释义、变形与派生
 function lookupWord(raw) {
   const word = String(raw || '').trim().toLowerCase()
@@ -1095,26 +1363,34 @@ function lookupWord(raw) {
     // 词库没单收的派生词（implementation / abusive）用词根释义兜底，不要直接查不到
     const info = derivedInfo(word)
     if (!info || !info.senses.length) return null
+    const related = relatedOf(info.baseWord)
     return {
       word,
       phonetic: info.entry && info.entry.ph ? `/${info.entry.ph}/` : '',
       meanings: info.senses.map((sense) => ({ pos: sense.pos, definition: sense.definition, rare: !!sense.rare })),
       forms: {},
       derivatives: [],
-      freq: freqLevelOf(info.entry),
+      family: related.family,
+      similar: related.similar,
+      freq4: freqLevelsOf(info.baseWord, info.entry).freq4,
+      freq6: freqLevelsOf(info.baseWord, info.entry).freq6,
       categories: info.entry
         ? categoriesOf(info.entry).filter((key) => key === 'cet4' || key === 'cet6')
         : ['difficult']
     }
   }
   const meanings = pickMeanings(entry, 4, key).map(toMeaning)
+  const related = relatedOf(key)
   return {
     word: key,
     phonetic: entry.ph ? `/${entry.ph}/` : '',
     meanings,
     forms: entry.forms || {},
     derivatives: (entry.der || []).slice(0, 4),
-    freq: freqLevelOf(entry),
+    family: related.family,
+    similar: related.similar,
+    freq4: freqLevelsOf(key, entry).freq4,
+    freq6: freqLevelsOf(key, entry).freq6,
     categories: categoriesOf(entry)
   }
 }
@@ -1160,7 +1436,8 @@ function suggestWords(raw, limit) {
       word,
       phonetic: entry.ph ? `/${entry.ph}/` : '',
       meanings: pickMeanings(entry, 1, word).map(toMeaning),
-      freq: freqLevelOf(entry)
+      freq4: freqLevelsOf(word, entry).freq4,
+      freq6: freqLevelsOf(word, entry).freq6
     })
   }
 
@@ -1309,7 +1586,8 @@ exports.main = async (event = {}) => {
     return success(entry)
   }
 
-  // 生词本批量补词频：只读词库，不调模型，用于给早期收藏的词补上星级
+  // 生词本批量补词频：只读词库，不调模型，用于给早期收藏的词补上星级。
+  // 返回四级 / 六级两套星级，页面按用户当前备考标尺取用；顺带给出同根词与形近词
   if (event.action === 'freqs') {
     const words = Array.isArray(event.words) ? event.words.slice(0, 200) : []
     const map = {}
@@ -1317,7 +1595,13 @@ exports.main = async (event = {}) => {
       const key = String(raw || '').trim().toLowerCase()
       if (!key || Object.prototype.hasOwnProperty.call(map, key)) return
       const entry = lookupWord(key)
-      if (entry && entry.freq) map[key] = entry.freq
+      if (!entry) return
+      map[key] = {
+        freq4: entry.freq4 || 0,
+        freq6: entry.freq6 || 0,
+        family: entry.family || [],
+        similar: entry.similar || []
+      }
     })
     return success(map)
   }

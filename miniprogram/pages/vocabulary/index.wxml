@@ -1,4 +1,4 @@
-﻿<view class="page has-bar" bindtap="closeSwipe">
+<view class="page has-bar" bindtap="closeSwipe">
   <view wx:if="{{loading}}" class="loading">
     <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
     <text>正在加载学习数据…</text>
@@ -60,6 +60,22 @@
       <view class="filter-fade"></view>
     </view>
 
+    <view class="cet-bar">
+      <text class="cet-bar-label">星级标尺</text>
+      <view class="cet-seg">
+        <view
+          class="cet-seg-item {{cetTarget === 'cet4' ? 'cet-seg-on' : ''}}"
+          bind:tap="selectCetTarget"
+          data-target="cet4"
+        >四级</view>
+        <view
+          class="cet-seg-item {{cetTarget === 'cet6' ? 'cet-seg-on' : ''}}"
+          bind:tap="selectCetTarget"
+          data-target="cet6"
+        >六级</view>
+      </view>
+    </view>
+
     <view class="result-head">
       <view class="result-title-wrap">
         <text class="result-stamp en">WORDS</text>
@@ -69,7 +85,7 @@
         <text class="result-count">{{words.length}} 个词</text>
         <view class="freq-help" bind:tap="showFreqHelp">
           <text class="freq-help-mark">?</text>
-          <text>词频</text>
+          <text>星级说明</text>
         </view>
       </view>
     </view>
@@ -115,16 +131,16 @@
             </view>
             <text class="phonetic">{{item.phonetic}}</text>
             <view class="word-meta">
-              <view wx:if="{{item.freq}}" class="freq-stars">
+              <view wx:if="{{item.star}}" class="freq-stars">
                 <view
                   wx:for="{{[1, 2, 3]}}"
                   wx:for-item="level"
                   wx:key="*this"
-                  class="freq-star {{level <= item.freq ? 'freq-star-on' : ''}}"
+                  class="freq-star {{level <= item.star ? 'freq-star-on' : ''}}"
                 ></view>
-                <text class="freq-word">{{item.freq >= 3 ? '高频' : (item.freq === 2 ? '中频' : '低频')}}</text>
+                <text class="freq-word">{{item.starLabel}}</text>
               </view>
-              <text wx:else class="freq-none">词频未收录</text>
+              <text wx:else class="freq-none">星级未收录</text>
             </view>
           </view>
           <view class="master-button {{item.mastered ? 'mastered-button' : ''}} {{saving ? 'button-saving' : ''}}" bind:tap="toggleWord" data-id="{{item.id}}">
@@ -142,7 +158,7 @@
         </view>
 
         <view class="word-more" bind:tap="toggleMore" data-id="{{item.id}}">
-          <text>{{item.expanded ? '收起变形与例句' : '展开变形 · 派生 · 例句'}}</text>
+          <text>{{item.expanded ? '收起变形与例句' : '展开变形 · 派生 · 形近 · 例句'}}</text>
           <view class="more-arrow {{item.expanded ? 'more-arrow-on' : ''}}"></view>
         </view>
 
@@ -162,6 +178,18 @@
                   <text class="der-pos">{{der.pos}}</text>
                 </view>
                 <text wx:if="{{der.def}}" class="der-def">{{der.def}}</text>
+              </view>
+            </view>
+          </view>
+          <view class="word-family" wx:if="{{item.similar.length}}">
+            <text class="family-label">形近</text>
+            <view class="der-list">
+              <view wx:for="{{item.similar}}" wx:key="w" wx:for-item="near" class="der-row">
+                <view class="der-head">
+                  <text class="der-word en">{{near.w}}</text>
+                  <text class="der-pos">{{near.pos}}</text>
+                </view>
+                <text wx:if="{{near.def}}" class="der-def">{{near.def}}</text>
               </view>
             </view>
           </view>

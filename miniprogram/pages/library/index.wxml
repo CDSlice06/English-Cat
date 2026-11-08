@@ -72,12 +72,15 @@
         <view class="lib-arrow"></view>
       </view>
     </view>
-    <view class="lib-import-tip" bind:tap="goImport">
+    <view class="lib-import-tip" hover-class="lib-import-hover" hover-stay-time="80" bind:tap="goImport">
       <view class="lib-import-copy">
         <text class="lib-import-title">手里有真题原文？</text>
         <text class="lib-import-desc">粘贴或上传 Word / PDF，导入时选择归档位置：真题进「我的真题」，其他进「其它篇目」</text>
       </view>
-      <view class="lib-arrow"></view>
+      <view class="lib-import-cta">
+        <text>去导入</text>
+        <view class="lib-arrow"></view>
+      </view>
     </view>
   </block>
 
@@ -118,7 +121,10 @@
           >
             <view class="lib-index en">{{iIndex + 1}}</view>
             <view class="lib-item-copy">
-              <text class="lib-item-title">{{item.title}}</text>
+              <view class="lib-item-head">
+                <text class="lib-item-title">{{item.title}}</text>
+                <text wx:if="{{item.progressLabel}}" class="lib-progress {{item.progressDone ? 'lib-progress-done' : ''}}">{{item.progressLabel}}</text>
+              </view>
               <view class="lib-item-meta">
                 <text class="lib-issue">{{item.issue}}</text>
                 <text wx:if="{{item.topic}}" class="lib-dot">·</text>
@@ -144,12 +150,15 @@
     </view>
 
     <!-- 已有篇目时也要能继续往当前分类里加 -->
-    <view wx:if="{{realGroups.length}}" class="lib-import-tip" bind:tap="goImport">
+    <view wx:if="{{realGroups.length}}" class="lib-import-tip" hover-class="lib-import-hover" hover-stay-time="80" bind:tap="goImport">
       <view class="lib-import-copy">
         <text class="lib-import-title">再收一篇真题</text>
         <text class="lib-import-desc">上传 Word / PDF 或粘贴原文，归档到「我的真题」；整卷会自动拆成 Passage 1 / 2</text>
       </view>
-      <view class="lib-arrow"></view>
+      <view class="lib-import-cta">
+        <text>去导入</text>
+        <view class="lib-arrow"></view>
+      </view>
     </view>
   </block>
 
@@ -166,7 +175,10 @@
       >
         <view class="lib-index en">{{index + 1}}</view>
         <view class="lib-item-copy">
-          <text class="lib-item-title">{{item.title}}</text>
+          <view class="lib-item-head">
+            <text class="lib-item-title">{{item.title}}</text>
+            <text wx:if="{{item.progressLabel}}" class="lib-progress {{item.progressDone ? 'lib-progress-done' : ''}}">{{item.progressLabel}}</text>
+          </view>
           <view wx:if="{{item.topic || item.words}}" class="lib-item-meta">
             <text wx:if="{{item.topic}}" class="lib-topic">{{item.topic}}</text>
             <text wx:if="{{item.topic && item.words}}" class="lib-dot">·</text>
@@ -187,12 +199,15 @@
     </view>
 
     <!-- 已有篇目时也要能继续往当前分类里加 -->
-    <view wx:if="{{mineView.length}}" class="lib-import-tip" bind:tap="goImport">
+    <view wx:if="{{mineView.length}}" class="lib-import-tip" hover-class="lib-import-hover" hover-stay-time="80" bind:tap="goImport">
       <view class="lib-import-copy">
         <text class="lib-import-title">再收一篇到其它篇目</text>
         <text class="lib-import-desc">上传 Word / PDF 或粘贴原文，归档到「其它篇目」</text>
       </view>
-      <view class="lib-arrow"></view>
+      <view class="lib-import-cta">
+        <text>去导入</text>
+        <view class="lib-arrow"></view>
+      </view>
     </view>
   </block>
 

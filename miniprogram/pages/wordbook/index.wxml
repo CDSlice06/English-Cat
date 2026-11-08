@@ -103,9 +103,23 @@
       </view>
     </view>
 
-    <view class="freq-legend" bind:tap="showFreqHelp">
-      <text>词频星级取自 COCA / BNC 真实语料排名</text>
-      <text class="freq-legend-mark">?</text>
+    <view class="freq-legend">
+      <view class="cet-seg">
+        <view
+          class="cet-seg-item {{cetTarget === 'cet4' ? 'cet-seg-on' : ''}}"
+          bind:tap="selectCetTarget"
+          data-target="cet4"
+        >四级</view>
+        <view
+          class="cet-seg-item {{cetTarget === 'cet6' ? 'cet-seg-on' : ''}}"
+          bind:tap="selectCetTarget"
+          data-target="cet6"
+        >六级</view>
+      </view>
+      <view class="freq-legend-help" bind:tap="showFreqHelp">
+        <text>星级按{{cetLabel}}标尺</text>
+        <text class="freq-legend-mark">?</text>
+      </view>
     </view>
 
     <view class="list">
@@ -119,16 +133,16 @@
           <view class="wb-main">
             <text class="wb-word en">{{item.word}}</text>
             <text class="wb-phonetic">{{item.phonetic}}</text>
-            <view wx:if="{{item.freq}}" class="wb-meta">
+            <view wx:if="{{item.star}}" class="wb-meta">
               <view class="wb-stars">
                 <view
                   wx:for="{{[1, 2, 3]}}"
                   wx:for-item="level"
                   wx:key="*this"
-                  class="wb-star {{level <= item.freq ? 'wb-star-on' : ''}}"
+                  class="wb-star {{level <= item.star ? 'wb-star-on' : ''}}"
                 ></view>
               </view>
-              <text class="wb-freq">{{item.freq >= 3 ? '高频' : (item.freq === 2 ? '中频' : '低频')}}</text>
+              <text class="wb-freq">{{item.starLabel}}</text>
             </view>
             <view class="wb-speak"><speak-btn word="{{item.word}}" /></view>
           </view>

@@ -1,6 +1,7 @@
 const { loadStudy, resetStudy, loadOverview } = require('../../services/study')
 const wordbook = require('../../services/wordbook')
 const grammarbook = require('../../services/grammarbook')
+const { playTapSound } = require('../../utils/sound')
 
 const EMPTY_COUNTS = { total: 0, known: 0, unknown: 0 }
 
@@ -39,12 +40,15 @@ Page({
       .catch((error) => this.setData({ loading: false, error: error.message }))
   },
   goWordbook() {
+    playTapSound()
     wx.navigateTo({ url: '/pages/wordbook/index' })
   },
   goPhrasebook() {
+    playTapSound()
     wx.navigateTo({ url: '/pages/phrasebook/index' })
   },
   goGrammarbook() {
+    playTapSound()
     wx.navigateTo({ url: '/pages/grammarbook/index' })
   },
   reset() {

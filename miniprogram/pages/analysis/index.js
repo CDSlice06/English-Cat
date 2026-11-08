@@ -50,14 +50,19 @@ Page({
   },
 
   loadPage() {
-    this.setData({ loading: true, error: '' })
+    // 页面上已有内容时（从其它页面切回来）：不闪加载态，刷新结果没变化就不重建
+    const warm = !!this.ready
+    if (!warm) this.setData({ loading: true, error: '' })
     this.aiPolls = 0
     loadStudy(true)
       .then((study) => {
-        this.applyStudy(study)
+        this.ready = true
+        this.applyStudy(study, warm)
         this.syncGrammarbook()
       })
       .catch((error) => {
+        // 回页刷新失败时保留已有内容，别把渲染好的页面换成错误页
+        if (warm) return
         this.setData({ loading: false, error: errorMessage(error) })
       })
   },
@@ -77,7 +82,7 @@ Page({
     this.setData({ originOpen: false })
   },
 
-  applyStudy(study) {
+  applyStudy(study, quiet) {
     const article = study.article
     const unit = study.unit
     const unitData = article.unitData || {}
@@ -111,7 +116,7 @@ Page({
     const viewedCount = viewed.filter((id) => source.some((point) => point.id === id)).length
     const aiPending = article.aiStatus === 'pending' || article.aiStatus === 'running'
 
-    this.setData({
+    const payload = {
       loading: false,
       article,
       unit,
@@ -122,7 +127,23 @@ Page({
       nextReady: !points.length || viewedCount === points.length,
       aiPending,
       expanded
-    }, () => this.scrollToResume())
+    }
+    // 签名只取影响界面的关键字段：一致就不 setData，回页不再整页重建
+    const signature = JSON.stringify([
+      article._id,
+      article.aiStatus || '',
+      article.extractVersion || 0,
+      article.updatedAt || 0,
+      points.map((point) => `${point.id}:${point.viewed ? 1 : 0}:${JSON.stringify(point).length}`),
+      viewedCount,
+      drillKeys.size
+    ])
+    if (quiet && signature === this.renderSignature) {
+      if (aiPending) this.scheduleAiRefresh()
+      return
+    }
+    this.renderSignature = signature
+    this.setData(payload, () => this.scrollToResume())
 
     if (aiPending) this.scheduleAiRefresh()
   },
@@ -149,7 +170,7 @@ Page({
     this.aiPolls = (this.aiPolls || 0) + 1
     this.aiTimer = setTimeout(() => {
       this.aiTimer = null
-      loadStudy(true).then((study) => this.applyStudy(study)).catch(() => {})
+      loadStudy(true).then((study) => this.applyStudy(study, true)).catch(() => {})
     }, 6000)
   },
 

@@ -1,4 +1,11 @@
 const wordbook = require('../../services/wordbook')
+const cet = require('../../utils/cet')
+
+// 当前标尺下要显示的星数与档位名（0 星表示词表与语料都查不到，不显示）
+function decorate(item, target) {
+  const star = Number(target === 'cet6' ? item.freq6 : item.freq4) || 0
+  return Object.assign({}, item, { star, starLabel: cet.starLabel(star) })
+}
 
 const SOURCE_LABELS = {
   article: '来自文章精读',
@@ -18,7 +25,10 @@ Page({
     // 联想列表的最大高度：跟着屏幕高度走，避免展开后被输入法挡住
     suggestMax: 200,
     adding: false,
-    busyId: ''
+    busyId: '',
+    // 备考标尺：四级 / 六级两套星级，切换后同一个词的星级会变
+    cetTarget: 'cet4',
+    cetLabel: '四级'
   },
 
   onLoad() {
@@ -29,8 +39,16 @@ Page({
       info = {}
     }
     const height = Number(info && info.windowHeight) || 600
-    this.setData({ suggestMax: Math.max(160, Math.round(height * 0.36)) })
+    // 星级标尺跟随上次选择（没选过就用备考级别 userLevel），进页面就按它显示
+    const target = cet.getTarget()
+    this.setData({
+      suggestMax: Math.max(160, Math.round(height * 0.36)),
+      cetTarget: target,
+      cetLabel: cet.targetLabel(target)
+    })
     this.keyboardHeight = 0
+    // 每个词的两套星级只查一次，本次会话内复用
+    this.freqMap = {}
   },
 
   onShow() {
@@ -80,18 +98,25 @@ Page({
   },
 
   applyData(rawItems, counts) {
-    const items = rawItems.map((item) => ({
-      id: item.id,
-      word: item.word,
-      phonetic: item.phonetic || '',
-      meanings: item.meanings || [],
-      state: item.state,
-      freq: Number(item.freq) || 0,
-      sourceLabel: SOURCE_LABELS[item.source] || SOURCE_LABELS.manual
-    }))
+    const target = this.data.cetTarget
+    this.freqMap = this.freqMap || {}
+    const items = rawItems.map((item) => {
+      // 生词本只存词条，星级靠云函数补：本次会话查过的先从 freqMap 里贴上，不闪
+      const held = this.freqMap[String(item.word || '').toLowerCase()] || {}
+      return decorate({
+        id: item.id,
+        word: item.word,
+        phonetic: item.phonetic || '',
+        meanings: item.meanings || [],
+        state: item.state,
+        freq4: held.freq4 || 0,
+        freq6: held.freq6 || 0,
+        sourceLabel: SOURCE_LABELS[item.source] || SOURCE_LABELS.manual
+      }, target)
+    })
     this.setData({ loading: false, items, counts }, () => {
       this.applyTab()
-      this.loadFreqs(items)
+      this.loadFreqs()
     })
   },
 
@@ -100,25 +125,50 @@ Page({
     wx.navigateTo({ url: '/pages/review/index' })
   },
 
-  // 词频星级：没存过频次的词批量补一次，失败就安静地不显示，不打扰用户
-  loadFreqs(items) {
-    const missing = items.filter((item) => !item.freq).map((item) => item.word)
+  // 词频星级：手上的词还没查过两套星级的批量补一次，失败就安静地不显示，不打扰用户
+  loadFreqs() {
+    this.freqMap = this.freqMap || {}
+    const missing = []
+    ;(this.data.items || []).forEach((item) => {
+      const key = String(item.word || '').toLowerCase()
+      if (!key || this.freqMap[key] !== undefined || missing.indexOf(key) >= 0) return
+      missing.push(key)
+    })
     if (!missing.length) return
     wordbook.freqsOf(missing).then((map) => {
-      if (!map || !Object.keys(map).length) return
-      const next = this.data.items.map((item) => {
-        const freq = map[String(item.word || '').toLowerCase()]
-        return freq ? Object.assign({}, item, { freq }) : item
+      // 网络失败不写缓存，保留页面上已有的星级
+      if (!map) return
+      const fresh = map
+      // 词库里确实没有依据的词也记成 0 星，下次不再重复查
+      missing.forEach((key) => {
+        const hit = fresh[key]
+        this.freqMap[key] = hit && typeof hit === 'object'
+          ? { freq4: Number(hit.freq4) || 0, freq6: Number(hit.freq6) || 0 }
+          : { freq4: 0, freq6: 0 }
       })
-      this.setData({ items: next }, () => this.applyTab())
+      const target = this.data.cetTarget
+      const items = (this.data.items || []).map((item) => {
+        const hit = this.freqMap[String(item.word || '').toLowerCase()]
+        if (!hit) return item
+        return decorate(Object.assign({}, item, hit), target)
+      })
+      this.setData({ items }, () => this.applyTab())
     }).catch(() => {})
   },
 
-  // 星级说明：只讲真实语料口径，没有排名的词不显示星星
+  // 切换备考标尺：两套星级都已经拿到，直接换显示，不需要重新请求
+  selectCetTarget(event) {
+    const target = cet.saveTarget(event.currentTarget.dataset.target)
+    if (target === this.data.cetTarget) return
+    const items = (this.data.items || []).map((item) => decorate(item, target))
+    this.setData({ cetTarget: target, cetLabel: cet.targetLabel(target), items }, () => this.applyTab())
+  },
+
+  // 星级说明：文案跟着当前标尺走，讲清四六级两套标尺的关系，没有依据的词不显示星星
   showFreqHelp() {
     wx.showModal({
-      title: '词频星级怎么算',
-      content: '星星取自 COCA（美国当代英语语料库）和 BNC（英国国家语料库）的真实排名：★★★ 高频（前 3000），★★ 中频（3000–9000），★ 低频（9000 以后）。语料里查不到排名的词不显示星星，不做估算。',
+      title: `星级怎么算 · ${this.data.cetLabel}标尺`,
+      content: cet.freqHelp(this.data.cetTarget),
       showCancel: false,
       confirmText: '知道了',
       confirmColor: '#a86a11'

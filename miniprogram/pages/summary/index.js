@@ -35,6 +35,16 @@ const RULE_LABELS = {
   quantity: '数量与名词复数',
   inversion: '倒装用法',
   soThat: 'so…that 结构',
+  comparison: '比较级 than 结构',
+  adverbial: '状语从句结构',
+  prep: '介词搭配与介词短语',
+  relative: '定语从句结构',
+  subjunctive: '虚拟语气',
+  nonfinite: '非谓语动词',
+  parallel: '并列与关联连词',
+  passive: '被动语态',
+  formalIt: '形式主语 / 形式宾语',
+  thereBe: 'there be 句型',
   order: '结构不完整 / 语序',
   info: '信息不全或意思偏离'
 }

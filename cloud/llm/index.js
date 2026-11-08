@@ -19,7 +19,10 @@ const TASKS = {
   phrases: { maxTokens: 700, timeout: 32000, temperature: 0.2 },
   // 全文对照：每批 8 句，输出约 300-500 字中文
   translate: { maxTokens: 1600, timeout: 32000, temperature: 0.2 },
-  judge: { maxTokens: 360, timeout: 13000, temperature: 0.1 },
+  // 汉译英新增「逐点核对」checklist，输出更长，上限相应提高
+  // 判题等待要和 evaluateTranslation 的 raceTimeout（10 秒）对齐：
+  // 判题链路整体要留在平台等待上限内，模型慢时就尽早返回失败、走本地规则兜底
+  judge: { maxTokens: 1100, timeout: 9000, temperature: 0.1 },
   article: { maxTokens: 2000, timeout: 48000, temperature: 0.8 }
 }
 
@@ -122,6 +125,8 @@ function composeGrammarExplain(event, text) {
     '11. en2zhHint / zh2enHint：分别给英译汉、汉译英的提示，不超过 30 字，要针对 practice 里的新句子，不能写「先认出某结构」这类通用套话，两题提示不能雷同。',
     '12. note 是以前讲过的同类语法点记录，只用来保持术语和讲解口径一致，不能照抄，也不能用旧句子的内容代替本句分析。',
     '13. 所有讲解用中文；英文例句语法必须正确。',
+    '14. 讲解里点名的每个语法术语都必须在输入句子里真实存在：句中没有 whether 或 if 就不能讲 whether / if 的语序，没有倒装就不能讲倒装，没有被动就不能讲被动语态。宁可少讲一层，也不能把别的句型的话术套到这一句上。',
+    '15. steps 的每一步都要落到本句的真实成分上，读起来必须是「这一步在拆这一句」，而不是通用语法讲义。',
     `文章：\n"""${text}"""`,
     `语法点：\n${JSON.stringify(points)}`
   ].join('\n')
@@ -158,14 +163,14 @@ function composeWords(event) {
     '请按书面英语的常用度，重新筛选并排序每个词的义项；词典释义为空的是词库没有收录的派生词或进阶词，必须补全，不能跳过。',
     '输出 JSON：{"words":[{"word":"...","senses":[{"pos":"n.","cn":"裂缝；裂纹"},{"pos":"v.","cn":"（使）破裂；（使）裂开"}],"ph":"...","rare":false}]}',
     '要求：',
-    '1. senses 给 1-3 条，按书面语常用度从高到低排序，第一条是阅读里最可能用到的义项。',
+    '1. senses 给 1-3 条，按常用度从高到低排序，第一条是原文句子里用到的义项；这个词在四六级里常考的其他义项也要给全，不能只给语境义。',
     '2. 只保留书面英语和正式语境常用的义项；口语、俚语、地区性用法、冷僻义一律剔除（例如 crack 的「第一流的」是英式口语，不能给；「啪地一声」这类拟声义也不要）。',
     '3. 同一词性的近义义项合并成一条，用「；」分隔；不要把一个词性拆成好几条。',
     '4. pos 只能是 n. / v. / adj. / adv. / prep. / conj. / pron. / num. / phr. 之一。',
     '5. cn 是纯中文释义，不超过 20 字，不带词性前缀，不能包含英文单词，无法用中文解释的词就不要返回。',
     '6. rare 为 true 表示本文句子里用的是熟词生义（常见词的生僻义）；普通词返回 false。',
     '7. ph 是该词的国际音标（不带斜杠），可选；不确定就返回空字符串。',
-    '8. 最多返回 14 个词：meaning 为空的词必须全部返回；其余词也要按上面的标准重新筛选排序，不要照抄词典顺序。',
+    '8. 最多返回 14 个词：meaning 为空的词必须全部返回；其余词的义项也按上面的标准复核，词典里漏掉的常用义要补齐。',
     '9. 词条以输入里的 word 为准，不要改拼写、不要写「原文拼写有误」「应为某某」这类批注。',
     '10. from 是该词的词根（例如 implementation ← implement），只作为判断词性和词义的参考。',
     `文章：\n"""${text}"""`,
@@ -210,7 +215,8 @@ function composePhrases(event) {
 }
 
 function composeJudge(event) {
-  const mode = event.mode === 'en2zh' ? '英译汉' : '汉译英'
+  const en2zh = event.mode === 'en2zh'
+  const mode = en2zh ? '英译汉' : '汉译英'
   const reference = clean(event.reference, 800)
   const prompt = clean(event.prompt, 800)
   const answer = clean(event.answer, 1200)
@@ -224,18 +230,43 @@ function composeJudge(event) {
     `题目：${prompt}`,
     `参考译文：${reference}`,
     `学生答案：${answer}`,
-    '请判断学生答案能否通过：意思完整、结构正确、允许同义表达，不要求与参考译文逐字一致。',
-    '输出 JSON：{"pass":true,"rule":"","feedback":"..."}',
+    '输出 JSON：{"pass":true,"rule":"","feedback":"...","usage":{...},"improvements":[...],"checklist":[...]} 或 {"pass":false,"rule":"错误类型","feedback":"...","usage":{...},"improvements":[...],"checklist":[...]}',
     '要求：',
     '1. pass 只能是布尔值。',
     '2. 通过时 rule 为空字符串，feedback 用一句中文肯定，不超过 40 字。',
     '3. 不通过时 feedback 用一句中文指出问题类型，不超过 60 字，绝对不能出现参考答案里的具体单词、正确译文或缺失词列表，避免学生直接照抄。',
-    '4. 汉译英不通过时，rule 只能取：incomplete, tail, clause, clause-predicate, clause-subject, subjectOrder, subjectGap, tense, modal, agreement, determiner, quantity, inversion, soThat, order, info。',
-    '5. 英译汉不通过时，rule 为空字符串。',
-    '6. 出现明显语法错误（时态、主谓一致、缺冠词、语序、引导词叠加、结构残缺）一律判不通过，即使关键词都写了。'
-  ].join('\n')
+    '4. feedback 要点名学生答案里具体用错的单词或结构（例如 let、to、way），不要用「不定式符号」「某个词」这类含糊说法。'
+  ]
+  if (en2zh) {
+    // 英译汉只看有没有读懂原句：同义替换、语序调整、翻译腔都不算错，用词差异不吹毛求疵
+    user.push(
+      '5. 判断标准（英译汉，从宽）：学生译文只要读懂了原句、核心意思和参考译文一致、信息基本完整，就判通过。',
+      '6. 同义替换一律算对：「学生/同学」「老师/教师」「通常/往往」「尊敬/尊重」这类近义词差别不是错误；中文语序、断句、指代写法的差别不算错；略有翻译腔、表达不够优美也不算错。',
+      '7. 只有出现下列情况才判不通过：意思与原文相反或明显偏离、关键信息错译或整个主干漏译、主语和宾语颠倒、答非所问。',
+      '8. 禁止以「与参考译文不一致」「用词不够准确」「某处译得不够好」为由判不通过；把握不准时一律判通过。',
+      '9. 英译汉不通过时，rule 为空字符串，feedback 只说明意思哪里不对，不评价用词优劣；不要输出 usage 字段（英译汉的正确用法示例会提前泄露英文句式）。'
+    )
+  } else {
+    user.push(
+      '5. 判断标准（汉译英，结构从严、用词从宽）：句型结构和句子意思正确就判通过，小的用词瑕疵不影响通过。',
+      '6. 判分分两步：先把题目拆成信息点，再逐点核对学生的答案。信息点 = 主干的每一部分 + 题目里每一处完整的修饰信息（定语、状语、从句、并列成分，以及时间、地点、条件）；「这位、那个、了、着」这类细微限定词不算信息点。',
+      '7. 只错冠词（多了或少了一个 the/a）、单复数、固定搭配里多词少词、用词不够地道，都判通过；可以在 feedback 里用一句话提醒，但不要因此判不通过。',
+      '8. 只有结构、语法、意思层面的实质错误才判不通过：句子残缺、主谓顺序颠倒、时态或主谓一致错误、从句语序错误、漏译题目里的完整信息点（题目后半句、定语、状语、从句等整块信息在学生答案里找不到对应表达）、意思偏离原句。整块信息点漏译时 rule 取 info，绝不能因为句子主干没写错就判通过。',
+      '9. feedback（覆盖第 3 条的字数限制）：通过时用一句中文肯定，并点出学生句子里值得保持的写法，不超过 40 字；不通过时用 1-2 句中文，先说清问题类型，再点到学生答案里的具体位置（例：你写的句子主语只有 candidate 一个词，题目里修饰它的那层定语整块没译出来），不超过 90 字。绝对不能出现参考答案里的具体单词、正确译文或缺失词列表。',
+      '10. feedback 只能指出学生答案里真实出现的问题：学生没写从句，就不能说「从句语序错误」；句中没出现「介词 + 句子」这类结构，就不能说「介词后面不能接句子」。禁止把学生没犯的错说成他犯了。',
+      '11. rule 只能取下面之一，括号里是该类型的判断依据，且必须是学生答案里真实存在的问题：',
+      'incomplete(句子残缺) tail(漏译后半句) info(信息没译全或意思偏离) clause(whether/if 从句语序) clause-predicate(whether/if 从句缺谓语) clause-subject(whether/if 从句缺主语或与 that 叠加) subjectOrder(主谓顺序颠倒) subjectGap(主谓被状语隔开) tense(时态) modal(情态动词后动词形式) agreement(主谓一致) determiner(漏冠词) quantity(数量与名词复数) inversion(倒装) soThat(so…that) comparison(比较级 than 结构) adverbial(状语从句) prep(介词后面直接跟了句子) relative(定语从句) subjunctive(虚拟语气) nonfinite(非谓语动词) parallel(并列结构与关联连词) passive(被动语态) formalIt(形式主语/形式宾语) thereBe(there be 句型) order(结构不完整或语序)。',
+      '12. rule 必须和这道题考的句型对得上：考比较级就选 comparison，考 as / since / because 引导的状语从句就选 adverbial，考定语从句就选 relative。只有句中确实出现 whether 或 if 时才可以用 clause 系列，不能把所有结构问题都归到 clause。',
+      '13. checklist 是「逐点核对」模块（汉译英必须给出）：按第 6 条把题目拆成 2-6 个信息点，逐点核对学生在答案里有没有写到，让学生一眼看出哪块信息写到了、哪块没写到：',
+      '{"checklist":[{"zh":"信息点的中文描述，不超过 18 字（例：主语候选人前面的定语『准备充分的』）","ok":true 或 false（学生答案里有没有对应表达）","note":"针对学生答案的一句说明，不超过 45 字：写到的就说明学生答案是哪一段对应上的、哪里还可以打磨；没写到的就说明这块在答案里是空的、补上句意才完整。不能用英文写出正确表达，也不能与参考译文用词相同"}]}',
+      '14. usage 是给学生看的「正确用法」讲解，用来纠正学生真正写错的地方，比 feedback 详细，通过与否都要尽量给出（整句完全没有可纠正的点才留空）：',
+      '{"point":"针对学生用错的那个词或结构，讲清它的正确用法，不超过 60 字（例：let sb do sth——let 后面接『人或物 + 动词原形』，不能加 to）","wrong":"学生答案里写错的那一小段，逐字引用，不超过 12 词；没有具体错处就留空","correct":"把 wrong 改对后的写法，不超过 12 词","example":"你新造的一个英文例句（8-14 词），必须与原题参考译文不同，也不能在参考译文上小幅改写","exampleZh":"例句的中文翻译，不超过 25 字"}',
+      '15. usage 一次只讲学生真正用到或写错的那一个点，讲透讲准；correct 和 example 绝不能与参考译文相同或相近，否则等于把答案递给同学。',
+      '16. improvements 是「可以写得更好」的改善建议数组（0-3 条）：即使句子没有错误、已经判通过，也要从更简洁、更地道、作文更推荐的角度提 1-2 条（例：seems to be 可以简化为 seems；enough 比 very 更书面）；整句确实没有可优化的点才用 []。每条格式：{"point":"为什么改完更好，不超过 40 字，可以点明『更简洁，作文更推荐』","wrong":"学生答案里的原写法，逐字引用，不超过 12 词","correct":"改进后的写法，不超过 12 词"}。improvements 不能重复 usage 已经讲过的同一个点；correct 不能与参考译文连续 5 个词以上重合。'
+    )
+  }
 
-  return { ok: true, messages: [{ role: 'system', content: JSON_SYSTEM }, { role: 'user', content: user }] }
+  return { ok: true, messages: [{ role: 'system', content: JSON_SYSTEM }, { role: 'user', content: user.join('\n') }] }
 }
 
 // 题库文章生成：离线批量造题时使用，不在小程序端直接调用

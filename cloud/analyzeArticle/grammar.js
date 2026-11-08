@@ -651,6 +651,113 @@ const RULES = [
     ],
     en2zh: { prompt: 'The report argues that students who plan their reading finish more books than those who do not.', reference: '报告指出，会规划阅读的学生比不会规划的学生读完更多书。', keywords: ['规划', '学生', '更多'] },
     zh2en: { prompt: '研究表明，那些坚持练习的人最终会取得更大的进步。', reference: 'Research shows that those who keep practising will make greater progress.', keywords: ['that', 'who', 'progress'] }
+  },
+
+  // ── 补缺批：时态体系 / 一般被动 / 地点状语从句 / 关联连词 / 情态基础 / 插入语 ──
+  // 放在数组末尾：同一句话里只要更具体的旧规则能命中，就先让旧规则讲，新规则只兜住“没有其他结构可讲”的句子
+  {
+    key: 'perfect-tense',
+    label: '完成时（have / has / had + 过去分词）',
+    re: /\b(have|has|had)\s+(?:not\s+|never\s+|already\s+|just\s+|also\s+|only\s+|long\s+)?(?:been|become|begun|broken|brought|built|bought|caught|chosen|come|done|drawn|driven|eaten|fallen|felt|found|forgotten|given|gone|grown|heard|held|hidden|hurt|kept|known|laid|led|lain|left|lost|made|meant|met|paid|put|read|risen|run|said|seen|sent|set|shown|sold|spent|stood|stolen|struck|taken|taught|thought|told|understood|won|worn|written|(?!(?:indeed|need|speed)\b)\w{3,}ed)\b/i,
+    understanding: 'have / has + 过去分词是现在完成时，强调“到现在为止已经完成，或一直在持续”；had + 过去分词是过去完成时，表示“在过去的某个时间点之前就已经完成”，常和 by then / before 呼应。判断顺序：先看助动词是 have 还是 had，再找动作发生在哪个时间点之前。',
+    translation: '译成“已经……”“已经……了”；过去完成时常译“在……之前就已经……”。完成时不要译成“有”，也不要和一般过去时混成一句。',
+    examples: [
+      { en: 'The city has invested heavily in public transport over the past decade.', zh: '过去十年间，这座城市在公共交通上投入了大量资金。' },
+      { en: 'By the time the study was published, the trend had already reversed.', zh: '到这项研究发表时，趋势已经逆转了。' }
+    ],
+    en2zh: { prompt: 'Researchers have found that sleep plays a key role in memory.', reference: '研究者已经发现，睡眠在记忆中起着关键作用。', keywords: ['已经', '睡眠', '记忆'] },
+    zh2en: { prompt: '到去年年底，这家公司已经完成了三份报告。', reference: 'By the end of last year, the company had completed three reports.', keywords: ['had completed', 'by the end'] }
+  },
+  {
+    key: 'progressive-tense',
+    label: '进行时（is / are / was / were + doing）',
+    re: /\b(is|are|was|were)\s+(?:still\s+|currently\s+|already\s+|also\s+|now\s+|gradually\s+|slowly\s+|rapidly\s+)?(?!(?:something|nothing|everything|anything|willing|missing)\b)[a-z]{4,}ing\b/i,
+    understanding: 'be + 动词-ing 是进行时，表示“正在发生”或“现阶段一直在持续”。was / were + doing 是过去进行时，常用来铺垫背景：“当时正在……，这时另一件事发生了”。判断时先看 be 的时态，再看这个动作是暂时的还是正在变化中的。',
+    translation: '译成“正在……”“不断……”。过去进行常译“当时正在……”。中文里的“正在”可以省略，但“不断、持续、越来越”这层意思要译出来。',
+    examples: [
+      { en: 'More companies are investing in renewable energy.', zh: '越来越多的公司正在投资可再生能源。' },
+      { en: 'She was preparing her notes when the power went out.', zh: '停电时她正在准备笔记。' }
+    ],
+    en2zh: { prompt: 'The climate is changing faster than scientists expected.', reference: '气候变化的速度比科学家预期的要快。', keywords: ['气候', '变化', '速度'] },
+    zh2en: { prompt: '孩子们正在操场上练习跑步。', reference: 'The children are practising running on the playground.', keywords: ['are practising', 'playground'] }
+  },
+  {
+    key: 'future-tense',
+    label: '将来时（will do / be going to）',
+    re: /\b(will|shall)\s+(?:also\s+|soon\s+|probably\s+|likely\s+|never\s+|not\s+|only\s+|still\s+|even\s+|just\s+)?(?:be\b|[a-z]{3,}\b)|\b(is|are|am|was|were)\s+(?:not\s+)?going\s+to\s+[a-z]+\b|\b(is|are|am|was|were)\s+about\s+to\s+[a-z]+\b/i,
+    understanding: 'will + 动词原形表示将来或意愿；be going to 表示计划，或“已有迹象、即将发生”的预测。will / shall 后面永远接动词原形，写成 will + -s / -ed 一定错。',
+    translation: '译成“将……”“会……”。be going to 可译“打算、就要”；be about to 译“即将……”。',
+    examples: [
+      { en: 'The new policy will take effect next month.', zh: '新政策将于下月生效。' },
+      { en: 'Prices are going to rise if demand keeps growing.', zh: '如果需求持续增长，价格将会上涨。' }
+    ],
+    en2zh: { prompt: 'Automation will replace some jobs but also create new ones.', reference: '自动化将取代一些工作，但也会创造新的工作。', keywords: ['取代', '创造', '工作'] },
+    zh2en: { prompt: '我们打算下个月开始这项研究。', reference: 'We are going to start the research next month.', keywords: ['are going to', 'research'] }
+  },
+  {
+    key: 'passive-basic',
+    label: '一般被动语态（be + 过去分词）',
+    re: /\b(is|are|was|were|be|been|being)\s+(?:not\s+|also\s+|still\s+|widely\s+|often\s+|already\s+|gradually\s+|partly\s+|largely\s+|commonly\s+|usually\s+|rarely\s+|constantly\s+)?(?!(?:indeed|children|women|men|kitchen|garden|seven|eleven|sudden|wooden|golden|open|foreign|modern|northern|southern|eastern|western|citizen|dozen|even|keen|green)\b)[a-z]+(?:ed|en)\b/i,
+    understanding: 'be + 过去分词是最常见的被动语态：主语是动作的承受者，不是执行者。判断方法：问一句“这个动作是谁做的”——如果动作不是主语做的，就是被动。be interested / be based on 这类是形式相同的系表结构，重点在描述状态。',
+    translation: '中文可以译“被……”，但更多时候转成主动句或无主句更自然：“被广泛使用”写作“广泛使用”。',
+    examples: [
+      { en: 'The samples were collected from three different cities.', zh: '这些样本采集自三个不同的城市。' },
+      { en: 'English is used as a working language in many companies.', zh: '英语在许多公司里被用作工作语言。' }
+    ],
+    en2zh: { prompt: 'The plan was approved after a long discussion.', reference: '经过长时间讨论，这个计划获得了批准。', keywords: ['讨论', '计划', '批准'] },
+    zh2en: { prompt: '这些数据由两名研究员独立核对。', reference: 'The data were checked independently by two researchers.', keywords: ['were checked', 'independently'] }
+  },
+  {
+    key: 'where-clause',
+    label: 'where 引导的从句（地点状语 / 定语从句）',
+    re: /\bwhere\s+(?:the|a|an|it|they|we|you|he|she|people|students|there|most|many|some|few|one|two)\b|\b(?:places?|areas?|regions?|cities|countries|sites?|cases?|situations?|stage|scenes?|market|world|environment|fields?|spots?|points?)\s+where\b/i,
+    understanding: 'where 有两种用法：紧跟在一个表示地点、阶段或场景的名词后面（the city where he grew up）是定语从句，修饰那个名词；单独出现、带出完整主谓（Where there is demand, supply follows）是地点状语从句。只有直接提问时才是“在哪里”。',
+    translation: '定语从句译“……的（地方/阶段）”；状语从句译“在……的地方”。不要一律译成“在哪里”。',
+    examples: [
+      { en: 'The report focuses on regions where incomes are falling.', zh: '报告聚焦于收入正在下降的地区。' },
+      { en: 'Where there is competition, prices tend to fall.', zh: '在有竞争的地方，价格往往趋于下降。' }
+    ],
+    en2zh: { prompt: 'This is the stage where the plan is likely to fail.', reference: '这正是计划可能失败的阶段。', keywords: ['阶段', '计划', '失败'] },
+    zh2en: { prompt: '他们搬到了一个气候更温暖的地方。', reference: 'They moved to a place where the climate is warmer.', keywords: ['where', 'climate'] }
+  },
+  {
+    key: 'correlative',
+    label: '关联连词 both … and / either … or / neither … nor',
+    re: /\bboth\s+[^.;]{2,60}?\s+and\s+[a-z]|\b(?:either|neither)\s+[^.;,]{2,50}?\s+(?:or|nor)\s+[a-z]/i,
+    understanding: '这三对关联连词连接的两个部分必须形式对称：both A and B 两项都成立；either A or B 二选一；neither A nor B 两者都不。neither … nor 本身已经是否定，谓语要用肯定形式（Neither answer is right），不要再加 not。',
+    translation: 'both … and 译“既……又……”“……和……都”；either … or 译“要么……要么……”；neither … nor 译“既不……也不……”。',
+    examples: [
+      { en: 'Both the design and the material were changed.', zh: '设计和材料都改了。' },
+      { en: 'Neither the data nor the method was reliable.', zh: '数据和方法的可靠性都不够。' }
+    ],
+    en2zh: { prompt: 'Either the deadline must be extended or the scope must be cut.', reference: '要么延长截止时间，要么缩减范围。', keywords: ['要么', '延长', '缩减'] },
+    zh2en: { prompt: '这个方法既省时又省钱。', reference: 'The method saves both time and money.', keywords: ['both', 'and'] }
+  },
+  {
+    key: 'modal-basic',
+    label: '情态动词（can / must / should / may 的能力、义务与推测）',
+    re: /\b(can|cannot|can't|could|must|should|shouldn't|may|might|ought\s+to|needn't|have\s+to|has\s+to|had\s+to)\s+(?:not\s+|also\s+|still\s+|only\s+|even\s+|always\s+|never\s+)?[a-z]{2,}\b/i,
+    understanding: '情态动词后面必须接动词原形，它表达的不是时间而是“语气”：can / could 表能力或可能，must 表必须或很强的推断，should 表应该，may / might 表不确定的推测。have to 接近 must，但强调客观要求。',
+    translation: 'can 译“能、可以”；must 译“必须、一定”；should 译“应该”；may 译“可能、可以”。情态动词没有“要、将”这类将来含义，别混。',
+    examples: [
+      { en: 'The system must handle thousands of requests per second.', zh: '这个系统必须能每秒处理上千个请求。' },
+      { en: 'Such changes may take years to show results.', zh: '这样的变化可能需要数年才能显现效果。' }
+    ],
+    en2zh: { prompt: 'Students should take responsibility for their own learning.', reference: '学生应该为自己的学习负责。', keywords: ['应该', '学习', '负责'] },
+    zh2en: { prompt: '这条规定可能不适用于小公司。', reference: 'The rule may not apply to small companies.', keywords: ['may', 'apply'] }
+  },
+  {
+    key: 'parenthetical',
+    label: '插入语（however / therefore / for example 等独立成分）',
+    re: /,\s*(?:however|therefore|thus|moreover|furthermore|nevertheless|nonetheless|consequently|in\s+fact|for\s+example|for\s+instance|in\s+other\s+words|that\s+is|in\s+short|indeed|of\s+course|after\s+all|by\s+contrast|in\s+contrast|on\s+the\s+contrary|as\s+a\s+result|in\s+addition|in\s+general|generally\s+speaking|strictly\s+speaking|to\s+be\s+honest|in\s+my\s+view|in\s+brief|that\s+said|in\s+turn|at\s+the\s+same\s+time|as\s+a\s+whole|in\s+essence|in\s+effect)\s*,/i,
+    understanding: '被两个逗号夹住的词或短语是插入语，它不充当句子成分，删掉后句子仍然完整。它的作用是标示前后逻辑：however 表转折，therefore 表结果，for example 表举例。读懂它等于读懂了作者的“路标”。',
+    translation: '按中文习惯把插入语放到句首或下一句句首：“然而、因此、例如、事实上”。不要把 however 译成“无论如何”，也不要把 therefore 硬塞进句中。',
+    examples: [
+      { en: 'The cost, however, has continued to rise.', zh: '然而，成本仍在持续上升。' },
+      { en: 'Some habits, for example, are easier to change than others.', zh: '例如，有些习惯比另一些更容易改变。' }
+    ],
+    en2zh: { prompt: 'The results, therefore, should be interpreted with caution.', reference: '因此，这些结果应该谨慎解读。', keywords: ['因此', '结果', '谨慎'] },
+    zh2en: { prompt: '然而，这个结论并不适用于所有情况。', reference: 'The conclusion, however, does not apply to every case.', keywords: ['however', 'apply'] }
   }
 ]
 

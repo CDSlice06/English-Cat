@@ -355,6 +355,34 @@
   gap: 8rpx;
 }
 
+/* 标题行：标题 + 「已学完 / 学了 x%」标记，标题过长时标记换行不挤压 */
+.lib-item-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.lib-progress {
+  flex: 0 0 auto;
+  padding: 2rpx 10rpx;
+  border-radius: var(--r-pill);
+  border: 2rpx dashed rgba(168, 106, 17, 0.4);
+  background: var(--amber-soft);
+  color: var(--amber);
+  font-size: 20rpx;
+  letter-spacing: 1rpx;
+  line-height: 1.5;
+}
+
+/* 学完的用实线绿章，和进行中的虚线圈区分开 */
+.lib-progress-done {
+  border-style: solid;
+  border-color: rgba(95, 168, 124, 0.55);
+  background: var(--mint-soft);
+  color: var(--mint);
+}
+
 .lib-item-title {
   color: var(--ink);
   font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
@@ -387,16 +415,47 @@
 }
 
 /* ---------- 空态 ---------- */
+/* 导入入口做成一眼能看出可点的按钮卡：实线描边 + 错位硬影 + 胶囊 CTA */
 .lib-import-tip {
   display: flex;
   align-items: center;
   gap: 14rpx;
   min-height: 96rpx;
   margin-top: 16rpx;
-  padding: 18rpx 24rpx;
+  padding: 18rpx 22rpx 18rpx 24rpx;
   border-radius: var(--r-md);
-  border: 2rpx dashed rgba(168, 106, 17, 0.32);
-  background: rgba(255, 253, 249, 0.72);
+  border: 2rpx solid rgba(168, 106, 17, 0.42);
+  background: rgba(255, 253, 249, 0.92);
+  box-shadow: 4rpx 4rpx 0 rgba(168, 106, 17, 0.18), 0 2rpx 8rpx rgba(43, 25, 12, 0.05);
+}
+
+.lib-import-hover {
+  transform: translateY(2rpx);
+  background: #fff6dd;
+  box-shadow: 2rpx 2rpx 0 rgba(168, 106, 17, 0.16);
+}
+
+/* 胶囊 CTA：把「这里能点」写明白，不再只靠一个小箭头 */
+.lib-import-cta {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  min-height: 56rpx;
+  padding: 0 20rpx;
+  border-radius: var(--r-pill);
+  border: 2rpx solid rgba(168, 106, 17, 0.42);
+  background: var(--butter);
+  color: #3a2a09;
+  font-size: var(--fs-note);
+  font-weight: 700;
+}
+
+.lib-import-cta .lib-arrow {
+  width: 14rpx;
+  height: 14rpx;
+  border-top-color: var(--amber);
+  border-right-color: var(--amber);
 }
 
 .lib-import-copy {
@@ -414,7 +473,7 @@
 
 .lib-import-desc {
   color: var(--faint);
-  font-size: 20rpx;
+  font-size: var(--fs-note);
   line-height: 1.5;
 }
 

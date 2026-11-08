@@ -39,7 +39,7 @@
       class="phrase-card enter d2 {{item.viewed ? 'phrase-seen' : ''}}"
     >
       <view class="phrase-head" data-id="{{item.id}}" bindtap="togglePhrase">
-        <text class="pos-tag">phr.</text>
+        <text class="pos-tag">{{item.type || 'phr.'}}</text>
         <view class="phrase-title-wrap">
           <text class="phrase-title en">{{item.phrase}}</text>
           <text wx:if="{{item.matched !== item.phrase}}" class="phrase-matched en">文中出现：{{item.matched}}</text>
