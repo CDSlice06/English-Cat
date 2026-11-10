@@ -53,6 +53,40 @@
   letter-spacing: 1rpx;
 }
 
+.origin-tools {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.origin-scale {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 4rpx;
+  border: 2rpx solid rgba(168, 106, 17, 0.22);
+  border-radius: 999rpx;
+  background: #fff9ea;
+}
+
+.scale-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 54rpx;
+  height: 46rpx;
+  padding: 0 6rpx;
+  border-radius: 999rpx;
+  color: #8a7a5f;
+  font-size: 21rpx;
+  font-weight: 700;
+}
+
+.scale-on {
+  background: #ffdf9a;
+  color: #6b4a0e;
+}
+
 .origin-close {
   padding: 14rpx 26rpx;
   border: 2rpx solid rgba(168, 106, 17, 0.34);
@@ -85,10 +119,13 @@
 .origin-text {
   color: var(--ink-2, #6f6557);
   font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
-  font-size: 25rpx;
-  line-height: 1.9;
+  font-size: 28rpx;
+  line-height: 1.88;
   word-break: break-word;
 }
+
+.scale-s .origin-text { font-size: 25rpx; }
+.scale-l .origin-text { font-size: 33rpx; }
 
 .origin-active .origin-text {
   color: #4a3419;

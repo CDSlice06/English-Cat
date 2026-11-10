@@ -762,7 +762,11 @@ function mergeSenses(base, extra, limit) {
     const definition = String((sense && sense.definition) || '').trim()
     if (!pos || !definition || out.length >= limit) return
     if (out.some((item) => item.pos === pos)) return
-    out.push({ pos, definition, rare: !!(sense && sense.rare) })
+    const sense2 = { pos, definition, rare: !!(sense && sense.rare) }
+    // 可数性来自词库，模型补的义项没有这个字段，能带就带上
+    const count = String((sense && sense.count) || '').trim()
+    if (/^(C\/U|C|U)$/.test(count)) sense2.count = count
+    out.push(sense2)
   })
   return out
 }

@@ -118,10 +118,10 @@
   color: #3a2a09;
 }
 
-/* ---------- 来源切换：内置模拟篇 / 我的真题 ---------- */
+/* ---------- 来源切换：内置模拟篇 / 真题库 / 我的导入 ---------- */
 .source-tabs {
   display: flex;
-  gap: 10rpx;
+  gap: 8rpx;
   margin-bottom: var(--card-gap);
 }
 
@@ -131,7 +131,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 12rpx;
+  padding: 0 4rpx;
   border-radius: var(--r-md);
   border: 2rpx solid var(--paper-line);
   background: rgba(255, 253, 249, 0.7);
@@ -389,6 +389,14 @@
   font-size: var(--fs-body);
   font-weight: 700;
   line-height: 1.4;
+}
+
+/* 真题库标题来自正文首句，可能很长，列表里最多显示两行 */
+.lib-item-title-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .lib-item-meta {

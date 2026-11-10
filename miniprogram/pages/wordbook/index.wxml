@@ -92,6 +92,19 @@
       <text class="add-hint">输入两个字母以上会给查询建议，点一下直接补全拼写；词表里查不到的词也能先收进来。</text>
     </view>
 
+    <view class="search-card enter d3">
+      <view class="search-icon"></view>
+      <input
+        class="search-input"
+        value="{{query}}"
+        placeholder="搜单词或中文释义"
+        placeholder-class="search-placeholder"
+        confirm-type="search"
+        bind:input="onSearchInput"
+      />
+      <view wx:if="{{query}}" class="search-clear" bind:tap="clearSearch">清空</view>
+    </view>
+
     <view class="segmented enter d3">
       <view class="seg {{tab === 'unknown' ? 'seg-on' : ''}}" bind:tap="switchTab" data-tab="unknown">
         <text>不记得</text>
@@ -172,9 +185,10 @@
     </view>
 
     <view wx:if="{{!words.length}}" class="empty">
-      <cat-image name="{{tab === 'known' ? 'complete-halo' : 'not-found'}}" size="large" />
-      <text class="empty-title">{{tab === 'known' ? '记住的词还没有搬进来' : '词库空着，猫趴在上面打盹'}}</text>
-      <text class="empty-text">{{tab === 'known' ? '在不记得列表点「我记住了」，它就搬到这里住下。' : '读到不认识的词，点「加入生词本」，它就归你了。'}}</text>
+      <cat-image name="{{query ? 'not-found' : (tab === 'known' ? 'complete-halo' : 'not-found')}}" size="large" />
+      <text class="empty-title">{{query ? '没有找到「' + query + '」' : (tab === 'known' ? '记住的词还没有搬进来' : '词库空着，猫趴在上面打盹')}}</text>
+      <text class="empty-text">{{query ? searchEmptyText : (tab === 'known' ? '在不记得列表点「我记住了」，它就搬到这里住下。' : '读到不认识的词，点「加入生词本」，它就归你了。')}}</text>
+      <view wx:if="{{query}}" class="empty-clear" bind:tap="clearSearch">清空搜索</view>
     </view>
   </block>
 </view>

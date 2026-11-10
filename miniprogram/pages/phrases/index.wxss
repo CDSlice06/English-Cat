@@ -178,7 +178,7 @@
   display: block;
   margin-top: 12rpx;
   color: var(--ink-2);
-  font-size: 25rpx;
+  font-size: 27rpx;
   line-height: 1.7;
 }
 
@@ -190,7 +190,7 @@
   background: #fff3cf;
   box-shadow: 3rpx 3rpx 0 rgba(199, 121, 63, 0.10);
   color: #7a5713;
-  font-size: 21rpx;
+  font-size: 23rpx;
   line-height: 1.7;
 }
 
@@ -214,7 +214,7 @@
 .sentence-text {
   display: block;
   color: var(--ink-2);
-  font-size: 22rpx;
+  font-size: 25rpx;
   line-height: 1.75;
 }
 

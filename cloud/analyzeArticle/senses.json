@@ -1064,5 +1064,8 @@
   },
   "emphasize": {
     "meanings": [{ "pos": "v.", "def": "强调，着重", "rare": true }]
+  },
+  "diversion": {
+    "meanings": [{ "pos": "n.", "def": "消遣，娱乐；分散注意力的事物；改道，绕行" }]
   }
 }

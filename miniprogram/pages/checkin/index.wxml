@@ -1,0 +1,102 @@
+<view class="page checkin-page">
+  <section-title
+    eyebrow="CHECK-IN"
+    title="打卡日历"
+    description="复习一个词、掌握一个词、通过一道翻译，都会自动盖下当天的章。"
+  />
+
+  <view class="streak-card enter d1">
+    <view class="paper-tape streak-tape"></view>
+    <view class="paw-print streak-paw"></view>
+    <view class="streak-glow"></view>
+
+    <view class="streak-head">
+      <view class="streak-copy">
+        <text class="streak-kicker en">CURRENT STREAK</text>
+        <view class="streak-figure">
+          <text class="streak-num en">{{summary.streak}}</text>
+          <text class="streak-unit">天连续</text>
+        </view>
+        <text class="streak-title">{{summary.checkedToday ? '今天也盖章了' : (summary.streak ? '别让连续断在今天' : '从今天开始盖章')}}</text>
+        <text class="streak-hint">{{summary.checkedToday ? '保持这个节奏，明天再来一格' : '复习一个词，今天的格子就亮了'}}</text>
+      </view>
+
+      <view class="streak-stamp {{summary.checkedToday ? 'stamp-on' : ''}}">
+        <cat-image custom-class="stamp-cat" name="{{summary.checkedToday ? 'pass-check' : 'sleepy-nap'}}" size="small" />
+        <text class="stamp-text">{{summary.checkedToday ? '今日已盖章' : '今日待盖章'}}</text>
+      </view>
+    </view>
+
+    <view class="week-strip">
+      <view wx:for="{{summary.week}}" wx:key="key" class="week-item">
+        <view class="week-dot {{item.checked ? 'week-on' : ''}} {{item.today ? 'week-today' : ''}}">
+          <text wx:if="{{item.checked}}" class="week-check">✓</text>
+        </view>
+        <text class="week-label {{item.today ? 'week-label-today' : ''}}">{{item.label}}</text>
+      </view>
+    </view>
+
+    <view class="streak-stats">
+      <view class="streak-stat">
+        <text class="streak-stat-num en">{{summary.total}}</text>
+        <text class="streak-stat-label">累计打卡</text>
+      </view>
+      <view class="streak-divider"></view>
+      <view class="streak-stat">
+        <text class="streak-stat-num en">{{summary.best}}</text>
+        <text class="streak-stat-label">最长连续</text>
+      </view>
+      <view class="streak-divider"></view>
+      <view class="streak-stat">
+        <text class="streak-stat-num en">{{summary.monthDays}}</text>
+        <text class="streak-stat-label">本月打卡</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="calendar-card enter d2">
+    <view class="calendar-head">
+      <view class="calendar-title-wrap">
+        <text class="calendar-kicker en">CALENDAR</text>
+        <text class="calendar-title">{{calendar.title}}</text>
+      </view>
+      <view class="calendar-nav">
+        <view class="cal-btn" hover-class="cal-btn-hover" bindtap="prevMonth">‹</view>
+        <view class="cal-btn {{calendar.canNext ? '' : 'cal-btn-off'}}" hover-class="cal-btn-hover" bindtap="nextMonth">›</view>
+      </view>
+    </view>
+
+    <view class="calendar-week">
+      <text wx:for="{{weekdays}}" wx:key="*this">{{item}}</text>
+    </view>
+
+    <view class="calendar-grid">
+      <view wx:for="{{calendar.cells}}" wx:key="id" class="cal-cell">
+        <view
+          wx:if="{{!item.empty}}"
+          class="cal-day {{item.checked ? 'cal-checked' : ''}} {{item.today ? 'cal-today' : ''}} {{item.future ? 'cal-future' : ''}}"
+        >
+          <text>{{item.day}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="calendar-legend">
+      <view class="legend-item">
+        <view class="legend-dot"></view>
+        <text>已盖章</text>
+      </view>
+      <view class="legend-item">
+        <view class="legend-ring"></view>
+        <text>今天</text>
+      </view>
+      <text class="legend-note">共 {{summary.total}} 天</text>
+    </view>
+  </view>
+
+  <view wx:if="{{!summary.checkedToday}}" class="checkin-action enter d3">
+    <primary-button text="去学习，盖今天的章" bind:tap="goStudy" />
+  </view>
+
+  <text class="checkin-note">同一天只盖一次章；打卡记录保存在本机，换设备后从当天重新累计。</text>
+</view>

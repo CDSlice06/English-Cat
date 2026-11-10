@@ -234,11 +234,7 @@ Page({
     wx.showToast({ title: '已取消上传', icon: 'none' })
   },
 
-  onLoad(options) {
-    // 从题库某个分类点进来时，导入页把归档位置预设成同一个分类
-    const archive = options && options.archive
-    this.archive = archive === 'real' || archive === 'custom' ? archive : ''
-  },
+  onLoad() {},
 
   onUnload() {
     this.abandoned = true
@@ -465,7 +461,7 @@ Page({
     this.cleanupOcrFiles()
     this.cleanupUploaded()
     this.setData({ parsing: false, uploading: false, ocrRunning: false, stageText: '' })
-    wx.navigateTo({ url: `/pages/proofread/index?mode=doc${this.archive ? `&archive=${this.archive}` : ''}` })
+    wx.navigateTo({ url: '/pages/proofread/index?mode=doc' })
   },
 
   // 原文已存进数据库，云存储里的文档不必长期保留
@@ -507,7 +503,7 @@ Page({
   },
 
   goManual() {
-    wx.navigateTo({ url: `/pages/proofread/index?mode=manual${this.archive ? `&archive=${this.archive}` : ''}` })
+    wx.navigateTo({ url: '/pages/proofread/index?mode=manual' })
   },
 
   goBank() {

@@ -23,7 +23,7 @@
       </view>
     </view>
 
-    <view class="hero enter d1">
+    <view class="hero enter d1 {{hasProgress ? 'hero-compact' : ''}}">
       <view class="paper-tape hero-tape"></view>
       <view class="paper-star hero-star"></view>
 
@@ -114,6 +114,51 @@
           <text>我有文章，直接导入</text>
           <view class="zero-link-arrow"></view>
         </view>
+      </view>
+    </view>
+
+    <view
+      wx:if="{{review.visible}}"
+      class="review-card enter d3"
+      hover-class="review-hover"
+      data-url="{{review.goReview ? '/pages/review/index' : '/pages/wordbook/index'}}"
+      bindtap="go"
+    >
+      <view class="review-sticker">
+        <cat-image custom-class="review-cat" name="pass-check" size="small" />
+      </view>
+      <view class="review-copy">
+        <text class="review-kicker en">TODAY'S REVIEW</text>
+        <text class="review-title">{{review.title}}</text>
+        <text class="review-desc">{{review.desc}}</text>
+      </view>
+      <view class="review-go {{review.goReview ? '' : 'review-go-done'}}">{{review.action}}</view>
+    </view>
+
+    <view
+      class="checkin-card enter d3"
+      hover-class="checkin-hover"
+      data-url="/pages/checkin/index"
+      bindtap="go"
+    >
+      <view class="checkin-figure">
+        <text class="checkin-num en">{{checkin.streak}}</text>
+        <text class="checkin-unit">天连续</text>
+      </view>
+      <view class="checkin-main">
+        <view class="checkin-head">
+          <text class="checkin-kicker en">DAILY CHECK-IN</text>
+          <text class="checkin-status {{checkin.checkedToday ? 'checkin-status-on' : ''}}">{{checkin.checkedToday ? '已盖章' : '待盖章'}}</text>
+        </view>
+        <view class="checkin-week">
+          <view wx:for="{{checkin.week}}" wx:key="key" class="checkin-day">
+            <view class="checkin-dot {{item.checked ? 'checkin-dot-on' : ''}} {{item.today ? 'checkin-dot-today' : ''}}">
+              <text wx:if="{{item.checked}}" class="checkin-check">✓</text>
+            </view>
+            <text class="checkin-day-label">{{item.label}}</text>
+          </view>
+        </view>
+        <text class="checkin-hint">{{checkin.hint}}</text>
       </view>
     </view>
 

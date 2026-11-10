@@ -507,7 +507,7 @@ function issueLabel(article) {
     if (article.passage) parts.push(`Passage ${article.passage}`)
     return parts.join(' · ')
   }
-  return '其它篇目'
+  return '我的导入'
 }
 
 module.exports = { LEVELS, ARTICLES, listOf, findByLevel, findById, countWords, levelLabel, issueLabel }

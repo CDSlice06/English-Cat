@@ -29,6 +29,9 @@ const TENCENT_OCR_VERSION = '2018-11-19'
 // 没有腾讯云密钥时用现有的 DEEPSEEK_API_KEY 直接读扫描页
 const OCR_PROMPT = '这是一页扫描的英文文章。请把图片里的文字逐行转录出来：保持原有的换行；图片里两段之间只要有明显空白间距，转写时必须用一个空行分开，绝不能把整页文字连成一段。保留英文原文的拼写与标点，不要翻译、不要总结、不要补充解释，也不要输出代码块标记或任何前言。页眉、页脚、页码、题目选项都按原样转录。'
 
+// 手写译文：只做忠实转录，不替学生纠错或润色，否则 AI 点评的就是改过的答案
+const HANDWRITING_PROMPT = '这是一张学生手写的译文照片，内容可能是英文，也可能是中文。请把图片里的文字按原有顺序逐字逐句转录成纯文本：保留原拼写、原标点和原有换行；不要纠正拼写或语法错误，不要改写、删减或补充任何内容，也不要翻译。实在看不清的字用[?]代替，不要猜测。只输出转录结果，不要任何解释或代码块标记。'
+
 function tencentReady() {
   return !!process.env.TENCENT_SECRET_ID && !!process.env.TENCENT_SECRET_KEY
 }
@@ -133,13 +136,13 @@ function apiErrorOf(result) {
   return ''
 }
 
-async function callVision(config, imageUrl, timeoutMs) {
+async function callVision(config, imageUrl, timeoutMs, prompt) {
   const payload = JSON.stringify({
     model: config.model,
     messages: [{
       role: 'user',
       content: [
-        { type: 'text', text: OCR_PROMPT },
+        { type: 'text', text: prompt || OCR_PROMPT },
         { type: 'image_url', image_url: { url: imageUrl, detail: 'original' } }
       ]
     }],
@@ -413,6 +416,38 @@ async function ocrSinglePage(event, limitMs) {
   }
 }
 
+// 手写译文识别：只走 DeepSeek 视觉，腾讯云通用 OCR 对手写体支持有限。
+// 识别结果只做转录，交给学生自己核对后修改，再进入判题
+async function ocrHandwriting(event, limitMs) {
+  const fileID = typeof event.fileID === 'string' ? event.fileID : ''
+  if (fileID.indexOf('cloud://') !== 0) return failure(400, '请先选择要识别的照片')
+  const config = deepseekVisionConfig()
+  if (!config) return failure(503, '暂未配置手写识别通道，请先直接输入译文')
+  let buffer
+  try {
+    const downloaded = await cloud.downloadFile({ fileID })
+    buffer = downloaded.fileContent
+  } catch (error) {
+    console.error('handwriting download failed', error)
+    return failure(500, '照片读取失败，请重试')
+  }
+  if (!buffer || !buffer.length) return failure(400, '照片是空的，请重新拍摄')
+  if (buffer.length > DEEPSEEK_OCR_MAX_BYTES) return failure(413, '照片太大，请压缩或重新拍摄后再试')
+  const timeout = Math.max(15000, Math.min(45000, (Number(limitMs) || 20000) - 5000))
+  try {
+    const imageUrl = `data:image/jpeg;base64,${buffer.toString('base64')}`
+    const text = await callVision(config, imageUrl, timeout, HANDWRITING_PROMPT)
+    if (!text || !/\S/.test(text)) return failure(422, '没有识别出文字，请换一张更清晰的照片，或直接输入译文')
+    return success({ text, provider: 'deepseek' })
+  } catch (error) {
+    console.error('handwriting ocr failed', {
+      bytes: buffer.length,
+      detail: (error && (error.errMsg || error.message)) || error
+    })
+    return failure(502, '手写识别没有成功，请换一张更清晰的照片，或直接输入译文')
+  }
+}
+
 // 逐页识别结束后，把多页文字合回一篇文章；只保留仔细阅读，逻辑与整份解析一致
 function assemblePassages(event) {
   const texts = Array.isArray(event.texts) ? event.texts : []
@@ -504,10 +539,11 @@ exports.main = async (event = {}, context = {}) => {
   const limitMs = Number(context.time_limit_in_ms || context.timeout * 1000 || 0)
   const fileID = typeof event.fileID === 'string' ? event.fileID : ''
   const fileName = typeof event.name === 'string' ? event.name : '未命名文档'
-  // 扫描件分页 OCR 的两个后续动作：单页识别、识别完成后合并
+  // 扫描件分页 OCR 与写译手写识别：都不走整份文档解析
   const action = typeof event.action === 'string' ? event.action : ''
   if (action === 'ocrPage') return ocrSinglePage(event, limitMs)
   if (action === 'assemble') return assemblePassages(event)
+  if (action === 'handwriting') return ocrHandwriting(event, limitMs)
   if (fileID.indexOf('cloud://') !== 0) return failure(400, '请先选择要上传的文档')
 
   let buffer

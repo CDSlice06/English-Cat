@@ -1,5 +1,5 @@
 <view class="page review-page">
-  <section-title eyebrow="DAILY REVIEW" title="今日复习" description="只复习「不记得」的词：最久没看的先来，记得就亲手搬走。" />
+  <section-title eyebrow="DAILY REVIEW" title="今日复习" description="按 1 / 3 / 7 / 15 / 30 / 180 天的间隔到期：只复习今天该复习的词，记得就亲手搬走。" />
 
   <view wx:if="{{loading}}" class="loading">
     <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
@@ -11,7 +11,7 @@
     <primary-button text="重新加载" bind:tap="load" />
   </view>
   <block wx:else>
-    <view class="review-progress enter d1">
+    <view wx:if="{{total}}" class="review-progress enter d1">
       <view class="review-progress-row">
         <text class="review-progress-label">今日已复习</text>
         <text class="review-progress-value en">{{doneCount}} / {{total}}</text>
@@ -22,7 +22,10 @@
 
     <view wx:if="{{current}}" class="review-card enter d2">
       <view class="paper-tape review-tape"></view>
-      <text class="review-kicker">WORD CARD</text>
+      <view class="review-card-head">
+        <text class="review-kicker">WORD CARD</text>
+        <text class="review-stage">第 {{current.reviewNo}} 次 · {{current.intervalLabel}}</text>
+      </view>
       <view class="review-word-row">
         <text class="review-word en">{{current.word}}</text>
         <speak-btn word="{{current.word}}" />
@@ -30,6 +33,14 @@
       <text wx:if="{{current.phonetic}}" class="review-phonetic">{{current.phonetic}}</text>
       <meaning-list wx:if="{{current.meanings.length}}" meanings="{{current.meanings}}" />
       <text wx:else class="review-nomap">这个词暂未收录释义，先凭记忆判断。</text>
+
+      <view class="review-curve">
+        <view wx:for="{{current.curve}}" wx:key="label" class="curve-item curve-{{item.state}}">
+          <view class="curve-dot"></view>
+          <text class="curve-label">{{item.label}}</text>
+        </view>
+      </view>
+      <text class="review-curve-hint">本次是第 {{current.reviewNo}} 次复习 · {{current.when}}</text>
 
       <view class="review-actions">
         <view class="review-btn review-unknown {{busy ? 'review-btn-busy' : ''}}" bindtap="mark" data-result="unknown">
@@ -45,8 +56,8 @@
 
     <view wx:elif="{{done}}" class="review-done enter d2">
       <cat-image custom-class="done-cat" name="complete-halo" size="large" />
-      <text class="done-title">{{total ? '今天的复习做完了' : '今天没有要复习的词'}}</text>
-      <text class="done-text">{{total ? '本轮复习 ' + doneCount + ' 个词，明天再来一遍会更牢。' : '生词本里的词都标成「记得」了，或者还没收词。'}}</text>
+      <text class="done-title">{{total ? '今天到期的词都复习完了' : '今天没有到期的词'}}</text>
+      <text class="done-text">{{total ? '本轮复习 ' + doneCount + ' 个词。按 1 / 3 / 7 / 15 / 30 / 180 天的节奏，下次到期时会自动出现在这里。' : (nextTip ? '按 1 / 3 / 7 / 15 / 30 / 180 天的曲线，' + nextTip + '。' : '新记的词会在明天进入第一次复习，还没到期就先不用管它。')}}</text>
       <primary-button text="回到生词本" bind:tap="goWordbook" />
     </view>
   </block>

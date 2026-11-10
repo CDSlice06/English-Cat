@@ -29,7 +29,7 @@
     </view>
 
     <view class="ob-note">
-      <text>真题原文受版权保护，题库用的是按四六级难度分级的原创文章，题型、篇幅和句式都对齐真题。</text>
+      <text>题库内置 2013–2026 四六级真题，打开就能练；真题原文著作权归考试主办方，仅供个人学习。</text>
     </view>
 
     <view class="ob-skip" bind:tap="skip">

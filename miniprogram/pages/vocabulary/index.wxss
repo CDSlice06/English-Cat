@@ -638,7 +638,7 @@
 .sentence-text {
   color: var(--ink-2);
   font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
-  font-size: 24rpx;
+  font-size: 26rpx;
   line-height: 1.7;
 }
 

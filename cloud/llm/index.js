@@ -23,6 +23,8 @@ const TASKS = {
   // 判题等待要和 evaluateTranslation 的 raceTimeout（10 秒）对齐：
   // 判题链路整体要留在平台等待上限内，模型慢时就尽早返回失败、走本地规则兜底
   judge: { maxTokens: 1100, timeout: 9000, temperature: 0.1 },
+  // 写译整段点评：信息点多、答案长，等模型的时间比单句判题宽一些
+  writing: { maxTokens: 1600, timeout: 16000, temperature: 0.1 },
   article: { maxTokens: 2000, timeout: 48000, temperature: 0.8 }
 }
 
@@ -269,6 +271,33 @@ function composeJudge(event) {
   return { ok: true, messages: [{ role: 'system', content: JSON_SYSTEM }, { role: 'user', content: user.join('\n') }] }
 }
 
+// 写译整段翻译：按四六级评分思路逐句核对，不套用单句判题那套结构错误清单
+function composeWritingJudge(event) {
+  const mode = event.mode === 'en2zh' ? '英译汉' : '汉译英'
+  const reference = clean(event.reference, 2000)
+  const prompt = clean(event.prompt, 1200)
+  const answer = clean(event.answer, 2000)
+  if (!answer) return { ok: false, message: 'answer 不能为空' }
+  if (!reference) return { ok: false, message: 'reference 不能为空' }
+
+  const user = [
+    `题型：${mode}（整段翻译，不是单句）`,
+    `题目：${prompt}`,
+    `参考译文：${reference}`,
+    `学生答案：${answer}`,
+    '输出 JSON：{"pass":true/false,"feedback":"...","improvements":[...],"checklist":[...]}',
+    '要求：',
+    '1. 以信息是否译全、句意是否准确、语法是否成立为主要标准；用词不够地道、个别冠词或单复数小错，不判不通过。',
+    '2. 至少两处完整信息（分句、定语、状语、并列成分）漏译或明显错译，才判不通过。',
+    '3. feedback 用 1-2 句中文说明整体表现和主要问题，不超过 90 字；不能出现参考译文里的具体英文单词或正确译文，也不要列缺失词清单。',
+    '4. checklist 给 3-6 个信息点，用中文描述（每条不超过 18 字），逐点标注 ok:true 或 false，note 用一句中文说明学生答案在这一点的对应情况，不能写英文正确表达。',
+    '5. improvements 给 0-3 条最值得改的写法：{"point":"为什么改完更好，中文，不超过 40 字","wrong":"学生原文片段，逐字引用，不超过 12 词","correct":"改进后的写法，不超过 12 词"}；correct 不能与参考译文连续 5 个词以上重合。',
+    '6. 英译汉时从宽：同义替换、语序调整、翻译腔都不算错，只看是否读懂原意，也不要输出英文改写。'
+  ].join('\n')
+
+  return { ok: true, messages: [{ role: 'system', content: JSON_SYSTEM }, { role: 'user', content: user }] }
+}
+
 // 题库文章生成：离线批量造题时使用，不在小程序端直接调用
 function composeArticle(event) {
   const level = event.level === 'cet6' ? 'cet6' : 'cet4'
@@ -324,6 +353,7 @@ function compose(task, event) {
   if (task === 'phrases') return composePhrases(event)
   if (task === 'translate') return composeTranslate(event)
   if (task === 'judge') return composeJudge(event)
+  if (task === 'writing') return composeWritingJudge(event)
   return composeArticle(event)
 }
 

@@ -12,6 +12,14 @@ const SOURCE_LABELS = {
   manual: '手动收录'
 }
 
+// 搜索同时匹配单词和中文释义：记得意思、忘了拼写的人也能找回来
+function itemMatches(item, query) {
+  if (String(item.word || '').toLowerCase().indexOf(query) >= 0) return true
+  return (item.meanings || []).some((meaning) => (
+    String(meaning && meaning.definition || '').toLowerCase().indexOf(query) >= 0
+  ))
+}
+
 Page({
   data: {
     loading: true,
@@ -20,6 +28,9 @@ Page({
     counts: { total: 0, known: 0, unknown: 0 },
     items: [],
     words: [],
+    query: '',
+    otherMatches: 0,
+    searchEmptyText: '',
     draft: '',
     suggestions: [],
     // 联想列表的最大高度：跟着屏幕高度走，避免展开后被输入法挡住
@@ -89,12 +100,28 @@ Page({
     if (!this.data.items.length) this.setData({ loading: true })
     this.setData({ error: '' })
     wordbook.list(force)
-      .then((data) => this.applyData(data.items || [], data.counts || { total: 0, known: 0, unknown: 0 }))
+      .then((data) => {
+        this.applyData(data.items || [], data.counts || { total: 0, known: 0, unknown: 0 })
+        this.refreshMeaningsOnce()
+      })
       .catch((error) => {
         // 快照里已经有词时保留列表，刷新失败不打断浏览
         if (this.data.items.length) return
         this.setData({ loading: false, error: error.message || '词库加载失败，请重试' })
       })
+  },
+
+  // 释义刷新要批量查词库，放在列表渲染之后悄悄跑，一天最多一次
+  refreshMeaningsOnce() {
+    const KEY = 'wordbookRefreshAt'
+    try {
+      const at = wx.getStorageSync(KEY) || 0
+      if (Date.now() - at < 24 * 60 * 60 * 1000) return
+      wx.setStorageSync(KEY, Date.now())
+    } catch (error) {
+      return
+    }
+    wordbook.refreshMeanings()
   },
 
   applyData(rawItems, counts) {
@@ -175,12 +202,35 @@ Page({
     })
   },
 
+  // 分段和搜索一起生效：先按「不记得 / 记得」分组，再按关键词过滤
   applyTab() {
     const tab = this.data.tab
-    const words = this.data.items.filter((item) => (
-      tab === 'known' ? item.state === 'known' : item.state !== 'known'
-    ))
-    this.setData({ words })
+    const query = String(this.data.query || '').trim().toLowerCase()
+    const inTab = (item, name) => (name === 'known' ? item.state === 'known' : item.state !== 'known')
+    const base = this.data.items.filter((item) => inTab(item, tab))
+    const words = query ? base.filter((item) => itemMatches(item, query)) : base
+    // 搜不到时提示另一个分段还有多少匹配，避免用户以为词丢了
+    const otherTab = tab === 'known' ? 'unknown' : 'known'
+    const otherMatches = query
+      ? this.data.items.filter((item) => inTab(item, otherTab) && itemMatches(item, query)).length
+      : 0
+    const otherLabel = otherTab === 'known' ? '记得' : '不记得'
+    this.setData({
+      words,
+      otherMatches,
+      searchEmptyText: otherMatches
+        ? `在「${otherLabel}」里还有 ${otherMatches} 个匹配，点上面的分段去看看。`
+        : '试试只输入前几个字母，或者换一个中文释义关键词。'
+    })
+  },
+
+  onSearchInput(event) {
+    this.setData({ query: event.detail.value }, () => this.applyTab())
+  },
+
+  clearSearch() {
+    if (!this.data.query) return
+    this.setData({ query: '' }, () => this.applyTab())
   },
 
   switchTab(event) {

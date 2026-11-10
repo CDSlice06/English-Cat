@@ -13,11 +13,11 @@
     "pages/summary/index",
     "pages/wordbook/index",
     "pages/review/index",
+    "pages/checkin/index",
     "pages/phrasebook/index",
     "pages/grammarbook/index",
     "pages/onboarding/index",
-    "pages/library/index",
-    "pages/pet/index"
+    "pages/library/index"
   ],
   "window": {
     "navigationBarBackgroundColor": "#fdf7ea",

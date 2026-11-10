@@ -9,6 +9,13 @@ const TONES = {
   prep: 'prep'
 }
 
+// 可数性标记：C 可数 / U 不可数 / C/U 两种用法都常见
+const COUNT_LABELS = {
+  C: '可数',
+  U: '不可数',
+  'C/U': '可数/不可数'
+}
+
 function toneOf(pos) {
   const value = String(pos || '').toLowerCase().replace(/\s/g, '')
   if (!value) return 'other'
@@ -30,6 +37,7 @@ function decorate(meanings) {
     pos: item.pos || '',
     definition: item.definition || '',
     rare: !!item.rare,
+    count: COUNT_LABELS[item.count] || '',
     tone: toneOf(item.pos)
   }))
 }

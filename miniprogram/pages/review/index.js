@@ -1,22 +1,5 @@
 const wordbook = require('../../services/wordbook')
-
-// 复习记录只存在本地：越久没复习的词越靠前，从没复习过的排最前
-const REVIEW_LOG = 'reviewLog'
-const DAILY_LIMIT = 20
-
-function readLog() {
-  try {
-    return wx.getStorageSync(REVIEW_LOG) || {}
-  } catch (error) {
-    return {}
-  }
-}
-
-function writeLog(log) {
-  try {
-    wx.setStorageSync(REVIEW_LOG, log)
-  } catch (error) {}
-}
+const review = require('../../services/review')
 
 Page({
   data: {
@@ -30,11 +13,12 @@ Page({
     left: 0,
     current: null,
     done: false,
-    busy: false
+    busy: false,
+    // 今天没有到期词时，告诉用户下一批什么时候来
+    nextTip: ''
   },
 
   onLoad() {
-    this.log = readLog()
     this.load()
   },
 
@@ -43,12 +27,8 @@ Page({
     // 强制拉一次云端：复习要看到别的页面刚改过的状态
     wordbook.list(true)
       .then((data) => {
-        const log = this.log || {}
-        const queue = (data.items || [])
-          .filter((item) => item && item.state !== 'known')
-          .map((item) => Object.assign({}, item, { reviewedAt: Number(log[item.id]) || 0 }))
-          .sort((a, b) => a.reviewedAt - b.reviewedAt)
-          .slice(0, DAILY_LIMIT)
+        const queue = review.dueQueue(data.items)
+        const stats = review.todayStats(data.items)
         this.setData({
           loading: false,
           queue,
@@ -58,7 +38,8 @@ Page({
           percent: 0,
           left: queue.length,
           current: queue[0] || null,
-          done: !queue.length
+          done: !queue.length,
+          nextTip: queue.length || !stats.nextCount ? '' : `${stats.nextLabel}有 ${stats.nextCount} 个词到期`
         }, () => this.scrollTop())
       })
       .catch((error) => this.setData({ loading: false, error: error.message || '词库读取失败，请重试' }))
@@ -78,8 +59,8 @@ Page({
     this.setData({ busy: true })
 
     const finish = () => {
-      this.log = Object.assign({}, this.log, { [id]: Date.now() })
-      writeLog(this.log)
+      // 推进复习曲线：下次到期日由 1/3/7/15/30/180 天决定
+      review.advance(id, this.data.current.base, this.data.current.stage, remembered)
       const index = this.data.index + 1
       const nextWord = this.data.queue[index] || null
       const doneCount = this.data.doneCount + 1

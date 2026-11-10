@@ -1,5 +1,12 @@
 .practice-page { padding-bottom: 300rpx; }
 
+/* 键盘弹起时固定底栏让位，提交改由输入框下方的行内按钮承接 */
+.practice-page .action-bar.bar-up { display: none; }
+
+.inline-submit {
+  margin-top: 16rpx;
+}
+
 /* ---------- 顶部：学习报告入口 ---------- */
 .report-row {
   display: flex;
@@ -222,7 +229,7 @@
     rgba(116, 72, 40, 0.12) 46rpx
   );
   color: var(--ink-2);
-  font-size: 27rpx;
+  font-size: 28rpx;
   line-height: 1.75;
 }
 
@@ -301,7 +308,7 @@
 .hint-text {
   flex: 1;
   color: #6f5011;
-  font-size: var(--fs-note);
+  font-size: 23rpx;
   line-height: 1.65;
 }
 
@@ -333,7 +340,7 @@
 
 .feedback-text {
   display: block;
-  font-size: var(--fs-note);
+  font-size: 26rpx;
   line-height: 1.72;
 }
 

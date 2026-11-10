@@ -239,20 +239,24 @@ function pickTip(question, rule, answer) {
 // 等不到模型就回落到本地规则判定（结果同样确定），不让学生对着超时按钮干等
 const JUDGE_WAIT_MS = 10000
 
-function judgeTranslation(question, answer, timeoutMs) {
+function judgeTranslation(question, answer, timeoutMs, task) {
   if (Date.now() < disabledUntil) return Promise.resolve(null)
   const reference = typeof question.reference === 'string' ? question.reference.trim() : ''
   if (!reference || !answer) return Promise.resolve(null)
+  // 写译是整段翻译，参考译文和学生答案都要保留完整篇幅，不能按单句的上限截断
+  const judgeTask = task === 'writing' ? 'writing' : 'judge'
+  const referenceLimit = judgeTask === 'writing' ? 2000 : 800
+  const answerLimit = judgeTask === 'writing' ? 2000 : 1200
 
   const pending = cloud.callFunction({
     name: 'llm',
     data: {
-      task: 'judge',
+      task: judgeTask,
       mode: question.mode === 'en2zh' ? 'en2zh' : 'zh2en',
       pattern: clip(question.pattern, 80),
-      prompt: clip(question.prompt, 800),
-      reference: clip(reference, 800),
-      answer: clip(answer, 1200)
+      prompt: clip(question.prompt, judgeTask === 'writing' ? 1200 : 800),
+      reference: clip(reference, referenceLimit),
+      answer: clip(answer, answerLimit)
     }
   }).then((res) => {
     const result = (res && res.result) || {}

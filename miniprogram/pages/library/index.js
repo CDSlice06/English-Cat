@@ -1,6 +1,7 @@
 const { LEVELS, listOf, findByLevel, findById } = require('../../content/bank')
-const { startBankArticle } = require('../../services/article')
+const { prepareBankArticle } = require('../../services/article')
 const { listArticles, previewArticle, deleteArticle, setArticleYear } = require('../../services/study')
+const { listExams, getExam } = require('../../services/examBank')
 const { playTapSound } = require('../../utils/sound')
 
 // 列表已经按年份分组，单条出处不再重复年份，只留「6月 · 第2套 · Passage 1」
@@ -64,19 +65,26 @@ function pickGroups(groups, filter) {
   return groups.filter((group) => group.key === filter)
 }
 
+// 真题库进度：学过的内置真题按同样的钥匙对齐，列表里也显示「已学完 / 学了 x%」
+function examKey(item) {
+  return [item.level, item.year, item.month, item.paper, item.passage].join('-')
+}
+
 Page({
   data: {
     levels: LEVELS,
     level: 'cet4',
-    source: 'bank', // bank = 内置模拟篇，real = 我的真题，imported = 我的导入
+    source: 'bank', // bank = 内置模拟篇，exams = 内置真题库，imported = 我的导入
     list: [],
-    real: [],
     imported: [],
     mineView: [],
     mineAll: [],
-    realGroups: [],
-    years: [],
-    yearFilter: 'all',
+    examAll: [],
+    examGroups: [],
+    examYears: [],
+    examYearFilter: 'all',
+    examTotal: 0,
+    examLoading: false,
     mineLoading: false,
     starting: false,
     startingTitle: '',
@@ -85,8 +93,10 @@ Page({
 
   onLoad() {
     const level = wx.getStorageSync('userLevel') === 'cet6' ? 'cet6' : 'cet4'
+    this.examAll = []
     this.setData({ level, list: listOf(level) })
     this.loadMine()
+    this.loadExams()
   },
 
   onShow() {
@@ -108,16 +118,16 @@ Page({
     const source = event.currentTarget.dataset.source
     if (source === this.data.source) return
     this.setData({ source, error: '', mineView: this.viewOf(source) })
+    if (source === 'exams') this.loadExams()
   },
 
   // 当前来源对应的列表：真题与导入分开渲染
   viewOf(source) {
-    if (source === 'real') return this.data.real
     if (source === 'imported') return this.data.imported
     return []
   },
 
-  // 我的真题：只取摘要，按当前级别过滤
+  // 我的导入：只取摘要，按当前级别过滤
   loadMine() {
     this.setData({ mineLoading: true })
     listArticles()
@@ -131,46 +141,114 @@ Page({
   applyMine(level, mineAll) {
     this.mineAll = mineAll || []
     const scoped = this.mineAll.filter((item) => item.level === level)
-    // 归档归属以用户导入时的选择为准；旧数据没有 kind 时按年份兜底
-    const isReal = (item) => item.kind === 'real' || (!item.kind && item.year > 0)
-    const real = scoped.filter(isReal)
-      .map((item) => markProgress(Object.assign({}, item, { issue: issueShort(item) })))
-    const imported = scoped.filter((item) => !isReal(item)).map(markProgress)
-    const groups = groupByYear(real)
-    const years = yearChips(groups)
-    // 切级别或删文章后，原来选中的年份可能已经空了，退回「全部」
-    const yearFilter = years.some((chip) => chip.key === this.data.yearFilter) ? this.data.yearFilter : 'all'
-    const realGroups = pickGroups(groups, yearFilter)
-    this.realGroupsAll = groups
+    // 我导入的都收在「我的导入」里，真题和普通文章不再分栏
+    const imported = scoped.map((item) => markProgress(Object.assign({}, item, { issue: issueShort(item) })))
+    // 真题库共用这份进度：学过的内置真题在这里也能看到「已学完 / 学了 x%」
+    this.realProgress = scoped.filter((item) => item.kind === 'real' || (!item.kind && item.year > 0))
+      .map((item) => markProgress(item))
     const source = this.data.source
     this.setData({
       mineAll: this.mineAll,
-      real,
       imported,
-      realGroups,
-      years,
-      yearFilter,
-      mineView: source === 'real' ? real : (source === 'imported' ? imported : [])
+      mineView: source === 'imported' ? imported : []
+    })
+    if (this.examAll && this.examAll.length) this.applyExams(level, this.examAll)
+  },
+
+  // 内置真题库：清单一次拉回，切级别只做本地过滤
+  loadExams() {
+    if (this.data.examLoading) return
+    if (this.examAll && this.examAll.length) {
+      this.applyExams(this.data.level, this.examAll)
+      return
+    }
+    this.setData({ examLoading: true })
+    listExams()
+      .then((items) => {
+        this.examAll = items || []
+        this.setData({ examLoading: false, examTotal: this.examAll.length })
+        this.applyExams(this.data.level, this.examAll)
+      })
+      .catch((error) => {
+        this.setData({
+          examLoading: false,
+          error: (error && error.message) || '真题库加载失败，稍后再试'
+        })
+      })
+  },
+
+  applyExams(level, items) {
+    const progress = {}
+    ;(this.realProgress || []).forEach((item) => {
+      if (item.progressLabel) progress[examKey(item)] = item
+    })
+    const scoped = (items || [])
+      .filter((item) => item.level === level)
+      .map((item) => {
+        const done = progress[examKey(item)]
+        return Object.assign({}, item, {
+          issue: issueShort(item),
+          progressLabel: done ? done.progressLabel : '',
+          progressDone: done ? done.progressDone : false
+        })
+      })
+    const groups = groupByYear(scoped)
+    const years = yearChips(groups)
+    // 切级别后原来选中的年份可能在这边不存在，退回「全部」
+    const yearFilter = years.some((chip) => chip.key === this.data.examYearFilter) ? this.data.examYearFilter : 'all'
+    this.examGroupsAll = groups
+    this.setData({
+      examGroups: pickGroups(groups, yearFilter),
+      examYears: years,
+      examYearFilter: yearFilter
     })
   },
 
-  pickYear(event) {
+  pickExamYear(event) {
     const key = event.currentTarget.dataset.key
-    if (!key || key === this.data.yearFilter) return
+    if (!key || key === this.data.examYearFilter) return
     this.setData({
-      yearFilter: key,
-      realGroups: pickGroups(this.realGroupsAll || [], key)
+      examYearFilter: key,
+      examGroups: pickGroups(this.examGroupsAll || [], key)
     })
+  },
+
+  // 点开一篇内置真题：取正文 → 入库 → 进预览页看一眼要学什么，确认后再精读
+  pickExam(event) {
+    if (this.data.starting) return
+    const id = event.currentTarget.dataset.id
+    const hit = (this.examAll || []).find((item) => item.id === id)
+    this.setData({ starting: true, startingTitle: hit ? hit.title : '', error: '' })
+    getExam(id)
+      .then((paper) => prepareBankArticle(Object.assign({}, paper, {
+        kind: 'real',
+        origin: 'exam',
+        source: `${paper.year}.${paper.month} 真题`
+      })))
+      .then((articleId) => this.openPreview(articleId))
+      .catch((error) => {
+        this.setData({
+          starting: false,
+          error: (error && error.message) || '这篇真题没能准备好，换一篇试试'
+        })
+      })
   },
 
   draw() {
     if (this.data.starting) return
-    if (this.data.source !== 'bank') {
-      const real = this.data.source === 'real'
-      // 真题从当前筛选出的年份里抽，抽到的就是眼前这一屏
-      const pool = real ? this.currentReal() : this.data.imported
+    if (this.data.source === 'exams') {
+      const pool = this.currentExam()
       if (!pool.length) {
-        wx.showToast({ title: real ? '这个级别还没有你导入的真题' : '这个级别还没有你录入的文章', icon: 'none' })
+        wx.showToast({ title: '这个级别还没有内置真题', icon: 'none' })
+        return
+      }
+      this.pickExam({ currentTarget: { dataset: { id: pool[Math.floor(Math.random() * pool.length)].id } } })
+      return
+    }
+    if (this.data.source === 'imported') {
+      const pool = this.data.imported
+      if (!pool.length) {
+        wx.showToast({ title: '这个级别还没有你导入的文章', icon: 'none' })
         return
       }
       this.open(pool[Math.floor(Math.random() * pool.length)]._id)
@@ -179,10 +257,10 @@ Page({
     this.start(findByLevel(this.data.level))
   },
 
-  // 当前年份筛选下的所有真题
-  currentReal() {
+  // 真题库里当前年份筛选出的篇目
+  currentExam() {
     const pool = []
-    ;(this.data.realGroups || []).forEach((group) => {
+    ;(this.data.examGroups || []).forEach((group) => {
       group.items.forEach((item) => pool.push(item))
     })
     return pool
@@ -267,11 +345,8 @@ Page({
   start(article) {
     if (!article) return
     this.setData({ starting: true, startingTitle: article.title, error: '' })
-    startBankArticle(article)
-      .then(() => {
-        this.setData({ starting: false })
-        wx.switchTab({ url: '/pages/workbench/index' })
-      })
+    prepareBankArticle(article)
+      .then((articleId) => this.openPreview(articleId))
       .catch((error) => {
         this.setData({
           starting: false,
@@ -285,23 +360,23 @@ Page({
     if (!articleId) return
     const hit = this.mineAll.find((item) => item._id === articleId)
     this.setData({ starting: true, startingTitle: hit ? hit.title : '', error: '' })
-    previewArticle(articleId)
-      .then((data) => {
-        this.setData({ starting: false })
-        wx.setStorageSync('articlePreview', data)
-        wx.navigateTo({ url: '/pages/preview/index?mode=article' })
-      })
-      .catch((error) => {
-        this.setData({ starting: false, error: (error && error.message) || '这篇文章打不开，再试一次' })
-      })
+    this.openPreview(articleId).catch((error) => {
+      this.setData({ starting: false, error: (error && error.message) || '这篇文章打不开，再试一次' })
+    })
   },
 
+  // 预览页数据由题库页预先取好，缓存后交给预览页渲染
+  openPreview(articleId) {
+    return previewArticle(articleId).then((data) => {
+      this.setData({ starting: false })
+      wx.setStorageSync('articlePreview', data)
+      wx.navigateTo({ url: '/pages/preview/index?mode=article' })
+    })
+  },
+
+  // 导入入口：先出声再跳转，让「这里能点」有即时反馈
   goImport() {
-    // 先出声再跳转，让「这里能点」有即时反馈
     playTapSound()
-    // 带上当前分类，导入页据此预选归档位置，导入完还能回到同一分类
-    const archive = this.data.source === 'real' ? '&archive=real'
-      : (this.data.source === 'imported' ? '&archive=custom' : '')
-    wx.navigateTo({ url: `/pages/import/index?from=library${archive}` })
+    wx.navigateTo({ url: '/pages/import/index?from=library' })
   }
 })

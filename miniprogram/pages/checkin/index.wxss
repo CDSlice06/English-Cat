@@ -1,0 +1,400 @@
+.checkin-page {
+  padding-top: 6rpx;
+}
+
+/* ---------- 连续打卡主卡 ---------- */
+.streak-card {
+  position: relative;
+  overflow: hidden;
+  margin-top: 6rpx;
+  padding: 30rpx 26rpx 22rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.22);
+  border-radius: var(--r-lg);
+  background: linear-gradient(150deg, #fffdf6 0%, #fff5dd 55%, #ffecc4 100%);
+  box-shadow: 7rpx 8rpx 0 rgba(116, 72, 40, 0.14);
+}
+
+.streak-tape {
+  left: 40rpx;
+  top: -12rpx;
+}
+
+.streak-paw {
+  top: 46rpx;
+  right: 26rpx;
+  width: 88rpx;
+  height: 82rpx;
+  transform: rotate(16deg);
+}
+
+.streak-glow {
+  position: absolute;
+  top: -140rpx;
+  right: -80rpx;
+  width: 320rpx;
+  height: 320rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 246, 214, 0.9), rgba(255, 240, 200, 0) 70%);
+}
+
+.streak-head {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.streak-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.streak-kicker {
+  display: block;
+  font-size: 18rpx;
+  font-weight: 700;
+  letter-spacing: 3rpx;
+  color: #a8763c;
+}
+
+.streak-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  margin-top: 4rpx;
+}
+
+.streak-num {
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 88rpx;
+  font-weight: 700;
+  line-height: 1.05;
+  color: #744828;
+}
+
+.streak-unit {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #a8763c;
+}
+
+.streak-title {
+  display: block;
+  margin-top: 2rpx;
+  font-size: 27rpx;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.streak-hint {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 21rpx;
+  color: var(--muted);
+}
+
+/* 今日印章：像手账里盖歪的一枚章 */
+.streak-stamp {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rpx;
+  width: 148rpx;
+  padding: 12rpx 8rpx 10rpx;
+  border: 2rpx dashed rgba(116, 72, 40, 0.3);
+  border-radius: 22rpx;
+  background: rgba(255, 253, 248, 0.72);
+  transform: rotate(5deg);
+}
+
+.stamp-on {
+  border-style: solid;
+  border-color: rgba(201, 131, 42, 0.55);
+  background: #fff3cf;
+  box-shadow: 3rpx 4rpx 0 rgba(103, 73, 40, 0.1);
+}
+
+.stamp-cat {
+  width: 84rpx !important;
+  height: 84rpx !important;
+}
+
+.stamp-text {
+  font-size: 18rpx;
+  font-weight: 700;
+  color: #8a5a0d;
+}
+
+/* ---------- 本周七天 ---------- */
+.week-strip {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24rpx;
+  padding: 16rpx 12rpx 12rpx;
+  border: 2rpx dashed rgba(168, 106, 17, 0.24);
+  border-radius: 22rpx;
+  background: rgba(255, 253, 246, 0.6);
+}
+
+.week-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.week-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46rpx;
+  height: 46rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.2);
+  border-radius: 50%;
+  background: #fffdf8;
+}
+
+.week-today {
+  border: 2rpx dashed #c9832a;
+  box-shadow: 0 0 0 4rpx rgba(247, 183, 51, 0.18);
+}
+
+.week-on {
+  border: 2rpx solid #d99b3d;
+  background: linear-gradient(180deg, #ffd25c 0%, #f7b733 100%);
+  box-shadow: 0 0 0 4rpx rgba(247, 183, 51, 0.22);
+}
+
+.week-check {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #6b4a0e;
+}
+
+.week-label {
+  font-size: 19rpx;
+  color: var(--faint);
+}
+
+.week-label-today {
+  color: #8a5a0d;
+  font-weight: 700;
+}
+
+/* ---------- 三个数字 ---------- */
+.streak-stats {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  margin-top: 18rpx;
+  padding-top: 16rpx;
+  border-top: 2rpx dashed rgba(168, 106, 17, 0.2);
+}
+
+.streak-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rpx;
+}
+
+.streak-stat-num {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #744828;
+}
+
+.streak-stat-label {
+  font-size: 20rpx;
+  color: var(--muted);
+}
+
+.streak-divider {
+  width: 2rpx;
+  height: 44rpx;
+  background: rgba(168, 106, 17, 0.16);
+}
+
+/* ---------- 月历 ---------- */
+.calendar-card {
+  position: relative;
+  margin-top: 22rpx;
+  padding: 26rpx 22rpx 22rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  background: rgba(255, 253, 246, 0.94);
+  box-shadow: var(--shadow-paper);
+}
+
+.calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.calendar-kicker {
+  display: block;
+  font-size: 18rpx;
+  font-weight: 700;
+  letter-spacing: 3rpx;
+  color: var(--faint);
+}
+
+.calendar-title {
+  display: block;
+  margin-top: 2rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.calendar-nav {
+  display: flex;
+  gap: 12rpx;
+}
+
+.cal-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58rpx;
+  height: 58rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink-2);
+  font-size: 34rpx;
+  line-height: 1;
+  box-shadow: 2rpx 3rpx 0 rgba(103, 73, 40, 0.1);
+}
+
+.cal-btn-hover {
+  transform: translateY(2rpx);
+  box-shadow: 1rpx 1rpx 0 rgba(103, 73, 40, 0.1);
+}
+
+.cal-btn-off {
+  opacity: 0.32;
+  box-shadow: none;
+}
+
+.calendar-week {
+  display: flex;
+  margin-top: 20rpx;
+}
+
+.calendar-week text {
+  flex: 1;
+  text-align: center;
+  font-size: 20rpx;
+  color: var(--faint);
+}
+
+.calendar-grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 8rpx;
+}
+
+.cal-cell {
+  width: 14.2857%;
+  display: flex;
+  justify-content: center;
+  padding: 6rpx 0;
+}
+
+.cal-day {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  font-size: 24rpx;
+  color: var(--ink-2);
+}
+
+.cal-checked {
+  border: 2rpx solid #d99b3d;
+  background: #ffe6b3;
+  color: #7a4f0d;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 3rpx #fff8e7;
+}
+
+.cal-today::after {
+  content: '';
+  position: absolute;
+  top: -6rpx;
+  right: -6rpx;
+  bottom: -6rpx;
+  left: -6rpx;
+  border: 2rpx dashed rgba(201, 131, 42, 0.62);
+  border-radius: 50%;
+}
+
+.cal-future {
+  color: var(--faint);
+  opacity: 0.5;
+}
+
+.calendar-legend {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  margin-top: 14rpx;
+  padding-top: 14rpx;
+  border-top: 2rpx dashed rgba(168, 106, 17, 0.18);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 20rpx;
+  color: var(--muted);
+}
+
+.legend-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: #ffe6b3;
+  border: 2rpx solid #d99b3d;
+}
+
+.legend-ring {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  border: 2rpx dashed #c9832a;
+}
+
+.legend-note {
+  margin-left: auto;
+  font-size: 20rpx;
+  color: var(--faint);
+}
+
+/* ---------- 底部 ---------- */
+.checkin-action {
+  margin-top: 26rpx;
+}
+
+.checkin-note {
+  display: block;
+  margin: 22rpx 12rpx 0;
+  text-align: center;
+  font-size: 20rpx;
+  line-height: 1.6;
+  color: var(--faint);
+}

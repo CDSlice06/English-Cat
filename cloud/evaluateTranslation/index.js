@@ -2,6 +2,7 @@ const cloud = require('wx-server-sdk')
 const crypto = require('crypto')
 const { evaluate, RULE_TIPS } = require('./evaluator')
 const { judgeTranslation } = require('./llm')
+const { WRITING_QUESTIONS, writingQuestionById, publicWritingQuestion } = require('./writingBank')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -152,12 +153,164 @@ async function backfillRules(openid, articleId) {
   return success({ updated })
 }
 
+// 写译题库练习统一挂在这个虚拟文章 ID 下，复用同一张 attempts 表记录进度
+const WRITING_ARTICLE_ID = 'writing-bank'
+
+// 已做过的题：只要通过过一次就算通过；次数用于题库页显示“练过几次”
+async function writingProgress(openid) {
+  const map = {}
+  try {
+    const res = await db.collection('attempts')
+      .where({ openid, articleId: WRITING_ARTICLE_ID })
+      .limit(300)
+      .get()
+    ;((res && res.data) || []).forEach((item) => {
+      const id = String((item && item.questionId) || '')
+      if (!id) return
+      if (!map[id]) map[id] = { passed: false, attempts: 0 }
+      map[id].attempts += 1
+      if (item.result === 'pass') map[id].passed = true
+    })
+  } catch (error) {
+    console.log('[writing] progress failed', error && error.message ? error.message : String(error))
+  }
+  return map
+}
+
+// 写译题库：list 取题单，get 取单题，submit 判题并返回参考译文与采分点
+async function handleWriting(event, OPENID) {
+  const action = typeof event.writingAction === 'string' ? event.writingAction : 'list'
+
+  if (action === 'list' || action === 'get') {
+    const progress = await writingProgress(OPENID)
+    const questions = WRITING_QUESTIONS.map((item) => {
+      const record = progress[item.id] || {}
+      return Object.assign(publicWritingQuestion(item), {
+        passed: !!record.passed,
+        attempts: record.attempts || 0
+      })
+    }).sort((a, b) => String(b.year).localeCompare(String(a.year)))
+    if (action === 'get') {
+      const id = String(event.id || '').trim()
+      const found = questions.find((item) => item.id === id)
+      if (!found) return failure(404, '题目不存在')
+      return success({ question: found })
+    }
+    return success({ questions })
+  }
+
+  if (action !== 'submit') return failure(400, '未知的写译操作')
+
+  const item = writingQuestionById(event.id)
+  if (!item) return failure(404, '题目不存在')
+  if (typeof event.answer !== 'string') return failure(400, 'answer 必须是字符串')
+  const normalizedAnswer = event.answer.trim()
+  if (!normalizedAnswer) return failure(400, '请先写下你的译文')
+  if (normalizedAnswer.length > 5000) return failure(400, '译文不能超过 5000 个字符')
+
+  const mode = item.mode === 'en2zh' ? 'en2zh' : 'zh2en'
+  const answerHash = hashAnswer(normalizedAnswer)
+  const attempt = Number.isInteger(event.attempt) && event.attempt > 0
+    ? Math.min(event.attempt, 99)
+    : 1
+  const question = Object.assign({ pattern: item.topic }, item)
+
+  let result = 'pending'
+  let feedback = '暂未判定：请先写下你的译文。'
+  let tip = ''
+  let rule = ''
+  let usage = null
+  let improvements = []
+  let checklist = []
+  let source = 'rules'
+  let duplicated = false
+
+  const reused = await findReusableAttempt(OPENID, WRITING_ARTICLE_ID, item.id, mode, answerHash)
+  if (reused) {
+    result = reused.result
+    feedback = reused.feedback
+    tip = reused.tip || ''
+    rule = reused.rule || ''
+    usage = reused.usage || null
+    improvements = reused.improvements || []
+    checklist = reused.checklist || []
+    source = reused.source || 'rules'
+    duplicated = true
+  } else {
+    const judgeKey = `${OPENID}:${WRITING_ARTICLE_ID}:${item.id}:${mode}:${answerHash}`
+    const outcome = await judgeOnce(judgeKey, async () => {
+      try {
+        const prechecked = precheck(question, normalizedAnswer)
+        if (prechecked) return Object.assign({ source: 'rules' }, prechecked)
+        const judged = await judgeTranslation(question, normalizedAnswer, 12000, 'writing')
+        if (judged) return Object.assign({ source: 'ai' }, judged)
+      } catch (error) {
+        console.log('[writing] judge fallback', { id: item.id, message: error && error.message ? error.message : String(error) })
+      }
+      return Object.assign({ source: 'rules' }, evaluate(question, normalizedAnswer))
+    })
+    const finalOutcome = withEn2zhHint(mode, outcome)
+    result = finalOutcome.result
+    feedback = finalOutcome.feedback
+    tip = finalOutcome.tip || ''
+    rule = finalOutcome.rule || ''
+    usage = finalOutcome.usage || null
+    improvements = finalOutcome.improvements || []
+    checklist = finalOutcome.checklist || []
+    source = outcome.source || 'rules'
+  }
+
+  if (!duplicated) {
+    try {
+      await db.collection('attempts').add({
+        data: {
+          openid: OPENID,
+          articleId: WRITING_ARTICLE_ID,
+          questionId: item.id,
+          mode,
+          answer: normalizedAnswer,
+          answerHash,
+          result,
+          feedback,
+          tip,
+          usage,
+          improvements,
+          checklist,
+          rule,
+          attempt,
+          source,
+          judgeVersion: JUDGE_VERSION,
+          createdAt: db.serverDate()
+        }
+      })
+    } catch (error) {
+      console.log('[writing] attempts.add failed', { id: item.id, message: error && error.message ? error.message : String(error) })
+    }
+  }
+
+  return success({
+    result,
+    feedback,
+    tip,
+    rule,
+    usage,
+    improvements,
+    checklist,
+    attempt,
+    mode,
+    source,
+    reference: item.reference,
+    points: Array.isArray(item.points) ? item.points : []
+  })
+}
+
 exports.main = async (event = {}) => {
   try {
     const { OPENID } = cloud.getWXContext()
     if (!OPENID) return failure(401, '无法确认用户身份')
 
     if (event.action === 'backfill') return await backfillRules(OPENID, event.articleId)
+    if (event.action === 'writing') return await handleWriting(event, OPENID)
 
     const articleId = typeof event.articleId === 'string' ? event.articleId.trim() : ''
     const questionId = typeof event.id === 'string' ? event.id.trim() : ''

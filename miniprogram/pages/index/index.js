@@ -1,4 +1,7 @@
 const { loadStudy, getProgress, vocabStats, readStudySnapshot } = require('../../services/study')
+const wordbook = require('../../services/wordbook')
+const review = require('../../services/review')
+const checkin = require('../../services/checkin')
 
 // 点猫时的随机回应，连点三次触发一句彩蛋
 const CAT_LINES = ['喵~', '摸摸头，继续读吧', '今天也要读懂一点点', '我在这儿陪着你']
@@ -74,6 +77,10 @@ Page({
     nextUnit: { label: '第 1 站 · 词汇', url: '/pages/vocabulary/index', hint: '' },
     stations: [],
     features: [],
+    // 今日复习：只统计生词本里「不记得」的词，本地记录决定今天是否已复习过
+    review: { visible: false, finished: false, goReview: false, title: '', desc: '', action: '' },
+    // 每日打卡：连续天数 + 最近七天，让用户每天都能看到自己的节奏
+    checkin: { streak: 0, total: 0, monthDays: 0, checkedToday: false, week: [], hint: '' },
     catName: 'welcome-wave',
     catBubble: '',
     catTapped: false
@@ -104,7 +111,68 @@ Page({
     this.guideIfNeeded()
     this.renderSnapshot()
     this.load()
+    this.loadReview()
+    this.loadCheckin()
   },
+
+  // 今日复习入口：先用生词本快照把入口铺出来，再拉云端刷新；复习回来 onShow 会自动重算
+  loadReview() {
+    const snapshot = wordbook.readWordbookSnapshot()
+    if (snapshot) this.renderReview(snapshot.items)
+    wordbook.list().then((data) => {
+      this.renderReview(data.items)
+    }).catch(() => {
+      // 生词本读取失败不影响首页，入口先不显示
+    })
+  },
+
+  renderReview(items) {
+    const stats = review.todayStats(items)
+    const finished = stats.due === 0 && stats.doneToday > 0
+    // 今天没有到期词，但曲线里还有下一次：给个安静的预告，不催用户
+    const upcoming = stats.due === 0 && !finished && stats.nextCount > 0
+    this.setData({
+      review: {
+        visible: stats.total > 0 || upcoming,
+        finished,
+        // 只有真的今天到期才进复习页，其余都是去看词库
+        goReview: stats.due > 0,
+        title: finished
+          ? '今天的复习已完成'
+          : (upcoming ? `${stats.nextLabel}有 ${stats.nextCount} 个词到期` : `今天要复习 ${stats.due} 个词`),
+        desc: finished
+          ? (stats.nextLabel
+            ? `今天复习了 ${stats.doneToday} 个词，下一批${stats.nextLabel}到期`
+            : `今天复习了 ${stats.doneToday} 个词，暂时没有待复习的词`)
+          : (upcoming
+            ? '按 1/3/7/15/30/180 天曲线，到期当天会自动出现在这里'
+            : (stats.doneToday
+              ? `已完成 ${stats.doneToday} 个 · 按 1/3/7/15/30/180 天到期`
+              : '按 1/3/7/15/30/180 天的间隔到期，先看最早到期的')),
+        action: stats.due > 0 ? '开始' : (finished ? '已完成' : '看词库')
+      }
+    })
+  },
+
+  // 打卡是纯本地记录，同步算完就能渲染，不依赖云端请求
+  loadCheckin() {
+    const summary = checkin.summary()
+    this.setData({
+      checkin: {
+        streak: summary.streak,
+        total: summary.total,
+        monthDays: summary.monthDays,
+        checkedToday: summary.checkedToday,
+        week: summary.week,
+        hint: summary.checkedToday
+          ? `累计 ${summary.total} 天 · 本月 ${summary.monthDays} 天`
+          : (summary.streak
+            ? `已连续 ${summary.streak} 天，学一个词就把今天续上`
+            : '学一个词，就能盖下第一枚章')
+      }
+    })
+  },
+
   // 有本地快照就先铺首屏，云函数回来再静默替换，避免每次冷启动都白屏
   renderSnapshot() {
     if (this.data.title) return

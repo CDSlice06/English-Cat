@@ -541,7 +541,7 @@
 .translate-en {
   display: block;
   color: #3f5c74;
-  font-size: 23rpx;
+  font-size: 26rpx;
   line-height: 1.8;
   word-break: break-word;
 }
@@ -550,7 +550,7 @@
   display: block;
   margin-top: 6rpx;
   color: var(--ink-2, #6f6557);
-  font-size: 23rpx;
+  font-size: 26rpx;
   line-height: 1.8;
   word-break: break-word;
 }

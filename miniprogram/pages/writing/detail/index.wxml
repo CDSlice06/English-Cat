@@ -1,0 +1,131 @@
+<view class="wd-page">
+  <view wx:if="{{loading}}" class="state-card">
+    <text class="state-text">正在取题…</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="state-card">
+    <text class="state-text">{{error}}</text>
+  </view>
+
+  <block wx:elif="{{question}}">
+    <view class="question-card">
+      <view class="question-head">
+        <view class="level-tag {{question.level}}">{{question.levelLabel}}</view>
+        <text class="question-year">{{question.year}}</text>
+        <text class="question-topic">{{question.topic}}</text>
+      </view>
+      <text class="question-prompt" user-select>{{question.prompt}}</text>
+      <view class="question-meta-row">
+        <text class="question-meta">中文 {{question.chars}} 字</text>
+        <text class="question-meta">建议 {{question.minutes}} 分钟</text>
+        <text class="question-meta" wx:if="{{attempt}}">已提交 {{attempt}} 次</text>
+      </view>
+    </view>
+
+    <view class="answer-card">
+      <view class="card-head">
+        <text class="card-title">我的译文</text>
+        <text class="counter">{{count}} {{question.mode === 'en2zh' ? '字' : '词'}}</text>
+      </view>
+      <textarea
+        class="answer-input"
+        value="{{answer}}"
+        maxlength="5000"
+        placeholder="{{question.mode === 'en2zh' ? '在这里写出中文译文…' : '在这里写出英文译文，也可以写在纸上再拍照上传…'}}"
+        placeholder-class="answer-placeholder"
+        bindinput="onAnswerInput"
+        auto-height
+        show-confirm-bar="{{false}}"
+      ></textarea>
+
+      <view wx:if="{{photo}}" class="photo-row">
+        <image class="photo-thumb" src="{{photo}}" mode="aspectFill" />
+        <view class="photo-copy">
+          <text class="photo-title">手写照片已上传</text>
+          <text class="photo-desc">识别结果已填入上方，请先核对再提交</text>
+        </view>
+        <text class="photo-clear" bindtap="clearPhoto">删除</text>
+      </view>
+
+      <view class="answer-actions">
+        <view class="ghost-btn" bindtap="choosePhoto">{{recognizing ? '识别中…' : '拍照上传'}}</view>
+        <view class="ghost-btn" bindtap="clearAnswer">清空重写</view>
+      </view>
+    </view>
+
+    <button class="submit-btn" bindtap="submit" loading="{{submitting}}" disabled="{{submitting}}">
+      {{submitting ? 'AI 正在点评…' : '提交 AI 点评'}}
+    </button>
+
+    <view wx:if="{{result}}" id="result-card" class="result-card {{result.pass ? 'pass' : 'fail'}}">
+      <view class="result-head">
+        <text class="result-badge {{result.pass ? 'pass' : 'fail'}}">{{result.pass ? '通过' : '再改一改'}}</text>
+        <text class="result-source">{{result.source}}</text>
+      </view>
+      <text class="result-feedback" user-select>{{result.feedback}}</text>
+
+      <view wx:if="{{result.checklist.length}}" class="result-block">
+        <text class="block-title">信息点核对</text>
+        <view
+          wx:for="{{result.checklist}}"
+          wx:key="text"
+          class="check-row {{item.hit === true ? 'ok' : (item.hit === false ? 'miss' : '')}}"
+        >
+          <text class="check-dot"></text>
+          <text class="check-text">{{item.text}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{result.usage}}" class="result-block">
+        <text class="block-title">正确用法</text>
+        <text wx:if="{{result.usage.point}}" class="usage-line">{{result.usage.point}}</text>
+        <view wx:if="{{result.usage.wrong || result.usage.correct}}" class="usage-compare">
+          <text wx:if="{{result.usage.wrong}}" class="usage-wrong">{{result.usage.wrong}}</text>
+          <text wx:if="{{result.usage.wrong && result.usage.correct}}" class="usage-arrow">→</text>
+          <text wx:if="{{result.usage.correct}}" class="usage-correct">{{result.usage.correct}}</text>
+        </view>
+        <text wx:if="{{result.usage.example}}" class="usage-example">{{result.usage.example}}</text>
+        <text wx:if="{{result.usage.exampleZh}}" class="usage-example-zh">{{result.usage.exampleZh}}</text>
+      </view>
+
+      <view wx:if="{{result.improvements.length}}" class="result-block">
+        <text class="block-title">可以这样改</text>
+        <view wx:for="{{result.improvements}}" wx:key="text" class="improve-row">
+          <text class="improve-index">{{index + 1}}</text>
+          <text class="improve-text">{{item.text}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{result.tip}}" class="result-tip">
+        <text class="tip-label">下一步</text>
+        <text class="tip-text">{{result.tip}}</text>
+      </view>
+
+      <view wx:if="{{result.rule}}" class="result-rule">
+        <text class="rule-label">表达提示</text>
+        <text class="rule-text">{{result.rule}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{showAnswer && (reference || points.length)}}" class="reference-card">
+      <view wx:if="{{reference}}" class="card-head">
+        <text class="card-title">参考译文</text>
+        <text class="copy-btn" bindtap="copyReference">复制</text>
+      </view>
+      <text wx:if="{{reference}}" class="reference-text" user-select>{{reference}}</text>
+
+      <view wx:if="{{points.length}}" class="points-block">
+        <text class="block-title">采分点</text>
+        <view wx:for="{{points}}" wx:key="*this" class="point-row">
+          <text class="point-index">{{index + 1}}</text>
+          <text class="point-text">{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{result}}" class="bottom-actions">
+      <view class="ghost-btn wide" bindtap="rewrite">再写一遍</view>
+      <navigator class="primary-link" open-type="navigateBack">返回题库</navigator>
+    </view>
+  </block>
+</view>

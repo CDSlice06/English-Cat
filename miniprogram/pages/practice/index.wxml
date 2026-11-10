@@ -60,13 +60,23 @@
         value="{{answer}}"
         disabled="{{evaluating}}"
         placeholder="{{item.mode === 'en2zh' ? '用自然、完整的中文写下这句话的意思…' : '用英语写出完整句子，注意用上这个句型…'}}"
+        id="answer-input"
         maxlength="500"
+        cursor-spacing="24"
+        adjust-position="{{false}}"
         placeholder-class="textarea-placeholder"
         bindinput="onAnswerInput"
+        bindfocus="onAnswerFocus"
+        bindkeyboardheightchange="onKeyboard"
       />
 
       <view class="answer-meta">
         <text>{{answerLength}}/500</text>
+      </view>
+
+      <!-- 键盘弹起时底栏会让位，改成紧贴输入框的提交入口，不用先收键盘 -->
+      <view wx:if="{{keyboardUp}}" class="inline-submit">
+        <primary-button text="{{primaryText}}" disabled="{{evaluating || !item.id}}" bind:tap="primaryAction" />
       </view>
 
       <view wx:if="{{evaluating}}" class="evaluating">
@@ -161,13 +171,13 @@
     />
   </block>
 
-  <view class="action-bar">
+  <view class="action-bar {{keyboardUp ? 'bar-up' : ''}}">
     <view class="action-meta">
       <text class="action-meta-strong">练习 {{index + 1}} / {{items.length}}</text>
       <text>{{passed}} 道已通过</text>
     </view>
     <primary-button
-      text="{{evaluating ? (retrying ? '正在重试…' : '评估中…') : (record && record.result === 'pass' ? (nextIndex < 0 ? '查看学习报告' : '下一题') : (referenceLocked ? '按讲解重写并提交' : '提交并评估'))}}"
+      text="{{primaryText}}"
       disabled="{{evaluating || !item.id}}"
       bind:tap="primaryAction"
     />

@@ -4,6 +4,10 @@ function normalize(value) {
   return String(value || '').replace(/\s+/g, ' ').trim()
 }
 
+// 原文是长阅读场景，字号单独给三档并记住选择，不改全局样式
+const SCALE_KEY = 'miao_reading_scale'
+const SCALES = ['s', 'm', 'l']
+
 Component({
   properties: {
     visible: { type: Boolean, value: false },
@@ -12,7 +16,21 @@ Component({
   },
 
   data: {
-    sentences: []
+    sentences: [],
+    fontScale: 'm'
+  },
+
+  lifetimes: {
+    attached() {
+      let scale = 'm'
+      try {
+        const saved = wx.getStorageSync(SCALE_KEY)
+        if (SCALES.indexOf(saved) >= 0) scale = saved
+      } catch (error) {
+        // 读不到存储就用默认字号
+      }
+      if (scale !== 'm') this.setData({ fontScale: scale })
+    }
   },
 
   observers: {
@@ -33,6 +51,16 @@ Component({
   },
 
   methods: {
+    setScale(event) {
+      const scale = event.currentTarget.dataset.scale
+      if (SCALES.indexOf(scale) < 0 || scale === this.data.fontScale) return
+      this.setData({ fontScale: scale })
+      try {
+        wx.setStorageSync(SCALE_KEY, scale)
+      } catch (error) {
+        // 存储失败不影响本次调整
+      }
+    },
     close() {
       this.triggerEvent('close')
     },

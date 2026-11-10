@@ -75,8 +75,6 @@ Page({
     monthIndex: 0,
     paperIndex: 0,
     passageIndex: 0,
-    // 归档位置：真题 / 普通导入，和年份是否填写无关，由用户自己决定
-    target: 'custom',
     // 真题整卷会自动拆成仔细阅读的多篇正文，逐篇导入
     passages: [],
     passageTab: 0
@@ -87,8 +85,6 @@ Page({
     const levelIndex = wx.getStorageSync('userLevel') === 'cet6' ? 1 : 0
     this.setData({ levelIndex })
     const mode = (options && options.mode) || ''
-    // 从题库「我的真题 / 其它篇目」进来时，归档位置跟随来源分类
-    const archive = (options && options.archive) || ''
     if (mode === 'doc') {
       const draft = wx.getStorageSync('docDraft')
       if (draft && draft.text) {
@@ -101,8 +97,6 @@ Page({
         this.setData({
           docMode: true,
           storeMode: true,
-          // 上传文档通常是真题原文，默认归到「我的真题」，可手动改成导入
-          target: archive === 'custom' ? 'custom' : 'real',
           levelIndex: exam.level >= 0 ? exam.level : this.data.levelIndex,
           yearIndex: exam.year ? matchIndexOf(YEARS, exam.year) : this.data.yearIndex,
           monthIndex: exam.month ? matchIndexOf(MONTHS, exam.month) : this.data.monthIndex,
@@ -126,9 +120,7 @@ Page({
       return
     }
     if (mode === 'manual') {
-      const patch = { manualMode: true, storeMode: true }
-      if (archive === 'real' || archive === 'custom') patch.target = archive
-      this.setData(patch)
+      this.setData({ manualMode: true, storeMode: true })
     }
   },
 
@@ -223,14 +215,7 @@ Page({
     this.setData({ passageIndex: Number(event.detail.value) || 0 })
   },
 
-  // 归档位置：真题 / 导入，独立于出处字段
-  onTarget(event) {
-    const target = event.currentTarget.dataset.target === 'real' ? 'real' : 'custom'
-    if (target === this.data.target) return
-    this.setData({ target })
-  },
-
-  // 待保存的篇章：真题整卷会有多篇，第一篇今天学，其余排队进「我的真题」
+  // 待保存的篇章：真题整卷会有多篇，第一篇今天学，其余排队进「我的导入」
   batchesForSave() {
     const passages = this.data.passages || []
     if (this.data.docMode && passages.length) {
@@ -248,7 +233,7 @@ Page({
   metaOf(batch) {
     return {
       level: this.data.levelIndex === 1 ? 'cet6' : 'cet4',
-      kind: this.data.target === 'real' ? 'real' : 'custom',
+      kind: 'custom',
       year: valueOf(YEARS, this.data.yearIndex),
       month: valueOf(MONTHS, this.data.monthIndex),
       paper: valueOf(PAPERS, this.data.paperIndex),

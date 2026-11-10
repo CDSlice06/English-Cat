@@ -71,20 +71,12 @@
       <text class="manual-tip-text">只支持英文内容；生词后括号里的中文注释（20 字内）会自动忽略，大段中文会被拦截。保留原本的换行即可。</text>
     </view>
 
-    <!-- 出处标注：真题填上年份套数篇号，之后在题库里可以按出处找回来 -->
+    <!-- 出处标注：选填，标好后在「我的导入」里能看到是哪一年哪一套 -->
     <view class="origin-card enter d2">
       <view class="origin-tape"></view>
       <view class="origin-head">
-        <text class="origin-title">归档到</text>
-        <text class="origin-hint">{{target === 'real' ? '保存后会出现在「我的真题」' : '保存后会出现在「其它篇目」'}}</text>
-      </view>
-      <view class="target-tabs">
-        <view class="target-tab {{target === 'real' ? 'target-on' : ''}}" bind:tap="onTarget" data-target="real">我的真题</view>
-        <view class="target-tab {{target === 'custom' ? 'target-on' : ''}}" bind:tap="onTarget" data-target="custom">其它篇目</view>
-      </view>
-      <view class="origin-head">
         <text class="origin-title">这篇的出处</text>
-        <text class="origin-hint">{{target === 'real' ? '选填 · 标注后按年份套数找回' : '选填 · 普通导入可不标注'}}</text>
+        <text class="origin-hint">选填 · 标注后列表里显示年份套数</text>
       </view>
       <view class="origin-grid">
         <picker class="origin-cell" mode="selector" range="{{levelOptions}}" value="{{levelIndex}}" bindchange="onLevel">

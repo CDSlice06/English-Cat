@@ -53,6 +53,16 @@ function rewriteState(record) {
   }
 }
 
+// 底栏与键盘旁的提交入口共用同一份文案，避免两处说法不一致
+function primaryTextOf(state) {
+  if (state.evaluating) return state.retrying ? '正在重试…' : '评估中…'
+  const record = state.record
+  if (record && record.result === 'pass') {
+    return Number(state.nextIndex) < 0 ? '查看学习报告' : '下一题'
+  }
+  return state.referenceLocked ? '按讲解重写并提交' : '提交并评估'
+}
+
 // 下一道还没通过的题：先往后找，再从头补一遍；全部通过返回 -1
 function nextQuestionIndex(items, index) {
   for (let i = index + 1; i < items.length; i += 1) {
@@ -84,7 +94,9 @@ Page({
     retrying: false,
     referenceLocked: false,
     rewriteHint: '',
-    nextIndex: -1
+    nextIndex: -1,
+    primaryText: '提交并评估',
+    keyboardUp: false
   },
 
   onShow() {
@@ -134,8 +146,14 @@ Page({
         nextReady: !items.length || passed === items.length,
         nextIndex,
         showHint: false,
-        showReference: false
+        showReference: false,
+        keyboardUp: false
       }, rewriteState(currentRecord))
+      // 判题请求可能还在进行，文案要跟着当前状态走，不能回成「提交并评估」
+      payload.primaryText = primaryTextOf(Object.assign({
+        evaluating: this.data.evaluating,
+        retrying: this.data.retrying
+      }, payload))
       // 签名只取影响界面的关键字段：和上次一致就跳过 setData，回页不再整页重建
       const signature = JSON.stringify([
         article._id,
@@ -173,7 +191,7 @@ Page({
     const item = this.data.items[index]
     const answer = hasOwn(this.data.answers, item.id) ? this.data.answers[item.id] : ''
     const record = this.data.records[item.id] || null
-    this.setData(Object.assign({
+    const next = Object.assign({
       index,
       item,
       answer,
@@ -181,8 +199,13 @@ Page({
       record,
       nextIndex: nextQuestionIndex(this.data.items, index),
       showHint: false,
-      showReference: false
-    }, rewriteState(record)))
+      showReference: false,
+      keyboardUp: false,
+      evaluating: this.data.evaluating,
+      retrying: this.data.retrying
+    }, rewriteState(record))
+    next.primaryText = primaryTextOf(next)
+    this.setData(next)
   },
 
   onAnswerInput(event) {
@@ -195,6 +218,18 @@ Page({
       answer,
       answerLength: answer.length
     })
+  },
+
+  // 键盘高度变化：底栏让位给行内提交按钮，键盘收起后恢复
+  onKeyboard(event) {
+    const height = Number(event.detail && event.detail.height) || 0
+    this.setData({ keyboardUp: height > 0 })
+  },
+
+  // 关闭系统自动上推，改为把输入区滚到顶部，让行内提交按钮始终在键盘上方
+  onAnswerFocus() {
+    if (!this.data.item.id) return
+    wx.pageScrollTo({ selector: '#answer-input', duration: 200 })
   },
 
   toggleHint() {
@@ -224,13 +259,15 @@ Page({
     const attempt = previous && previous.result !== 'pass'
       ? (Number(previous.attempt) || 1) + 1
       : 1
-    this.setData({ evaluating: true, retrying: false })
+    this.setData({ evaluating: true, retrying: false, primaryText: '评估中…' })
+    // 收起键盘，让评估结果和逐点核对直接出现在眼前
+    if (typeof wx.hideKeyboard === 'function') wx.hideKeyboard({ fail: () => {} })
     // 判题是幂等的（同一答案在服务端会复用已存结果）：超时类失败自动重试一次，
     // 解决「第一次报错、再点一次提交才好」；首次超时后服务端会短路走本地判定，重试很快返回
     const run = () => savePractice(item.id, answer, attempt)
     run().catch((error) => {
       if (!isTimeoutError(error)) throw error
-      this.setData({ retrying: true })
+      this.setData({ retrying: true, primaryText: '正在重试…' })
       return run()
     }).then((record) => {
       const records = Object.assign({}, this.data.records, { [item.id]: record })
@@ -245,12 +282,14 @@ Page({
         items,
         passed,
         nextReady: !items.length || passed === items.length,
-        nextIndex: nextQuestionIndex(items, currentIndex)
+        nextIndex: nextQuestionIndex(items, currentIndex),
+        keyboardUp: false
       }, rewriteState(record))
       if (this.data.item.id === item.id) {
         changes.record = record
         changes.showReference = false
       }
+      changes.primaryText = primaryTextOf(changes)
       this.setData(changes)
       // 判定结果的声音反馈：通过播「答对啦」，未通过播「答错了」
       if (record.result === 'pass') playCorrectSound()
@@ -259,7 +298,8 @@ Page({
         wx.showToast({ title: '这次结果没存上，下次进来会重新判定', icon: 'none', duration: 2500 })
       }
     }).catch((error) => {
-      this.setData({ evaluating: false, retrying: false })
+      const idle = Object.assign({}, this.data, { evaluating: false, retrying: false })
+      this.setData({ evaluating: false, retrying: false, primaryText: primaryTextOf(idle) })
       wx.showToast({ title: errorMessage(error, '评估服务响应慢，请再点一次提交'), icon: 'none', duration: 2500 })
     })
   },

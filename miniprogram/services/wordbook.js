@@ -1,3 +1,5 @@
+const checkin = require('./checkin')
+
 function callFunction(name, data) {
   return new Promise((resolve, reject) => {
     wx.cloud.callFunction({
@@ -58,6 +60,11 @@ function list(force = false) {
   })
 }
 
+// 释义刷新拆成单独动作：页面先渲染，再在后台补一次，失败也不影响阅读
+function refreshMeanings() {
+  return callFunction('wordbook', { action: 'refresh' }).catch(() => null)
+}
+
 function addToCache(entryType, item) {
   if (!cache) return
   const key = entryType === 'phrase' ? 'phraseItems' : 'items'
@@ -103,6 +110,8 @@ function addPhrase(payload) {
 
 function markKnown(id) {
   return callFunction('wordbook', { action: 'known', id }).then((data) => {
+    // 真正把一个词记牢，才算今天的学习打卡
+    checkin.mark('word')
     if (cache) {
       cache.items = cache.items.map((item) => (item.id === id ? data.item : item))
       cache.phraseItems = cache.phraseItems.map((item) => (item.id === id ? data.item : item))
@@ -171,4 +180,4 @@ function recount(items) {
   }
 }
 
-module.exports = { list, addWord, addPhrase, markKnown, removeWord, suggest, freqsOf, readWordbookSnapshot }
+module.exports = { list, refreshMeanings, addWord, addPhrase, markKnown, removeWord, suggest, freqsOf, readWordbookSnapshot }

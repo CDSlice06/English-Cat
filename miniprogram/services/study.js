@@ -1,3 +1,5 @@
+const checkin = require('./checkin')
+
 let cache = null
 let pending = null
 
@@ -182,6 +184,8 @@ function updateStudy(changes) {
       cache.unit = normalizeUnit(cache.article, unit)
       remember(cache)
     }
+    // 推进任何一站的学习进度，都算今天学过
+    checkin.mark('study')
     return cache
   })
 }
@@ -333,6 +337,8 @@ function savePractice(questionId, answer, attempt) {
       const record = data.record
       // 判定成功但进度没写进库（云函数侧两次重试都失败）：标出来让页面提示一下
       if (record && data.saved === false) record.saved = false
+      // 双向翻译通过，是今天实打实的输出练习
+      if (record && record.result === 'pass') checkin.mark('drill')
       // 判题期间切了文章：记录照常返回，但不写入当前缓存
       if (cache && cache.article && cache.article._id === articleId) {
         cache.unit.practiceRecords = Object.assign({}, cache.unit.practiceRecords, { [questionId]: record })

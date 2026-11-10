@@ -19,7 +19,15 @@ const ARTICLE_CACHE = 'article_cache'
 // 13：语法库补时态/被动/情态/地点状语从句/关联连词/插入语；词组加类型标签并补漏 74 条；熟词生义扩到 314 条
 // 14：单词释义改为「词库释义 + 模型补全」合并；星级改为四六级常考度口径（大纲级别 + 语料词频）
 // 15：星级拆成四级 / 六级两套标尺（freq4 / freq6），页面按当前备考级别切换
-const EXTRACT_VERSION = 15
+// 16：扩展词库 curated.json（写译/作文/听力话题词、现代复合词与派生词），并支持连字符复合词抽取
+// 17：词库扩容至 6000+ 扩展词；修正基础词库缺失词性/垃圾义项，补齐并规范音标
+// 18：生词统一显示原形（boundaries → boundary），名词释义增加可数性标记（C / U / C/U）
+// 19：补齐 tell/leave/mean/run 等高频基础词、常用派生词与缺失词性，修正 swell 等变形
+// 20：词库补英式拼写变体、现代科技/医学/社会话题词与进阶书面语；词组补论证框架/逻辑连接/话题搭配；
+//     语法补否定转移、It 句型、倍数、虚拟倒装、定语从句关系词、句首状语、分号/冒号/同位语/分词短语等；还原英式拼写和 e 结尾比较级
+// 21：词库补考研进阶词与外刊议题新词 145 条；词组补现代议题名词搭配与论证短语 165 条
+// 22：语法补 18 类句式（倒装、使役、感官动词、宾补、名词化、破折号插入语、反意疑问、间接引语等），并修正进行时/被动/名词性从句误判
+const EXTRACT_VERSION = 22
 
 function knownDocId(openid) {
   return `kw_${openid}`
@@ -151,6 +159,7 @@ function dict() {
     const base = require('./cet.json')
     const common = require('./common.json')
     const extra = require('./extra.json')
+    const curated = require('./curated.json')
     const senses = require('./senses.json')
     const merged = Object.assign({}, base)
     Object.keys(common).forEach((word) => {
@@ -160,6 +169,11 @@ function dict() {
     // 这些条目的 tags 是「难度标签」而不是大纲标记，标 outside 让星级按超纲算
     Object.keys(extra).forEach((word) => {
       if (!merged[word]) merged[word] = Object.assign({ outside: true }, extra[word])
+    })
+    // 扩展精选词库：写译/作文/听力话题词、现代外刊复合词与常用派生词。
+    // 释义整理自 ECDICT（MIT），手工词条覆盖 AI/医疗/环保/教育等高频议题。
+    Object.keys(curated).forEach((word) => {
+      if (!merged[word]) merged[word] = curated[word]
     })
     Object.keys(senses).forEach((word) => {
       merged[word] = mergeEntries(merged[word] || { ph: '', tags: 'core', frq: 0, bnc: 0, collins: 0, rank: 1500, meanings: [] }, senses[word])
@@ -513,11 +527,32 @@ function splitSentences(text) {
 // 保留大小写取词：句中首字母大写或全大写缩写的多半是人名、地名、机构名，不该当生词。
 // 撇号只允许出现在常见缩写/所有格里（don't / it's / firms'）；PDF 抽文本常丢空格，
 // corporations'abusive 这种粘连必须拆成两个词，否则会变成一个查不到的超纲词
+// 连字符复合词（in-depth / AI-assisted / well-being）优先整词匹配，词库没收录时再拆开
 function wordsOf(sentence) {
-  return sentence.match(/[A-Za-z]+(?:'(?:s|t|re|ve|ll|d|m)(?![A-Za-z]))?/gi) || []
+  const raw = sentence.match(/[A-Za-z]+(?:-[A-Za-z]+)*(?:'(?:s|t|re|ve|ll|d|m)(?![A-Za-z]))?/gi) || []
+  if (!raw.some((token) => token.includes('-'))) return raw
+  const DICT = dict()
+  const out = []
+  raw.forEach((token) => {
+    if (!token.includes('-')) {
+      out.push(token)
+      return
+    }
+    const key = token.toLowerCase().replace(/'s$/, '')
+    if (DICT[key]) {
+      out.push(token)
+      return
+    }
+    token.split('-').forEach((part) => {
+      if (part) out.push(part)
+    })
+  })
+  return out
 }
 
 function isNameLike(raw, atSentenceStart) {
+  // AI-assisted / AI-driven 这类以缩写开头的复合词不是人名
+  if (/^[A-Z]{2,}-/.test(raw)) return false
   if (/^[A-Z]{2,}$/.test(raw)) return true
   return !atSentenceStart && /^[A-Z]/.test(raw)
 }
@@ -529,15 +564,75 @@ function familyKey(word) {
   return derived.length >= 4 ? derived : lemma
 }
 
+// 不规则复数 / 只收了复数形的词：统一回原形，避免生词本显示 children、men
+const IRREGULAR_PLURALS = {
+  children: 'child', men: 'man', women: 'woman',
+  feet: 'foot', teeth: 'tooth', mice: 'mouse', geese: 'goose',
+  phenomena: 'phenomenon', criteria: 'criterion',
+  analyses: 'analysis', diagnoses: 'diagnosis', crises: 'crisis',
+  theses: 'thesis', hypotheses: 'hypothesis', emphases: 'emphasis',
+  parentheses: 'parenthesis', syntheses: 'synthesis', prognoses: 'prognosis'
+}
+
+// 英式拼写与不规则变形：词库按美式拼写收录时也能回到原形
+const BRITISH_VERB_FORMS = {
+  learnt: 'learn', spelt: 'spell', burnt: 'burn', dreamt: 'dream', leapt: 'leap',
+  knelt: 'kneel', spilt: 'spill', spoilt: 'spoil', smelt: 'smell', dwelt: 'dwell',
+  clove: 'cleave', cloven: 'cleave'
+}
+const BRITISH_OUR_STOP = new Set([
+  'four', 'hour', 'tour', 'pour', 'your', 'sour', 'flour', 'our', 'dour', 'velour',
+  'detour', 'contour', 'amour', 'troubadour', 'devour', 'favourite', 'favour'
+])
+const BRITISH_RE_MAP = {
+  centre: 'center', metre: 'meter', litre: 'liter', theatre: 'theater', fibre: 'fiber',
+  calibre: 'caliber', sombre: 'somber', manoeuvre: 'maneuver', spectre: 'specter',
+  meagre: 'meager', sabre: 'saber', lustre: 'luster', sceptre: 'scepter', ochre: 'ocher',
+  centimetre: 'centimeter', millimetre: 'millimeter', kilometre: 'kilometer'
+}
+
+function britishLemma(word, DICT) {
+  const verb = BRITISH_VERB_FORMS[word]
+  if (verb && DICT[verb]) return verb
+  if (BRITISH_RE_MAP[word] && DICT[BRITISH_RE_MAP[word]]) return BRITISH_RE_MAP[word]
+  const candidates = []
+  if (/isation$/.test(word)) candidates.push(word.replace(/isation$/, 'ization'))
+  if (/isations$/.test(word)) candidates.push(word.replace(/isations$/, 'izations'))
+  if (/ise$/.test(word)) candidates.push(word.replace(/ise$/, 'ize'))
+  if (/ised$/.test(word)) candidates.push(word.replace(/ised$/, 'ized'))
+  if (/ising$/.test(word)) candidates.push(word.replace(/ising$/, 'izing'))
+  if (/ises$/.test(word)) candidates.push(word.replace(/ises$/, 'izes'))
+  if (/yse$/.test(word)) candidates.push(word.replace(/yse$/, 'yze'))
+  if (/ysed$/.test(word)) candidates.push(word.replace(/ysed$/, 'yzed'))
+  if (/ysing$/.test(word)) candidates.push(word.replace(/ysing$/, 'yzing'))
+  if (/yses$/.test(word)) candidates.push(word.replace(/yses$/, 'yzes'))
+  if (/ogue$/.test(word)) candidates.push(word.replace(/ogue$/, 'og'))
+  if (/ence$/.test(word)) candidates.push(word.replace(/ence$/, 'ense'))
+  if (/ae/.test(word)) candidates.push(word.replace(/ae/g, 'e'))
+  if (/oe/.test(word)) candidates.push(word.replace(/oe/g, 'e'))
+  if (/our$/.test(word) && !BRITISH_OUR_STOP.has(word)) candidates.push(word.replace(/our$/, 'or'))
+  if (/ll(ed|ing)$/.test(word)) candidates.push(word.replace(/ll(ed|ing)$/, 'l'))
+  for (const candidate of candidates) {
+    if (candidate && candidate !== word && DICT[candidate]) return candidate
+  }
+  return null
+}
+
 // 词形还原：按常见屈折规则回退到词库原形
 function toLemma(word) {
   const DICT = dict()
+  const irregular = IRREGULAR_PLURALS[word]
+  if (irregular && DICT[irregular]) return irregular
   if (DICT[word]) return word
+  const british = britishLemma(word, DICT)
+  if (british) return british
   // 先去 s 再去 es：rates 是 rate+s，剥 es 会得到 rat（另一个词）
   const rules = [
     [/ies$/, 'y'], [/ied$/, 'y'], [/ying$/, 'ie'],
+    [/ier$/, 'y'], [/iest$/, 'y'],
     [/ing$/, ''], [/ing$/, 'e'], [/ed$/, ''], [/ed$/, 'e'],
-    [/s$/, ''], [/es$/, ''], [/ly$/, ''], [/er$/, ''], [/est$/, '']
+    [/s$/, ''], [/es$/, ''], [/ly$/, ''], [/er$/, ''], [/er$/, 'e'],
+    [/est$/, ''], [/est$/, 'e']
   ]
   for (const [pattern, replacement] of rules) {
     if (pattern.test(word)) {
@@ -547,6 +642,10 @@ function toLemma(word) {
   }
   if (/([bcdfghjklmnpqrstvwxz])\1(ed|ing)$/.test(word)) {
     const candidate = word.replace(/([bcdfghjklmnpqrstvwxz])\1(ed|ing)$/, '$1')
+    if (DICT[candidate]) return candidate
+  }
+  if (/([bcdfghjklmnpqrstvwxz])\1(er|est)$/.test(word)) {
+    const candidate = word.replace(/([bcdfghjklmnpqrstvwxz])\1(er|est)$/, '$1')
     if (DICT[candidate]) return candidate
   }
   return null
@@ -610,8 +709,77 @@ function pickMeanings(entry, limit, word) {
   return merged.filter((m) => keepNormal.indexOf(m) >= 0 || keepRare.indexOf(m) >= 0)
 }
 
+// 常见不可数名词：物质、抽象概念、学科等。词库本身没有可数性字段，
+// 这里按「有复数形式 → 可数；常见物质/抽象名词 → 不可数；两者都常说 → 可数/不可数」标注
+const UNCOUNTABLE_NOUNS = new Set(('information advice news knowledge feedback guidance assistance support aid evidence proof '
+  + 'research homework housework coursework schooling literacy education training teaching learning assessment evaluation '
+  + 'expertise intelligence wisdom awareness attention concentration motivation enthusiasm inspiration imagination creativity '
+  + 'innovation productivity efficiency competitiveness sustainability accountability transparency credibility reliability '
+  + 'accessibility affordability unemployment employment labour labor agriculture manufacturing marketing advertising '
+  + 'insurance banking finance accounting taxation inflation funding infrastructure globalization modernization '
+  + 'industrialization urbanization commercialization privatization digitalization automation pollution contamination '
+  + 'deforestation desertification erosion biodiversity wildlife scenery nature weather traffic transport transportation '
+  + 'accommodation housing sanitation nutrition fitness hygiene safety privacy confidentiality corruption bureaucracy '
+  + 'paperwork correspondence mail journalism publicity propaganda coverage broadcasting software hardware firmware malware '
+  + 'ransomware money cash income wealth poverty welfare work consumption scarcity abundance health healthcare '
+  + 'surgery immunity obesity diabetes hypertension depression insomnia burnout justice violence peace equality '
+  + 'crime democracy entertainment tourism hospitality migration immigration emigration '
+  + 'mathematics maths economics physics chemistry biology politics statistics ethics athletics gymnastics music poetry '
+  + 'literature prose philosophy psychology sociology geography architecture engineering '
+  + 'happiness sadness anger hatred courage patience confidence loneliness boredom honesty loyalty generosity humility '
+  + 'beauty intelligence memory stress '
+  + 'electricity energy gravity friction humidity rainfall precipitation sunshine sunlight moonlight daylight thunder '
+  + 'lightning water air soil sand dust dirt mud ice snow rain steam smoke sewage garbage rubbish trash litter '
+  + 'coal oil petrol gasoline fuel gas '
+  + 'rice bread milk butter meat beef pork salt sugar pepper alcohol tobacco '
+  + 'cotton wool silk steel gold silver concrete cement chalk ink soap toothpaste bleach '
+  + 'timber lumber aluminium aluminum copper leather flour pasta wheat corn seafood poultry livestock '
+  + 'discrimination prejudice racism sexism ageism harassment bullying cyberbullying surveillance '
+  + 'misinformation disinformation anonymity autonomy competence proficiency fluency accuracy precision '
+  + 'clarity consistency coherence integrity dignity morale morality spirituality rationality logic reasoning '
+  + 'cognition consciousness existence essence significance relevance validity legitimacy sovereignty '
+  + 'capitalism socialism communism colonialism imperialism nationalism patriotism optimism pessimism '
+  + 'idealism realism materialism consumerism individualism feminism activism skepticism scrutiny '
+  + 'flexibility mobility stability prosperity suffering deprivation exclusion inclusion numeracy '
+  + 'resilience wellbeing enforcement terrorism unhappiness dna '
+  + 'furniture equipment machinery clothing luggage baggage jewellery jewelry'
+).split(' ').filter(Boolean))
+
+// 可数 / 不可数都常说：既可以是概念，也可以指具体的一份、一种
+const DUAL_NOUNS = new Set(('business experience success failure damage waste food fruit cheese coffee tea beer wine juice '
+  + 'medicine technology science art law war analysis evaluation treatment therapy '
+  + 'investment profit loss revenue expenditure communication language speech writing painting sculpture design fashion '
+  + 'industry trade transport accommodation security shelter freedom liberty inequality infrastructure capital '
+  + 'fuel oil gas light sound noise glass paper wood iron plastic rubber fish chicken shampoo detergent paint glue tape '
+  + 'vocabulary data media staff currency credit debt growth demand supply climate temperature pressure memory truth '
+  + 'love fear pride kindness stress risk change development history time space '
+  + 'diversity criticism bias authority uncertainty complexity'
+).split(' ').filter(Boolean))
+
+function countOf(word, entry) {
+  const value = String(word || '').trim().toLowerCase()
+  if (!value) return ''
+  if (DUAL_NOUNS.has(value)) return 'C/U'
+  if (UNCOUNTABLE_NOUNS.has(value)) return 'U'
+  if (entry && entry.forms && entry.forms.plural) return 'C'
+  // 名词默认按可数处理；真正的不可数名词都已列在上面的集合里
+  return 'C'
+}
+
+// 只给名词义项挂可数性，动词/形容词等保持原样
+function withCount(meanings, word, entry) {
+  const count = countOf(word, entry)
+  if (!count) return meanings
+  return (meanings || []).map((item) => {
+    if (!/^(n|pl)\.$/.test(String(item.pos || '').trim())) return item
+    return Object.assign({}, item, { count })
+  })
+}
+
 function toMeaning(m) {
-  return { pos: m.pos, definition: m.def, rare: !!m.rare }
+  const out = { pos: m.pos, definition: m.def, rare: !!m.rare }
+  if (m.count) out.count = m.count
+  return out
 }
 
 // 纯功能词（介词、连词等）不做生词展示，除非标注了生义
@@ -658,19 +826,19 @@ function verbFormIndex() {
   return index
 }
 
-// 抽取口径：动词一律取原形，名词/形容词/副词等按原文写法保留。
+// 抽取口径：所有词形统一还原成原形（boundaries → boundary），
 // 词库没收录的超纲词返回 entry: null，交给后面的「超纲词」分支处理
 function resolveHead(surface) {
   const DICT = dict()
+  const irregular = IRREGULAR_PLURALS[surface]
+  if (irregular && DICT[irregular]) return { head: irregular, key: irregular, entry: DICT[irregular] }
   if (DICT[surface]) return { head: surface, key: surface, entry: DICT[surface] }
   const base = verbFormIndex()[surface]
   if (base && DICT[base]) return { head: base, key: base, entry: DICT[base] }
   const lemma = toLemma(surface)
   if (lemma && DICT[lemma]) {
-    // 原形是动词才改写；corporations 这类名词复数保留原文写法，只借用原形释义
-    return hasVerbSense(DICT[lemma])
-      ? { head: lemma, key: lemma, entry: DICT[lemma] }
-      : { head: surface, key: lemma, entry: DICT[lemma] }
+    // 生词表统一显示原形：boundaries → boundary，corporations → corporation
+    return { head: lemma, key: lemma, entry: DICT[lemma] }
   }
   return { head: surface, key: surface, entry: null }
 }
@@ -998,7 +1166,7 @@ function pickVocabulary(sentences, level, learned) {
       let item = null
       if (resolved.entry) {
         const entry = resolved.entry
-        const meanings = pickMeanings(entry, 3, head)
+        const meanings = withCount(pickMeanings(entry, 3, head), head, entry)
         if (!meanings.length) return
         if (isFunctionWord(meanings)) return
         const categories = categoriesOf(entry)
@@ -1034,7 +1202,7 @@ function pickVocabulary(sentences, level, learned) {
         const baseCategories = info && info.entry
           ? categoriesOf(info.entry).filter((key) => key === 'cet4' || key === 'cet6')
           : []
-        const meanings = info ? info.senses : []
+        const meanings = info ? withCount(info.senses, info.baseWord, info.entry) : []
         const levels = freqLevelsOf(info && info.baseWord, info && info.entry)
         item = {
           id: '',
@@ -1347,10 +1515,19 @@ function relatedOf(raw) {
 // 单词查询：供个人词库补全音标、词性释义、变形与派生
 function lookupWord(raw) {
   const word = String(raw || '').trim().toLowerCase()
-  if (!word || !/^[a-z][a-z' -]*$/.test(word)) return null
+  // 允许 5G、3D 这类数字开头的现代词条
+  if (!word || !/^[a-z0-9][a-z0-9' -]*$/.test(word)) return null
   const lemma = toLemma(word) || word
   let key = lemma
   let entry = dict()[lemma]
+  // 不规则变形（got / written / gone）在 toLemma 规则里看不出来，用词库 forms 反查
+  if (!entry) {
+    const base = verbFormIndex()[word]
+    if (base && dict()[base]) {
+      key = base
+      entry = dict()[base]
+    }
+  }
   // 连字符写法不一致（likeminded / well being）时按去掉连字符后再匹配一次
   if (!entry) {
     const compact = resolveCompact(word)
@@ -1367,7 +1544,8 @@ function lookupWord(raw) {
     return {
       word,
       phonetic: info.entry && info.entry.ph ? `/${info.entry.ph}/` : '',
-      meanings: info.senses.map((sense) => ({ pos: sense.pos, definition: sense.definition, rare: !!sense.rare })),
+      meanings: withCount(info.senses, info.baseWord, info.entry)
+        .map((sense) => ({ pos: sense.pos, definition: sense.definition, rare: !!sense.rare, count: sense.count })),
       forms: {},
       derivatives: [],
       family: related.family,
@@ -1379,7 +1557,7 @@ function lookupWord(raw) {
         : ['difficult']
     }
   }
-  const meanings = pickMeanings(entry, 4, key).map(toMeaning)
+  const meanings = withCount(pickMeanings(entry, 4, key), key, entry).map(toMeaning)
   const related = relatedOf(key)
   return {
     word: key,
@@ -1435,7 +1613,7 @@ function suggestWords(raw, limit) {
     picked.push({
       word,
       phonetic: entry.ph ? `/${entry.ph}/` : '',
-      meanings: pickMeanings(entry, 1, word).map(toMeaning),
+      meanings: withCount(pickMeanings(entry, 1, word), word, entry).map(toMeaning),
       freq4: freqLevelsOf(word, entry).freq4,
       freq6: freqLevelsOf(word, entry).freq6
     })
@@ -1601,6 +1779,26 @@ exports.main = async (event = {}) => {
         freq6: entry.freq6 || 0,
         family: entry.family || [],
         similar: entry.similar || []
+      }
+    })
+    return success(map)
+  }
+
+  // 生词本批量刷新释义：词库更新后，早期收藏的词条要用最新音标与释义覆盖旧快照，
+  // 用户不需要手动删除重加。只读本地词库，不调用模型
+  if (event.action === 'lookupBatch') {
+    const words = Array.isArray(event.words) ? event.words.slice(0, 500) : []
+    const map = {}
+    words.forEach((raw) => {
+      const key = String(raw || '').trim().toLowerCase()
+      if (!key || Object.prototype.hasOwnProperty.call(map, key)) return
+      const entry = lookupWord(key)
+      if (!entry) return
+      map[key] = {
+        // 原形回传：生词本里早期存成 boundaries 的条目可以自动改回 boundary
+        word: entry.word || key,
+        phonetic: entry.phonetic || '',
+        meanings: entry.meanings || []
       }
     })
     return success(map)

@@ -1,0 +1,73 @@
+<view class="writing-page">
+  <view class="hero">
+    <view class="hero-photo">
+      <cat-image custom-class="hero-cat" name="practice-writing" size="medium" />
+    </view>
+    <view class="hero-copy">
+      <text class="hero-kicker en">WRITING &amp; TRANSLATION</text>
+      <text class="hero-title">写译训练</text>
+      <text class="hero-desc">取一道翻译题，写完可以拍照上传，AI 逐句点评后再对照标准答案。</text>
+    </view>
+  </view>
+
+  <view class="progress-card" wx:if="{{total}}">
+    <view class="progress-copy">
+      <text class="progress-label">已通过</text>
+      <text class="progress-value">{{passed}}<text class="progress-total"> / {{total}}</text></text>
+    </view>
+    <view class="progress-track">
+      <view class="progress-fill" style="width: {{total ? (passed * 100 / total) : 0}}%"></view>
+    </view>
+  </view>
+
+  <view class="filter-row">
+    <view
+      wx:for="{{levels}}"
+      wx:key="key"
+      class="filter-chip {{filter === item.key ? 'active' : ''}}"
+      data-level="{{item.key}}"
+      bindtap="chooseLevel"
+    >{{item.label}}</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="state-card">
+    <text class="state-text">正在取题…</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="state-card">
+    <text class="state-text">{{error}}</text>
+  </view>
+
+  <view wx:elif="{{!questions.length}}" class="state-card">
+    <text class="state-text">这个分类下暂时没有题目</text>
+  </view>
+
+  <view
+    wx:for="{{questions}}"
+    wx:key="id"
+    class="question-card {{item.passed ? 'passed' : ''}}"
+    hover-class="question-card-hover"
+    data-id="{{item.id}}"
+    bindtap="openQuestion"
+  >
+    <view class="question-head">
+      <view class="level-tag {{item.level}}">{{item.levelLabel}}</view>
+      <text class="question-year">{{item.year}}</text>
+      <text class="question-status">{{item.statusText}}</text>
+    </view>
+    <text class="question-topic">{{item.topic}}</text>
+    <text class="question-prompt">{{item.prompt}}</text>
+    <view class="question-foot">
+      <text class="question-meta">中文 {{item.chars}} 字</text>
+      <text class="question-meta">建议 {{item.minutes}} 分钟</text>
+      <view class="unit-arrow"></view>
+    </view>
+  </view>
+
+  <view class="tips-card">
+    <text class="tips-title">怎么练</text>
+    <text class="tips-line">1. 先在纸上或输入框里完成译文。</text>
+    <text class="tips-line">2. 纸质作答可以拍照上传，识别后先核对再提交。</text>
+    <text class="tips-line">3. AI 点评会指出漏译和表达问题，最后给出参考译文与采分点。</text>
+  </view>
+</view>

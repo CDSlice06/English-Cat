@@ -58,7 +58,15 @@ const PROGRESS_FIELDS = ['masteredWords', 'grammarViewed', 'phrasesViewed']
 // 13：语法库补时态/被动/情态/地点状语从句/关联连词/插入语；词组加类型标签并补漏 74 条；熟词生义扩到 314 条
 // 14：单词释义改为「词库释义 + 模型补全」合并；星级改为四六级常考度口径（大纲级别 + 语料词频）
 // 15：星级拆成四级 / 六级两套标尺（freq4 / freq6），页面按当前备考级别切换
-const EXTRACT_VERSION = 15
+// 16：扩展词库 curated.json（写译/作文/听力话题词、现代复合词与派生词），并支持连字符复合词抽取
+// 17：词库扩容至 6000+ 扩展词；修正基础词库缺失词性/垃圾义项，补齐并规范音标
+// 18：生词统一显示原形（boundaries → boundary），名词释义增加可数性标记（C / U / C/U）
+// 19：补齐 tell/leave/mean/run 等高频基础词、常用派生词与缺失词性，修正 swell 等变形
+// 20：词库补英式拼写变体、现代科技/医学/社会话题词与进阶书面语；词组补论证框架/逻辑连接/话题搭配；
+//     语法补否定转移、It 句型、倍数、虚拟倒装、定语从句关系词、句首状语、分号/冒号/同位语/分词短语等；还原英式拼写和 e 结尾比较级
+// 21：词库补考研进阶词与外刊议题新词 145 条；词组补现代议题名词搭配与论证短语 165 条
+// 22：语法补 18 类句式（倒装、使役、感官动词、宾补、名词化、破折号插入语、反意疑问、间接引语等），并修正进行时/被动/名词性从句误判
+const EXTRACT_VERSION = 22
 
 // 「已认识」词表：每人一条文档，记录生词本里的词和在别的文章里点过掌握的词。
 // 解析新文章时命中只做标记、不再让模型解释，省下这部分 token
@@ -1080,7 +1088,7 @@ async function previewArticle(openid, event) {
   const vocabulary = (Array.isArray(unitData.vocabulary) ? unitData.vocabulary : []).map((item) => ({
     word: item.word,
     meanings: (Array.isArray(item.meanings) ? item.meanings : []).slice(0, 2)
-      .map((meaning) => ({ pos: meaning.pos || '', definition: meaning.definition || '' }))
+      .map((meaning) => ({ pos: meaning.pos || '', definition: meaning.definition || '', count: meaning.count || '' }))
   }))
   const phrases = (Array.isArray(unitData.phrases) ? unitData.phrases : []).map((item) => ({
     phrase: item.phrase,

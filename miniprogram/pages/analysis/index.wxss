@@ -180,8 +180,8 @@
   );
   border-left: 6rpx solid rgba(199, 121, 63, 0.62);
   color: var(--ink-2);
-  font-size: 26rpx;
-  line-height: 1.8;
+  font-size: 28rpx;
+  line-height: 1.85;
 }
 
 /* ---------- 讲解 ---------- */
@@ -208,7 +208,7 @@
 .explain-text {
   display: block;
   color: var(--ink-2);
-  font-size: 24rpx;
+  font-size: 27rpx;
   line-height: 1.85;
 }
 
@@ -257,7 +257,7 @@
 .step-title {
   display: block;
   color: #6f4a15;
-  font-size: 23rpx;
+  font-size: 25rpx;
   font-weight: 700;
   line-height: 1.55;
 }
@@ -266,7 +266,7 @@
   display: block;
   margin-top: 4rpx;
   color: var(--ink-2);
-  font-size: 23rpx;
+  font-size: 25rpx;
   line-height: 1.8;
 }
 
@@ -292,7 +292,7 @@
 .chunk-en {
   display: block;
   color: #3f5c74;
-  font-size: 23rpx;
+  font-size: 25rpx;
   line-height: 1.75;
 }
 
@@ -307,7 +307,7 @@
 .chunk-zh {
   display: block;
   color: var(--ink-2);
-  font-size: 23rpx;
+  font-size: 25rpx;
   line-height: 1.75;
 }
 
@@ -351,7 +351,7 @@
 .example-en {
   display: block;
   color: #4a3a16;
-  font-size: 23rpx;
+  font-size: 25rpx;
   line-height: 1.7;
 }
 
@@ -359,7 +359,7 @@
   display: block;
   margin-top: 4rpx;
   color: #8a7340;
-  font-size: 21rpx;
+  font-size: 23rpx;
   line-height: 1.65;
 }
 

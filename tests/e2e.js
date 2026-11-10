@@ -317,14 +317,13 @@ async function main() {
   const libPage = makePage(loadPage(path.join(ROOT, 'miniprogram/pages/library/index.js')))
   libPage.data.level = 'cet4'
   libPage.data.source = 'imported'
-  libPage.data.yearFilter = 'all'
   libPage.applyMine('cet4', listForLib.data || [])
-  const libReal = (libPage.data.real || []).find((item) => item._id === articleId)
-  const libImported = (libPage.data.imported || []).find((item) => item._id === articleId2)
-  check('真题列表显示「已学完」', !!libReal && libReal.progressLabel === '已学完' && libReal.progressDone === true,
-    libReal && libReal.progressLabel)
-  check('导入列表未学不显示标记', !!libImported && libImported.progressLabel === '',
-    libImported && libImported.progressLabel)
+  const libStudied = (libPage.data.imported || []).find((item) => item._id === articleId)
+  const libFresh = (libPage.data.imported || []).find((item) => item._id === articleId2)
+  check('我的导入里显示「已学完」', !!libStudied && libStudied.progressLabel === '已学完' && libStudied.progressDone === true,
+    libStudied && libStudied.progressLabel)
+  check('导入列表未学不显示标记', !!libFresh && libFresh.progressLabel === '',
+    libFresh && libFresh.progressLabel)
 
   section('[12] 老文章进度回填（unitTotals 缺失）')
   const legacyData = {

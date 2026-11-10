@@ -56,12 +56,15 @@ function groupTranslation(items) {
 }
 
 // 词条可能带多条义项，预览里只展示第一条最常用的
+const COUNT_LABELS = { C: '可数', U: '不可数', 'C/U': '可数/不可数' }
+
 function firstMeaning(item) {
   if (typeof item.meaning === 'string' && item.meaning) return item.meaning
   const list = Array.isArray(item.meanings) ? item.meanings : []
   const first = list[0] || {}
   const pos = first.pos ? `${first.pos} ` : ''
-  return `${pos}${first.definition || first.cn || ''}`.trim()
+  const count = COUNT_LABELS[first.count] ? `（${COUNT_LABELS[first.count]}）` : ''
+  return `${pos}${first.definition || first.cn || ''}${count}`.trim()
 }
 
 Page({

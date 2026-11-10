@@ -280,6 +280,52 @@
   background: rgba(168, 106, 17, 0.42);
 }
 
+/* 已有学习进度时封面收窄：氛围保留，但让「继续学习」落进首屏，不用先滚一下 */
+.hero-compact {
+  min-height: 312rpx;
+  padding-top: 26rpx;
+}
+
+.hero-compact .hello {
+  margin-bottom: 8rpx;
+  font-size: 20rpx;
+}
+
+.hero-compact .hero-title {
+  font-size: 42rpx;
+  line-height: 1.18;
+}
+
+.hero-compact .hero-sub {
+  display: none;
+}
+
+.hero-compact .hero-photo {
+  top: 44rpx;
+}
+
+/* 只压高度不压宽度：宽度一缩，下面那行 nowrap 的猫照片说明会溢出去 */
+.hero-compact .photo-window {
+  height: 146rpx;
+}
+
+.hero-compact .hero-cat-visual {
+  width: 148rpx !important;
+  height: 148rpx !important;
+}
+
+.hero-compact .hero-band {
+  height: 54rpx;
+}
+
+.hero-compact .hero-star {
+  bottom: 74rpx;
+}
+
+.hero-compact .hero-tape {
+  width: 112rpx;
+}
+
 @keyframes cat-pop {
   0% { transform: rotate(5deg) scale(1); }
   40% { transform: rotate(2deg) scale(0.94, 1.06); }
@@ -571,6 +617,222 @@
 
 /* ---------- CTA ---------- */
 .cta { margin: 22rpx 4rpx 0; }
+
+/* ---------- 今日复习：首页的每日回访入口 ---------- */
+.review-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  margin-top: 22rpx;
+  padding: 20rpx 22rpx;
+  border: 2rpx dashed rgba(168, 106, 17, 0.32);
+  border-radius: var(--r-md);
+  background: linear-gradient(150deg, #fffdf6 0%, #fff7e4 100%);
+  box-shadow: 4rpx 4rpx 0 rgba(168, 106, 17, 0.1);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.review-hover {
+  transform: translateY(2rpx);
+  box-shadow: 2rpx 2rpx 0 rgba(168, 106, 17, 0.1);
+}
+
+.review-sticker {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 84rpx;
+  height: 84rpx;
+  border: 2rpx solid rgba(168, 106, 17, 0.22);
+  border-radius: 50%;
+  background: #fff3cf;
+}
+
+.review-cat {
+  width: 64rpx !important;
+  height: 64rpx !important;
+}
+
+.review-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.review-kicker {
+  color: #a8763c;
+  font-size: 17rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+
+.review-title {
+  color: var(--ink);
+  font-size: 27rpx;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.review-desc {
+  color: var(--muted);
+  font-size: 21rpx;
+  line-height: 1.5;
+}
+
+.review-go {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64rpx;
+  padding: 0 26rpx;
+  border-radius: 999rpx;
+  background: #ffdf9a;
+  color: #6b4a0e;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.review-go-done {
+  background: #eef3ec;
+  color: #5b7a5f;
+}
+
+/* ---------- 每日打卡：首页常驻的连续记录 ---------- */
+.checkin-card {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-top: 18rpx;
+  padding: 20rpx 22rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.2);
+  border-radius: var(--r-md);
+  background: linear-gradient(150deg, #fffdf6 0%, #fff3d8 100%);
+  box-shadow: 4rpx 4rpx 0 rgba(116, 72, 40, 0.1);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.checkin-hover {
+  transform: translateY(2rpx);
+  box-shadow: 2rpx 2rpx 0 rgba(116, 72, 40, 0.1);
+}
+
+.checkin-figure {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 112rpx;
+  padding-right: 18rpx;
+  border-right: 2rpx dashed rgba(168, 106, 17, 0.22);
+}
+
+.checkin-num {
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 48rpx;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #744828;
+}
+
+.checkin-unit {
+  font-size: 18rpx;
+  font-weight: 700;
+  color: #a8763c;
+}
+
+.checkin-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.checkin-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8rpx;
+}
+
+.checkin-kicker {
+  font-size: 18rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  color: #a8763c;
+}
+
+.checkin-status {
+  flex: none;
+  padding: 2rpx 12rpx;
+  border-radius: 999rpx;
+  background: #f1ece1;
+  color: var(--muted);
+  font-size: 18rpx;
+  font-weight: 700;
+}
+
+.checkin-status-on {
+  background: #e2f2e6;
+  color: #4b7a55;
+}
+
+.checkin-week {
+  display: flex;
+  justify-content: space-between;
+}
+
+.checkin-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rpx;
+}
+
+.checkin-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32rpx;
+  height: 32rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.2);
+  border-radius: 50%;
+  background: #fffdf8;
+}
+
+.checkin-dot-today {
+  border: 2rpx dashed #c9832a;
+  box-shadow: 0 0 0 3rpx rgba(247, 183, 51, 0.18);
+}
+
+.checkin-dot-on {
+  border: 2rpx solid #d99b3d;
+  background: linear-gradient(180deg, #ffd25c 0%, #f7b733 100%);
+  box-shadow: 0 0 0 3rpx rgba(247, 183, 51, 0.2);
+}
+
+.checkin-check {
+  font-size: 18rpx;
+  font-weight: 700;
+  color: #6b4a0e;
+}
+
+.checkin-day-label {
+  font-size: 18rpx;
+  color: var(--faint);
+}
+
+.checkin-hint {
+  font-size: 20rpx;
+  line-height: 1.45;
+  color: var(--muted);
+}
 
 .cta-hint {
   display: flex;
