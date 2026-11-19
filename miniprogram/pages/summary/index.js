@@ -160,7 +160,7 @@ Page({
       } else if (!grammarDone) {
         plan = '继续看语法页，把每个语法点的「怎么理解、怎么翻译」过一遍。'
       } else if (!practiceDone) {
-        plan = '继续做双向翻译练习，按反馈补上遗漏的关键表达。'
+        plan = '继续做英译汉练习，按反馈补上遗漏的关键表达。'
       }
 
       this.setData({
@@ -380,7 +380,7 @@ Page({
       ctx.font = `22px ${sans}`
       const practiceText = this.data.practiceTotal
         ? `通过 ${this.data.progress.practicePassed || 0}/${this.data.progress.drillTotal || 0} 道 · 一次通过率 ${this.data.firstTryRate}%`
-        : '还没有开始双向翻译练习'
+        : '还没有开始英译汉练习'
       ctx.fillText(practiceText, pad, practiceY + 34)
 
       // 日期

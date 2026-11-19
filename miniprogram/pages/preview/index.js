@@ -1,5 +1,5 @@
 const {
-  loadRemembered, analyzeText, translateText, importArticle, loadFullTranslation, openArticle, saveUnit
+  loadRemembered, analyzeText, translateText, importArticle, loadFullTranslation, openArticle, saveUnit, isReadingArticle
 } = require('../../services/study')
 const { errorMessage: baseErrorMessage } = require('../../utils/error')
 
@@ -70,6 +70,7 @@ function firstMeaning(item) {
 Page({
   data: {
     mode: 'import',
+    readingMode: false,
     kicker: 'IMPORT PREVIEW',
     headTitle: '先看一眼这篇要学什么',
     actionText: '确认导入',
@@ -140,6 +141,8 @@ Page({
       return
     }
     this.article = payload
+    // 外刊与用户导入的文章按阅读优先学：确认后直接进阅读页，不拆四站
+    this.readingMode = isReadingArticle(payload)
     this.batch = { text: payload.text || '' }
     this.meta = {
       level: payload.level,
@@ -149,16 +152,20 @@ Page({
       passage: payload.passage
     }
     this.setData({
+      readingMode: this.readingMode,
       title: payload.title || '这篇要学什么',
       metaLine: metaLine(this.meta),
       wordCount: payload.wordCount || countWords(payload.text),
-      articleParagraphs: splitParagraphs(payload.text)
+      articleParagraphs: splitParagraphs(payload.text),
+      kicker: this.readingMode ? 'READING MODE' : 'BEFORE YOU START',
+      headTitle: this.readingMode ? '先读一遍，再拆知识点' : '开始这篇之前，先看一眼',
+      actionText: this.readingMode ? '开始阅读' : '开始学习'
     })
 
     if (payload.ready) {
       const cached = payload.cached || {}
       const goals = this.buildGoals(cached)
-      if (!goals.goals.some((item) => item.count > 0)) {
+      if (!this.readingMode && !goals.goals.some((item) => item.count > 0)) {
         this.setData({ loading: false, error: '这篇没有可学习的内容，换一篇试试' })
         return
       }
@@ -192,7 +199,7 @@ Page({
         return
       }
       const goals = this.buildGoals(result.unit)
-      if (!goals.goals.some((item) => item.count > 0)) {
+      if (!this.readingMode && !goals.goals.some((item) => item.count > 0)) {
         this.setData({ loading: false, error: '这篇没有解析出可学习的内容，换一篇试试' })
         return
       }
@@ -341,6 +348,10 @@ Page({
       wx.hideLoading()
       this.setData({ importing: false })
       wx.removeStorageSync('articlePreview')
+      if (this.readingMode) {
+        wx.redirectTo({ url: '/pages/reading/index' })
+        return
+      }
       wx.switchTab({ url: '/pages/workbench/index' })
     }
     const fail = (error) => {

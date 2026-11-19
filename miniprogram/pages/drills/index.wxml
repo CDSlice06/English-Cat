@@ -1,0 +1,140 @@
+<view class="page drills-page">
+  <section-title eyebrow="OUTPUT REVIEW" title="输出练习" description="每次提交的译文都留在这里：原题、参考译文和你的每一版对照看。" />
+
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在翻你的练习记录…</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新加载" bind:tap="load" />
+  </view>
+
+  <block wx:else>
+    <view wx:if="{{total}}" class="drill-stats enter">
+      <view class="drill-stat">
+        <text class="drill-stat-num en">{{passed}}</text>
+        <text class="drill-stat-label">已通过</text>
+      </view>
+      <view class="drill-stat-line"></view>
+      <view class="drill-stat">
+        <text class="drill-stat-num en">{{total}}</text>
+        <text class="drill-stat-label">练过的题</text>
+      </view>
+      <view class="drill-stat-line"></view>
+      <view class="drill-stat">
+        <text class="drill-stat-num en">{{total - passed}}</text>
+        <text class="drill-stat-label">待改进</text>
+      </view>
+    </view>
+
+    <view wx:if="{{total}}" class="drill-tabs enter d1">
+      <view
+        wx:for="{{filters}}"
+        wx:key="key"
+        class="drill-tab {{filter === item.key ? 'drill-tab-on' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="switchFilter"
+      >{{item.label}}</view>
+    </view>
+
+    <view wx:if="{{items.length}}" class="drill-list">
+      <view
+        wx:for="{{items}}"
+        wx:key="key"
+        class="drill-card {{openKey === item.key ? 'drill-card-open' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="toggleItem"
+      >
+        <view class="drill-top">
+          <text class="drill-mode">{{item.modeLabel}}</text>
+          <text class="drill-badge {{item.passed ? 'drill-badge-pass' : ''}}">{{item.passed ? '已通过' : '待改进'}}</text>
+        </view>
+
+        <text class="drill-prompt">{{item.prompt || '原题已不在当前题库中'}}</text>
+
+        <view class="drill-source">
+          <text class="drill-source-tag">出处</text>
+          <text class="drill-source-text">{{item.articleTitle}}</text>
+        </view>
+
+        <view class="drill-meta">
+          <text>练过 {{item.count}} 次</text>
+          <text class="drill-dot">·</text>
+          <text>{{item.latestLabel}}</text>
+        </view>
+
+        <view wx:if="{{openKey === item.key}}" class="drill-detail">
+          <view class="drill-block">
+            <text class="drill-block-label">参考译文</text>
+            <text class="drill-block-text">{{item.reference || '这道题没有留下参考译文'}}</text>
+          </view>
+          <view class="drill-block drill-block-mine">
+            <text class="drill-block-label">我的最新译文</text>
+            <text class="drill-block-text">{{item.latestAnswer || '（这次没有写内容）'}}</text>
+          </view>
+
+          <view wx:if="{{retryKey === item.key}}" class="drill-retry" catchtap="noop">
+            <block wx:if="{{!retryPassed}}">
+              <textarea
+                class="drill-retry-input"
+                value="{{retryAnswer}}"
+                maxlength="500"
+                auto-height
+                cursor-spacing="24"
+                placeholder="按反馈再写一版，提交后马上判题…"
+                placeholder-class="textarea-placeholder"
+                bindinput="onRetryInput"
+              />
+              <view class="drill-retry-actions">
+                <text class="drill-retry-cancel" catchtap="cancelRetry">取消</text>
+                <view class="drill-retry-submit {{retryBusy ? 'drill-retry-busy' : ''}}" catchtap="submitRetry">
+                  {{retryBusy ? '评估中…' : '提交重练'}}
+                </view>
+              </view>
+            </block>
+            <text wx:if="{{retryFeedback}}" class="drill-retry-feedback {{retryPassed ? 'drill-retry-feedback-pass' : ''}}">{{retryFeedback}}</text>
+          </view>
+          <text
+            wx:elif="{{!item.passed && item.articleTitle !== '文章已删除'}}"
+            class="drill-retry-open"
+            catchtap="startRetry"
+            data-key="{{item.key}}"
+          >重练这道</text>
+
+          <text
+            wx:if="{{item.count > 1}}"
+            class="drill-versions-toggle"
+            catchtap="toggleVersions"
+            data-key="{{item.key}}"
+          >{{versionsKey === item.key ? '收起历史版本' : '查看全部 ' + item.count + ' 次提交'}}</text>
+
+          <view wx:if="{{versionsKey === item.key}}" class="drill-versions">
+            <view wx:for="{{item.attempts}}" wx:for-item="tryItem" wx:key="at" class="drill-version">
+              <view class="drill-version-head">
+                <text class="drill-version-at">{{tryItem.label}}</text>
+                <text class="drill-version-result {{tryItem.result === 'pass' ? 'drill-version-pass' : ''}}">{{tryItem.result === 'pass' ? '通过' : '待改进'}}</text>
+              </view>
+              <text class="drill-version-text">{{tryItem.answer || '（这次没有写内容）'}}</text>
+            </view>
+          </view>
+        </view>
+
+        <text wx:else class="drill-open-hint">点开对照原题与参考译文</text>
+      </view>
+    </view>
+
+    <view wx:elif="{{total}}" class="drill-empty-filter">
+      <text>{{filter === 'pass' ? '还没有通过的题，再写一版试试。' : '这个筛选下没有记录。'}}</text>
+    </view>
+
+    <view wx:else class="drill-empty">
+      <cat-image custom-class="drill-empty-cat" name="idea-bulb" size="medium" />
+      <text class="drill-empty-title">还没有输出练习记录</text>
+      <text class="drill-empty-text">学完一篇文章后，第四站的翻译练习会留在这里，方便你回看自己每次的译文。</text>
+      <primary-button text="去学习" bind:tap="goStudy" />
+    </view>
+  </block>
+</view>

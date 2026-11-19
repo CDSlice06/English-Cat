@@ -1,0 +1,164 @@
+<view class="page journal-page tab-page">
+  <view class="journal-hero enter">
+    <view class="paper-tape hero-tape"></view>
+    <view class="hero-stamp en">DAILY</view>
+    <view class="hero-photo">
+      <cat-image name="reading-highlight" size="medium" custom-class="hero-cat" />
+    </view>
+    <view class="hero-copy">
+      <view class="hero-tag en">ENGLISH JOURNAL</view>
+      <text class="hero-title">每天读一篇外刊</text>
+      <text class="hero-sub">精选外刊持续更新，往期每天轮换推荐；配图 + 中文导读，先看懂了再读原文</text>
+      <text wx:if="{{streak}}" class="hero-streak">已连续学习 {{streak}} 天</text>
+    </view>
+  </view>
+
+  <view
+    wx:if="{{continueArticle}}"
+    class="continue-card enter"
+    hover-class="continue-hover"
+    bindtap="openContinue"
+  >
+    <view class="continue-copy">
+      <text class="continue-kicker en">CONTINUE</text>
+      <text class="continue-title" wx:if="{{continueArticle.zhTitle}}">{{continueArticle.zhTitle}}</text>
+      <text class="continue-meta">已完成 {{continueArticle.percent}}% · 全文约 {{continueArticle.minutes}} 分钟</text>
+    </view>
+    <view class="continue-btn">接着读</view>
+  </view>
+
+  <view
+    wx:if="{{today}}"
+    class="today-card enter d1"
+    hover-class="today-hover"
+    bindtap="openToday"
+  >
+    <view class="paper-tape today-tape"></view>
+    <view class="today-cover-wrap">
+      <image class="today-cover" src="{{today.cover}}" mode="aspectFill" binderror="onCoverError" data-scope="today" />
+      <text class="cover-tag en today-kicker">TODAY'S PICK</text>
+      <text class="cover-topic">{{today.topic}}</text>
+      <text wx:if="{{today.progressLabel}}" class="cover-badge {{today.progressDone ? 'is-done' : ''}}">{{today.progressDone ? '已学完' : '在读'}}</text>
+    </view>
+    <view class="today-body">
+      <text class="today-zh" wx:if="{{today.zhTitle}}">{{today.zhTitle}}</text>
+      <text class="today-summary">{{today.summary}}</text>
+      <text class="today-title en">{{today.title}}</text>
+      <view class="today-meta">
+        <text wx:if="{{today.levelLabel}}" class="today-level">{{today.levelLabel}}</text>
+        <text wx:if="{{today.levelLabel}}" class="today-dot">·</text>
+        <text class="today-source">{{today.source}}</text>
+        <text class="today-dot">·</text>
+        <text>{{today.dateLabel}}</text>
+        <text class="today-dot">·</text>
+        <text class="en">{{today.words}} words</text>
+      </view>
+      <view class="today-foot">
+        <view class="today-foot-copy">
+          <text wx:if="{{today.progressLabel}}" class="today-progress {{today.progressDone ? 'today-progress-done' : ''}}">{{today.progressLabel}}</text>
+          <text class="today-hint">约 {{today.minutes}} 分钟 · 点词就能查</text>
+        </view>
+        <view class="today-actions">
+          <button class="share-btn" open-type="share" data-id="{{today.id}}" catchtap="noop">分享</button>
+          <view class="today-cta">{{starting ? '打开中…' : '去读这篇'}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="list-head">
+    <view class="list-head-copy">
+      <text class="list-stamp en">ARCHIVE</text>
+      <text class="list-title">往期外刊</text>
+    </view>
+    <text class="list-count">{{journals.length}} 篇</text>
+  </view>
+
+  <view class="filter-bar">
+    <view class="filter-row">
+      <view
+        wx:for="{{levels}}"
+        wx:key="key"
+        class="filter-chip {{level === item.key ? 'is-on' : ''}}"
+        data-level="{{item.key}}"
+        bindtap="pickLevel"
+      >{{item.label}}</view>
+    </view>
+    <scroll-view class="filter-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="filter-row filter-row-topics">
+        <view class="filter-chip {{topic === 'all' ? 'is-on' : ''}}" data-topic="all" bindtap="pickTopic">全部题材</view>
+        <view
+          wx:for="{{topics}}"
+          wx:key="*this"
+          class="filter-chip {{topic === item ? 'is-on' : ''}}"
+          data-topic="{{item}}"
+          bindtap="pickTopic"
+        >{{item}}</view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view wx:if="{{loading}}" class="state-box">
+    <cat-image name="sleepy-nap" size="medium" custom-class="state-cat" />
+    <text class="state-text">猫正在整理今天的外刊…</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="state-box" bindtap="load">
+    <cat-image name="not-found" size="medium" custom-class="state-cat" />
+    <text class="state-text">{{error}} · 点我重试</text>
+  </view>
+
+  <view wx:elif="{{!journals.length}}" class="state-box">
+    <cat-image name="not-found" size="medium" custom-class="state-cat" />
+    <text class="state-text">{{level === 'all' && topic === 'all' ? '暂时没有可读的外刊，稍后再来看看。' : '这个筛选下还没有外刊，换个条件看看。'}}</text>
+  </view>
+
+  <view wx:else class="journal-list">
+    <view
+      wx:for="{{journals}}"
+      wx:key="id"
+      class="journal-item enter"
+      hover-class="journal-item-hover"
+      data-id="{{item.id}}"
+      bindtap="pick"
+    >
+      <view class="item-cover-wrap">
+        <image class="item-cover" src="{{item.cover}}" mode="aspectFill" lazy-load binderror="onCoverError" data-scope="item" data-id="{{item.id}}" />
+        <text class="cover-topic item-topic">{{item.topic}}</text>
+        <text wx:if="{{item.progressLabel}}" class="cover-badge item-badge {{item.progressDone ? 'is-done' : ''}}">{{item.progressDone ? '已学完' : '在读'}}</text>
+      </view>
+      <view class="item-copy">
+        <text class="item-zh" wx:if="{{item.zhTitle}}">{{item.zhTitle}}</text>
+        <text class="item-summary">{{item.summary}}</text>
+        <text class="item-title en">{{item.title}}</text>
+        <view class="item-meta">
+          <text wx:if="{{item.levelLabel}}" class="item-level">{{item.levelLabel}}</text>
+          <text wx:if="{{item.levelLabel}}" class="item-dot">·</text>
+          <text class="item-source">{{item.source}}</text>
+          <text class="item-dot">·</text>
+          <text>{{item.minutes}} 分钟</text>
+          <text wx:if="{{item.progressLabel}}" class="item-progress-text {{item.progressDone ? 'item-progress-done' : ''}}">{{item.progressLabel}}</text>
+          <button class="item-share" open-type="share" data-id="{{item.id}}" catchtap="noop">分享</button>
+        </view>
+      </view>
+      <view wx:if="{{item.progressPercent > 0}}" class="item-progress-bar">
+        <view class="item-progress-fill" style="width: {{item.progressPercent}}%"></view>
+      </view>
+    </view>
+  </view>
+
+  <text class="journal-foot">外刊均来自 CC BY / 公有领域授权来源，出处与许可见原文。</text>
+
+  <view wx:if="{{starting}}" class="mask">
+    <view class="mask-card">
+      <cat-image wx:if="{{!startError}}" name="sleepy-nap" size="medium" custom-class="mask-cat" />
+      <cat-image wx:else name="not-found" size="medium" custom-class="mask-cat" />
+      <text class="mask-title">{{startError ? '这篇外刊没打开' : '猫正在翻这篇外刊'}}</text>
+      <text class="mask-text">{{startError || startingTitle}}</text>
+      <view wx:if="{{startError}}" class="mask-actions">
+        <view class="mask-btn mask-btn-ghost" catchtap="closeStartError">先看别的</view>
+        <view class="mask-btn" catchtap="retryStart">再试一次</view>
+      </view>
+    </view>
+  </view>
+</view>

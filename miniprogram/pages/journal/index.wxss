@@ -1,0 +1,682 @@
+/* ---------- 顶部：外刊封面 ---------- */
+.journal-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 30rpx 26rpx 26rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  background-color: var(--paper);
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 248, 232, 0.3));
+  box-shadow: var(--shadow-paper);
+}
+
+.hero-tape {
+  left: 34rpx;
+  top: -16rpx;
+}
+
+.hero-stamp {
+  position: absolute;
+  right: 22rpx;
+  top: 18rpx;
+  padding: 2rpx 12rpx;
+  border: 2rpx solid rgba(168, 106, 17, 0.28);
+  border-radius: 6rpx;
+  color: rgba(168, 106, 17, 0.55);
+  font-size: 17rpx;
+  font-weight: 700;
+  letter-spacing: 3rpx;
+  transform: rotate(-6deg);
+}
+
+.hero-photo {
+  flex: 0 0 auto;
+  width: 132rpx;
+  height: 132rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: 16rpx;
+  background: #fff6e2;
+  overflow: hidden;
+}
+
+.hero-cat {
+  width: 100%;
+  height: 100%;
+}
+
+.hero-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.hero-tag {
+  color: var(--amber);
+  font-size: 17rpx;
+  font-weight: 700;
+  letter-spacing: 3rpx;
+}
+
+.hero-title {
+  display: block;
+  margin-top: 8rpx;
+  color: var(--ink);
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 38rpx;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.hero-sub {
+  display: block;
+  margin-top: 8rpx;
+  color: var(--muted);
+  font-size: 22rpx;
+  line-height: 1.65;
+}
+
+/* ---------- 今日推荐 ---------- */
+.today-card {
+  position: relative;
+  margin-top: 22rpx;
+  border: 2rpx solid rgba(168, 106, 17, 0.28);
+  border-radius: var(--r-lg);
+  background-color: #fffaf0;
+  background-image: linear-gradient(150deg, rgba(255, 226, 160, 0.42), rgba(255, 253, 249, 0.6));
+  box-shadow: 7rpx 8rpx 0 rgba(168, 106, 17, 0.1);
+  transition: transform 0.16s ease;
+}
+
+.today-hover {
+  transform: translateY(2rpx);
+}
+
+.today-tape {
+  left: 50%;
+  top: -18rpx;
+  margin-left: -56rpx;
+  z-index: 3;
+}
+
+.today-cover-wrap {
+  position: relative;
+  width: 100%;
+  /* 686rpx 内容宽下的 16:9，尽量少裁 4:3 插画 */
+  height: 386rpx;
+  border-radius: 30rpx 30rpx 0 0;
+  background: #f1e3c8;
+  overflow: hidden;
+}
+
+.today-cover {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cover-tag {
+  position: absolute;
+  left: 20rpx;
+  top: 20rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 6rpx;
+  background: rgba(36, 31, 24, 0.55);
+  color: #fff8e8;
+  font-size: 17rpx;
+  font-weight: 700;
+  letter-spacing: 3rpx;
+}
+
+.cover-topic {
+  position: absolute;
+  right: 18rpx;
+  top: 20rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 250, 240, 0.92);
+  color: #8a6a2d;
+  font-size: 19rpx;
+  font-weight: 600;
+}
+
+.today-body {
+  padding: 24rpx 26rpx 22rpx;
+}
+
+.today-zh {
+  display: block;
+  color: var(--ink);
+  font-size: 34rpx;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.today-summary {
+  display: block;
+  margin-top: 10rpx;
+  color: var(--muted);
+  font-size: 24rpx;
+  line-height: 1.7;
+}
+
+.today-title {
+  margin-top: 12rpx;
+  padding-left: 16rpx;
+  border-left: 4rpx solid rgba(168, 106, 17, 0.32);
+  color: #9a8d78;
+  font-size: 22rpx;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.today-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 12rpx;
+  color: var(--faint);
+  font-size: 20rpx;
+}
+
+.today-source {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.today-level {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.today-dot {
+  color: var(--line);
+}
+
+.today-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 18rpx;
+  padding-top: 16rpx;
+  border-top: 2rpx dashed rgba(168, 106, 17, 0.2);
+}
+
+/* 进度主要在卡片底部，封面左下角只留一个轻量的在读/已读完角标 */
+.today-foot-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  min-width: 0;
+}
+
+.today-progress {
+  color: #4f6d86;
+  font-size: 20rpx;
+  font-weight: 600;
+}
+
+.today-progress-done {
+  color: #4f7a5b;
+}
+
+.today-hint {
+  color: var(--muted);
+  font-size: 21rpx;
+}
+
+.today-actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+/* 分享按钮做成轻量胶囊，和主行动按钮拉开主次 */
+.share-btn {
+  margin: 0;
+  padding: 0 22rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  border: 2rpx solid rgba(168, 106, 17, 0.32);
+  border-radius: 999rpx;
+  background: transparent;
+  color: var(--amber);
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.share-btn::after {
+  border: none;
+}
+
+.today-cta {
+  padding: 12rpx 30rpx;
+  border-radius: 999rpx;
+  background: var(--amber);
+  color: #fffdf9;
+  font-size: 23rpx;
+  font-weight: 700;
+}
+
+/* ---------- 全部外刊 ---------- */
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 32rpx 4rpx 14rpx;
+}
+
+.list-head-copy {
+  display: flex;
+  align-items: baseline;
+  gap: 10rpx;
+}
+
+.list-stamp {
+  color: var(--faint);
+  font-size: 16rpx;
+  font-weight: 700;
+  letter-spacing: 2.5rpx;
+}
+
+.list-title {
+  color: var(--ink);
+  font-size: 27rpx;
+  font-weight: 700;
+}
+
+.list-count {
+  color: var(--faint);
+  font-size: 20rpx;
+}
+
+/* ---------- 筛选条 ---------- */
+.filter-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  margin: 0 4rpx 16rpx;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.filter-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.filter-row-topics {
+  display: inline-flex;
+  padding-right: 6rpx;
+}
+
+.filter-chip {
+  flex: 0 0 auto;
+  padding: 8rpx 20rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: 999rpx;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 21rpx;
+  line-height: 1.4;
+}
+
+.filter-chip.is-on {
+  border-color: var(--amber);
+  background: var(--amber);
+  color: #fffdf9;
+  font-weight: 700;
+}
+
+.journal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.journal-item {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 18rpx;
+  padding: 16rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  box-shadow: 0 4rpx 10rpx rgba(116, 72, 40, 0.05);
+  transition: transform 0.16s ease;
+  overflow: hidden;
+}
+
+.journal-item-hover {
+  transform: translateY(2rpx);
+}
+
+/* 缩略图跟随卡片高度拉伸：文字多的时候，封面下面不会再留一块空白 */
+.item-cover-wrap {
+  position: relative;
+  flex: 0 0 240rpx;
+  width: 240rpx;
+  min-height: 180rpx;
+  border-radius: 14rpx;
+  background: #f1e3c8;
+  overflow: hidden;
+}
+
+.item-cover {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.item-topic {
+  right: 10rpx;
+  top: 10rpx;
+  padding: 2rpx 12rpx;
+  font-size: 18rpx;
+}
+
+.item-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.item-zh {
+  color: var(--ink);
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.item-summary {
+  margin-top: 6rpx;
+  color: var(--muted);
+  font-size: 22rpx;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+}
+
+.item-title {
+  margin-top: 8rpx;
+  color: #94876f;
+  font-size: 20rpx;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: auto;
+  padding-top: 8rpx;
+  color: var(--faint);
+  font-size: 21rpx;
+}
+
+/* 每篇都能单独分享：跟着文字流排在右下角，不会压住来源和时长 */
+.item-share {
+  margin: 0 0 0 auto;
+  padding: 0 16rpx;
+  height: 36rpx;
+  line-height: 36rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: 999rpx;
+  background: transparent;
+  color: var(--muted);
+  font-size: 18rpx;
+}
+
+.item-share::after {
+  border: none;
+}
+
+.item-source {
+  color: var(--muted);
+}
+
+.item-level {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.item-dot {
+  color: var(--line);
+}
+
+.item-progress-text {
+  color: #4f6d86;
+  font-weight: 600;
+}
+
+.item-progress-done {
+  color: #4f7a5b;
+}
+
+/* 卡片底部的细进度条，替代压在封面上的进度角标 */
+.item-progress-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5rpx;
+  background: rgba(75, 64, 52, 0.08);
+}
+
+.item-progress-fill {
+  height: 100%;
+  background: rgba(168, 106, 17, 0.55);
+}
+
+/* 封面左下角的状态章：只区分「在读 / 已读完」，具体时长仍放在卡片底部 */
+.cover-badge {
+  position: absolute;
+  left: 18rpx;
+  bottom: 18rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 250, 240, 0.94);
+  color: #4f6d86;
+  font-size: 18rpx;
+  font-weight: 600;
+}
+
+.cover-badge.is-done {
+  color: #4f7a5b;
+}
+
+.item-badge {
+  left: 10rpx;
+  bottom: 10rpx;
+  padding: 2rpx 10rpx;
+  font-size: 17rpx;
+}
+
+.hero-streak {
+  display: inline-block;
+  margin-top: 12rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 999rpx;
+  background: rgba(168, 106, 17, 0.1);
+  color: #8a6a2d;
+  font-size: 19rpx;
+  font-weight: 600;
+}
+
+/* 上次读到一半：比在几十篇里翻要快 */
+.continue-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-bottom: 18rpx;
+  padding: 20rpx 24rpx;
+  border: 2rpx solid rgba(168, 106, 17, 0.22);
+  border-radius: var(--r-lg);
+  background: rgba(255, 240, 210, 0.5);
+}
+
+.continue-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.continue-kicker {
+  display: block;
+  color: var(--amber);
+  font-size: 16rpx;
+  font-weight: 700;
+  letter-spacing: 2.5rpx;
+}
+
+.continue-title {
+  display: block;
+  margin-top: 6rpx;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 26rpx;
+  font-weight: 600;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.continue-meta {
+  display: block;
+  margin-top: 4rpx;
+  color: var(--muted);
+  font-size: 20rpx;
+}
+
+.continue-btn {
+  flex: 0 0 auto;
+  padding: 10rpx 24rpx;
+  border-radius: 999rpx;
+  background: var(--amber);
+  color: #fffdf9;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.continue-hover {
+  opacity: 0.88;
+}
+
+/* ---------- 空态与页脚 ---------- */
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14rpx;
+  padding: 60rpx 20rpx;
+  text-align: center;
+}
+
+.state-cat {
+  width: 160rpx;
+  height: 160rpx;
+}
+
+.state-text {
+  color: var(--muted);
+  font-size: 23rpx;
+  line-height: 1.7;
+}
+
+.journal-foot {
+  display: block;
+  margin-top: 28rpx;
+  color: var(--faint);
+  font-size: 18rpx;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* ---------- 打开外刊时的过渡遮罩 ---------- */
+.mask {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(36, 31, 24, 0.42);
+}
+
+.mask-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  width: 440rpx;
+  padding: 32rpx 30rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+}
+
+.mask-cat {
+  width: 170rpx;
+  height: 170rpx;
+}
+
+.mask-title {
+  color: var(--ink);
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.mask-text {
+  color: var(--muted);
+  font-size: 21rpx;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* 打开失败时给两条出路：先看别的，或者原地重试 */
+.mask-actions {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+
+.mask-btn {
+  padding: 10rpx 28rpx;
+  border-radius: 999rpx;
+  background: var(--amber);
+  color: #fffdf9;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.mask-btn-ghost {
+  border: 2rpx solid var(--paper-line);
+  background: transparent;
+  color: var(--muted);
+}

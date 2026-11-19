@@ -6,18 +6,46 @@
     "pages/import/index",
     "pages/proofread/index",
     "pages/preview/index",
-    "pages/vocabulary/index",
+    "pages/journal/index",
+    "pages/reading/index",
     "pages/analysis/index",
     "pages/phrases/index",
     "pages/practice/index",
     "pages/summary/index",
-    "pages/wordbook/index",
     "pages/review/index",
+    "pages/drills/index",
     "pages/checkin/index",
     "pages/phrasebook/index",
-    "pages/grammarbook/index",
     "pages/onboarding/index",
-    "pages/library/index"
+    "pages/library/index",
+    "pages/about/index"
+  ],
+  "subPackages": [
+    {
+      "root": "pkgWords",
+      "name": "words",
+      "pages": [
+        "pages/wordbook/index",
+        "pages/vocabulary/index",
+        "pages/memorize/index",
+        "pages/draw/index"
+      ]
+    },
+    {
+      "root": "pkgGrammar",
+      "name": "grammar",
+      "pages": [
+        "pages/grammarbook/index",
+        "pages/grammarpoint/index"
+      ]
+    },
+    {
+      "root": "pkgTranslate",
+      "name": "translate",
+      "pages": [
+        "pages/translation/index"
+      ]
+    }
   ],
   "window": {
     "navigationBarBackgroundColor": "#fdf7ea",
@@ -35,6 +63,7 @@
     "list": [
       {"pagePath":"pages/index/index","text":"首页","iconPath":"assets/tabbar/home.png","selectedIconPath":"assets/tabbar/home-active.png"},
       {"pagePath":"pages/workbench/index","text":"学习","iconPath":"assets/tabbar/study.png","selectedIconPath":"assets/tabbar/study-active.png"},
+      {"pagePath":"pages/journal/index","text":"外刊","iconPath":"assets/tabbar/journal.png","selectedIconPath":"assets/tabbar/journal-active.png"},
       {"pagePath":"pages/profile/index","text":"我的","iconPath":"assets/tabbar/user.png","selectedIconPath":"assets/tabbar/user-active.png"}
     ]
   },
@@ -50,5 +79,15 @@
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "preloadRule": {
+    "pages/workbench/index": {
+      "network": "wifi",
+      "packages": ["grammar", "translate"]
+    },
+    "pages/profile/index": {
+      "network": "wifi",
+      "packages": ["grammar"]
+    }
+  }
 }

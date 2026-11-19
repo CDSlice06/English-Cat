@@ -1,0 +1,317 @@
+<view class="page grammarbook">
+  <section-title eyebrow="MY GRAMMAR BOOK" title="我的语法与句式本" description="收藏难理解的结构，把理解、翻译和例句留在同一页。" />
+
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在翻开你的语法笔记…</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新加载" bind:tap="reload" />
+  </view>
+
+  <block wx:else>
+    <view class="shelf-hero enter d1">
+      <view class="coil-bind"></view>
+      <view class="shelf-glow"></view>
+      <view class="shelf-tape"></view>
+      <view class="shelf-sticker">
+        <cat-image custom-class="shelf-cat" name="idea-bulb" size="medium" />
+      </view>
+      <view class="shelf-copy">
+        <text class="shelf-kicker">GRAMMAR COLLECTED</text>
+        <view class="shelf-number-row">
+          <text class="shelf-number en">{{counts.total}}</text>
+          <text class="shelf-unit">张语法卡</text>
+        </view>
+        <text class="shelf-caption">跨文章收藏，随时回来重读</text>
+      </view>
+    </view>
+
+    <view class="gb-tabs enter d1">
+      <view class="gb-tab {{tab === 'cards' ? 'gb-tab-on' : ''}}" data-tab="cards" bindtap="switchTab">
+        <text>语法查询</text>
+      </view>
+      <view class="gb-tab {{tab === 'outline' ? 'gb-tab-on' : ''}}" data-tab="outline" bindtap="switchTab">
+        <text>语法大纲</text>
+      </view>
+    </view>
+
+    <!-- 语法查询：收藏与知识库同口径筛选 -->
+    <block wx:if="{{tab === 'cards'}}">
+      <view class="gb-search">
+        <input
+          class="gb-search-input"
+          value="{{keyword}}"
+          placeholder="搜语法点、原句或翻译，未收藏的也能搜"
+          placeholder-class="gb-ph"
+          confirm-type="search"
+          bindinput="onSearch"
+        />
+        <text wx:if="{{keyword}}" class="gb-search-clear" catchtap="clearSearch">清空</text>
+      </view>
+
+      <view class="gb-filter">
+        <view
+          wx:for="{{filters}}"
+          wx:key="key"
+          class="gb-chip {{filter === item.key ? 'gb-chip-on' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="pickFilter"
+        >
+          <text>{{item.label}}</text>
+        </view>
+      </view>
+
+      <view class="gb-filter gb-state-filter">
+        <view
+          wx:for="{{stateFilters}}"
+          wx:key="key"
+          class="gb-chip {{stateFilter === item.key ? 'gb-chip-on' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="pickState"
+        >
+          <text>{{item.label}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{moduleFilter}}" class="gb-scope">
+        <text class="gb-scope-text">只看：{{moduleTitle}}</text>
+        <text class="gb-scope-clear" catchtap="clearModule">取消</text>
+      </view>
+
+      <text wx:if="{{stateFilter !== 'all'}}" class="gb-filter-note">掌握情况只看「我的收藏」，去今日复习点一次三档自评就会更新。</text>
+      <text wx:else class="gb-filter-note">分类筛选同时作用于「我的收藏」和「语法知识库」</text>
+
+      <view class="gb-sec">
+        <view class="gb-sec-head">
+          <text class="gb-sec-title">我的收藏</text>
+          <text class="gb-sec-count">{{shownTotal}} 张</text>
+        </view>
+
+    <view wx:if="{{items.length}}" class="grammar-list enter d2">
+      <view wx:for="{{items}}" wx:key="id" class="grammar-card">
+        <view class="grammar-head">
+          <view class="grammar-heading">
+            <text class="grammar-key">{{item.key}}</text>
+            <text class="grammar-title">{{item.title}}</text>
+          </view>
+          <text class="grammar-state grammar-state-{{item.stateKey}}">{{item.stateText}}</text>
+          <view class="grammar-remove" bind:tap="removeItem" data-id="{{item.id}}">{{removingId === item.id ? '移除中…' : '移除'}}</view>
+        </view>
+
+        <view wx:if="{{item.sentence}}" class="grammar-sentence">
+          <text class="grammar-label">文章原句</text>
+          <text class="grammar-sentence-text en">{{item.sentence}}</text>
+        </view>
+
+        <view wx:if="{{item.understanding}}" class="grammar-understanding">
+          <text class="grammar-label">怎么理解</text>
+          <text class="grammar-body">{{item.understanding}}</text>
+          <view wx:if="{{item.steps.length}}" class="step-list">
+            <view
+              wx:for="{{item.steps}}"
+              wx:for-item="step"
+              wx:for-index="stepIndex"
+              wx:key="title"
+              class="step-row"
+            >
+              <text class="step-index en">{{stepIndex + 1}}</text>
+              <view class="step-body">
+                <text class="step-title">{{step.title}}</text>
+                <text class="step-detail">{{step.detail}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{item.translation}}" class="grammar-section">
+          <text class="grammar-label">怎么翻译</text>
+          <view wx:if="{{item.chunks.length}}" class="chunk-list">
+            <view wx:for="{{item.chunks}}" wx:for-item="chunk" wx:key="en" class="chunk-row">
+              <text class="chunk-en en">{{chunk.en}}</text>
+              <text class="chunk-arrow">→</text>
+              <text class="chunk-zh">{{chunk.zh}}</text>
+            </view>
+            <text class="chunk-label">整句连起来</text>
+          </view>
+          <text class="grammar-body">{{item.translation}}</text>
+        </view>
+
+        <view wx:if="{{item.usageTip || item.usage}}" class="grammar-section usage-block">
+          <text class="grammar-label">用法要点</text>
+          <text wx:if="{{item.usageTip}}" class="usage-tip">{{item.usageTip}}</text>
+          <text wx:if="{{item.usage.summary}}" class="usage-summary">{{item.usage.summary}}</text>
+          <view
+            wx:for="{{item.usage.items}}"
+            wx:for-item="note"
+            wx:key="q"
+            class="usage-item"
+          >
+            <text class="usage-q">{{note.q}}</text>
+            <text class="usage-a">{{note.a}}</text>
+            <view wx:if="{{note.good}}" class="usage-example usage-good">
+              <view class="usage-mark"></view>
+              <text class="usage-example-text en">{{note.good}}</text>
+            </view>
+            <view wx:if="{{note.bad}}" class="usage-example usage-bad">
+              <view class="usage-mark"></view>
+              <text class="usage-example-text en">{{note.bad}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{item.examples.length}}" class="grammar-section">
+          <text class="grammar-label">同结构例句</text>
+          <view class="example-list">
+            <view wx:for="{{item.examples}}" wx:for-item="example" wx:for-index="exampleIndex" wx:key="exampleIndex" class="example-card">
+              <text class="example-en en">{{example.en}}</text>
+              <text class="example-zh">{{example.zh}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="grammar-foot">
+          <text class="grammar-source">{{item.sourceLabel}}</text>
+          <text class="grammar-stamp">已收藏</text>
+        </view>
+      </view>
+    </view>
+    <view wx:else class="gb-sec-empty">{{cardsEmpty}}</view>
+      </view>
+
+      <view wx:if="{{stateFilter === 'all'}}" class="gb-sec">
+        <view class="gb-sec-head">
+          <text class="gb-sec-title">语法知识库</text>
+          <text class="gb-sec-count">{{kbResults.length}} / {{kbTotal}} 个知识点</text>
+        </view>
+
+        <view wx:if="{{kbVisible.length}}" class="kb-list">
+          <view
+            wx:for="{{kbVisible}}"
+            wx:key="key"
+            class="kb-row"
+            data-key="{{item.key}}"
+            bindtap="openPoint"
+          >
+            <view class="kb-row-main">
+              <text class="kb-row-title">{{item.label}}</text>
+              <text class="kb-row-excerpt">{{item.excerpt}}</text>
+              <view class="kb-row-meta">
+                <text class="kb-row-module">{{item.moduleTitle}}</text>
+                <text class="kb-row-flag {{item.owned ? 'kb-row-flag-on' : ''}}">{{item.owned ? '已收藏' : '未收藏'}}</text>
+              </view>
+            </view>
+            <text class="kb-row-go">›</text>
+          </view>
+        </view>
+
+        <view wx:if="{{kbResults.length > kbVisible.length}}" class="kb-more" bindtap="toggleKb">
+          <text>展开剩余 {{kbResults.length - kbVisible.length}} 个知识点</text>
+        </view>
+        <view wx:elif="{{kbExpanded && kbResults.length}}" class="kb-more" bindtap="toggleKb">
+          <text>收起</text>
+        </view>
+        <view wx:if="{{!kbResults.length}}" class="gb-sec-empty">这个范围里没有知识点</view>
+      </view>
+    </block>
+
+    <block wx:else>
+      <!-- 语法大纲 -->
+      <view class="syl-note enter d2">
+        <text class="syl-note-text">按「词法 → 句法 → 长难句」编排，共 {{kbTotal}} 个知识点。每个模块先看「学完能做到」，再逐个点开知识点；收藏过的会标「已收」。</text>
+        <text class="syl-note-text syl-note-sub">按通行语法体系整理，参考张道真《实用英语语法》、剑桥《English Grammar in Use》及四六级真题用法；例句为教研自编。</text>
+        <button class="content-feedback" open-type="feedback">发现错误？点此反馈</button>
+      </view>
+
+      <view wx:for="{{syllabus}}" wx:for-item="group" wx:key="id" class="syl-group enter d2">
+        <view class="syl-group-head">
+          <text class="syl-group-name">{{group.name}}</text>
+          <text class="syl-group-intro">{{group.intro}}</text>
+        </view>
+
+        <view wx:if="{{group.id === 'long'}}" class="meth-card">
+          <text class="meth-kicker">METHOD</text>
+          <text class="meth-title">{{method.title}}</text>
+          <text class="meth-sub">{{method.subtitle}}</text>
+          <view
+            wx:for="{{method.steps}}"
+            wx:for-item="step"
+            wx:for-index="stepIndex"
+            wx:key="title"
+            class="meth-step"
+          >
+            <text class="meth-idx en">{{stepIndex + 1}}</text>
+            <view class="meth-body">
+              <text class="meth-step-title">{{step.title}}</text>
+              <text class="meth-step-detail">{{step.detail}}</text>
+            </view>
+          </view>
+          <view class="meth-demo">
+            <text class="meth-demo-label">拿一句真题式长句走一遍</text>
+            <text class="meth-demo-en en">{{method.demo.en}}</text>
+            <text class="meth-demo-zh">{{method.demo.zh}}</text>
+            <view
+              wx:for="{{method.demo.chunks}}"
+              wx:for-item="chunk"
+              wx:key="label"
+              class="meth-demo-row"
+            >
+              <text class="meth-demo-tag">{{chunk.label}}</text>
+              <text class="meth-demo-text">{{chunk.text}}</text>
+            </view>
+          </view>
+          <view class="meth-tips">
+            <text wx:for="{{method.tips}}" wx:key="*this" class="meth-tip">{{item}}</text>
+          </view>
+        </view>
+
+        <view class="syl-modules">
+          <view wx:for="{{group.modules}}" wx:for-item="module" wx:key="id" class="syl-module">
+            <view class="syl-module-head">
+              <text class="syl-order en">{{module.order}}</text>
+              <text class="syl-module-title">{{module.title}}</text>
+              <text class="syl-module-count {{module.count ? 'syl-module-count-on' : ''}}">{{module.count ? module.count + ' 张卡' : '未收藏'}}</text>
+            </view>
+            <view wx:if="{{module.guide}}" class="syl-guide">
+              <text class="syl-guide-text">{{module.guide}}</text>
+            </view>
+            <view class="syl-line">
+              <text class="syl-tag">目标</text>
+              <text class="syl-line-text">{{module.goal}}</text>
+            </view>
+            <view class="syl-points">
+              <view
+                wx:for="{{module.points}}"
+                wx:for-item="point"
+                wx:key="key"
+                class="syl-point"
+                data-key="{{point.key}}"
+                bindtap="openPoint"
+              >
+                <text class="syl-point-idx en">{{point.index}}</text>
+                <text class="syl-point-label">{{point.label}}</text>
+                <text wx:if="{{point.owned}}" class="syl-point-own">已收</text>
+                <text class="syl-point-go">›</text>
+              </view>
+            </view>
+            <view class="syl-line">
+              <text class="syl-tag">考什么</text>
+              <text class="syl-line-text">{{module.exam}}</text>
+            </view>
+            <view class="syl-line">
+              <text class="syl-tag syl-tag-warn">易错</text>
+              <text class="syl-line-text">{{module.traps}}</text>
+            </view>
+            <view wx:if="{{module.count}}" class="syl-module-more" data-id="{{module.id}}" bindtap="pickModule">
+              <text>查看本模块收藏的 {{module.count}} 张卡</text>
+              <text class="syl-module-more-go">›</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </block>
+</view>

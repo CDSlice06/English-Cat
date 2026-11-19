@@ -136,8 +136,9 @@
   border: 2rpx solid var(--paper-line);
   background: rgba(255, 253, 249, 0.7);
   color: var(--muted);
-  font-size: var(--fs-note);
+  font-size: 22rpx;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .source-on {
@@ -237,77 +238,6 @@
   color: var(--faint);
   font-size: 20rpx;
   letter-spacing: 1rpx;
-}
-
-/* ---------- 随机抽一篇 ---------- */
-.draw-card {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18rpx;
-  min-height: 132rpx;
-  padding: 22rpx 26rpx;
-  margin-bottom: var(--card-gap);
-  border-radius: var(--r-lg) var(--r-md) var(--r-lg) var(--r-md);
-  border: 2rpx solid rgba(168, 106, 17, 0.42);
-  background: var(--amber-soft);
-  box-shadow: var(--shadow-paper);
-}
-
-/* 抽签卡顶边压一条胶带，像手帐里贴的便签 */
-.lib-draw-tape {
-  position: absolute;
-  left: 50%;
-  top: -12rpx;
-  width: 116rpx;
-  height: 28rpx;
-  margin-left: -58rpx;
-  pointer-events: none;
-  background: rgba(255, 226, 160, 0.94);
-  border-left: 2rpx dashed rgba(116, 72, 40, 0.14);
-  border-right: 2rpx dashed rgba(116, 72, 40, 0.14);
-  transform: rotate(-3deg);
-}
-
-.draw-card-hover {
-  transform: translateY(2rpx);
-  background: #ffeec2;
-}
-
-.draw-copy {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6rpx;
-}
-
-.draw-title {
-  color: var(--ink);
-  font-size: var(--fs-sub);
-  font-weight: 700;
-}
-
-.draw-desc {
-  color: var(--muted);
-  font-size: var(--fs-note);
-}
-
-/* 手绘骰子：外框 + 五点面。
-   之前只有三个点，且右上那个点超出内框被裁掉，看起来像「更多」菜单的省略号 */
-.draw-dice {
-  flex: 0 0 auto;
-  box-sizing: border-box;
-  width: 52rpx;
-  height: 52rpx;
-  border: 3rpx solid var(--amber);
-  border-radius: 10rpx;
-  background:
-    radial-gradient(circle, var(--amber) 0, var(--amber) 3.5rpx, transparent 4.5rpx) 6rpx 6rpx / 10rpx 10rpx no-repeat,
-    radial-gradient(circle, var(--amber) 0, var(--amber) 3.5rpx, transparent 4.5rpx) 30rpx 6rpx / 10rpx 10rpx no-repeat,
-    radial-gradient(circle, var(--amber) 0, var(--amber) 3.5rpx, transparent 4.5rpx) 18rpx 18rpx / 10rpx 10rpx no-repeat,
-    radial-gradient(circle, var(--amber) 0, var(--amber) 3.5rpx, transparent 4.5rpx) 6rpx 30rpx / 10rpx 10rpx no-repeat,
-    radial-gradient(circle, var(--amber) 0, var(--amber) 3.5rpx, transparent 4.5rpx) 30rpx 30rpx / 10rpx 10rpx no-repeat;
 }
 
 /* ---------- 文章列表 ---------- */

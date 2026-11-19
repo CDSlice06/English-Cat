@@ -21,6 +21,13 @@ function disableTask(task, ms) {
   disabledUntil[task] = Date.now() + ms
 }
 
+// 批量翻译补漏时用：清掉上一个批次的熔断，只补漏掉的句子
+function clearTaskDisabled(task) {
+  if (!disabledUntil[task]) return
+  delete disabledUntil[task]
+  console.log(`[ai-analyze][${task}] circuit cleared for retry`)
+}
+
 function raceTimeout(promise, ms, task) {
   let timer = null
   const timeout = new Promise((resolve) => {
@@ -37,7 +44,10 @@ function raceTimeout(promise, ms, task) {
 }
 
 function call(task, payload, timeoutMs) {
-  if (Date.now() < (disabledUntil[task] || 0)) return Promise.resolve(null)
+  if (Date.now() < (disabledUntil[task] || 0)) {
+    console.log(`[ai-analyze][${task}] skipped`, { reason: 'circuit', waitMs: disabledUntil[task] - Date.now() })
+    return Promise.resolve(null)
+  }
   const started = Date.now()
   const pending = cloud.callFunction({
     name: 'llm',
@@ -99,9 +109,14 @@ function sanitizeExamples(value) {
   })).filter((item) => item.en && item.zh)
 }
 
-// 只保留字母数字的归一化文本，用于校验分块是不是原文里的逐字片段
+// 只保留字母数字的归一化文本，用于校验分块是不是原文里的逐字片段。
+// 撇号一律去掉：源文的 ’ 和模型返回的 ' 才能对上，不会因为引号写法不同丢译文
 function lexKey(value) {
-  return String(value || '').toLowerCase().replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim()
+  return String(value || '').toLowerCase()
+    .replace(/['’‘`]/g, '')
+    .replace(/[^a-z0-9 ]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 // 「怎么理解」的分步拆解：标题 + 说明，至少 2 步才展示
@@ -139,6 +154,8 @@ function sanitizeChunks(value, sentence) {
 // 全文对照：按自然段分块，段内再按句翻译；译文带段落序号，
 // 前端才能把中文还原成和原文一致的分段
 const TRANSLATE_BATCH = 8
+// 单批的英文字符上限：长句一两句就能顶满，避免中文输出被截断导致整批非法 JSON
+const TRANSLATE_CHARS = 2000
 
 function splitParagraphs(text) {
   return String(text || '')
@@ -151,8 +168,9 @@ function sanitizeFullTranslation(value, entries) {
   if (!Array.isArray(value)) return []
   const byKey = new Map()
   value.forEach((item) => {
-    const en = clip(item && item.en, 400)
-    const zh = clip(item && item.zh, 400)
+    // 与原文同长上限：外刊里有 600+ 字符的长句，截断会让 en 对不上原文
+    const en = clip(item && item.en, 1200)
+    const zh = clip(item && item.zh, 1200)
     if (!en || !zh || cjkCount(zh) < 2) return
     const key = lexKey(en)
     if (key && !byKey.has(key)) byKey.set(key, zh)
@@ -163,44 +181,125 @@ function sanitizeFullTranslation(value, entries) {
   }).filter(Boolean)
 }
 
-async function translateFullText(text, level) {
-  // 段落顺序就是原文顺序，para 从 0 开始；超过 100 句的极端长文后面不再翻译
+// 原文会切成哪些句子、分别属于第几段：既用于翻译分批，也用于校验已有译文是否完整
+function translationEntries(text) {
   const entries = []
   splitParagraphs(text).forEach((block, para) => {
     splitSentences(block).forEach((sentence) => {
       if (entries.length < 100) entries.push({ sentence, para })
     })
   })
+  return entries
+}
+
+// 把多份译文按原句对齐合并：新生成的结果优先，旧结果里没覆盖到的句子保留下来，
+// 输出顺序与原文一致，避免同一段的中文被打乱
+function alignTranslation(text, lists) {
+  const entries = translationEntries(text)
+  if (!entries.length) return []
+  const byKey = new Map()
+  ;(Array.isArray(lists) ? lists : [lists]).forEach((list) => {
+    (Array.isArray(list) ? list : []).forEach((item) => {
+      const en = clip(item && item.en, 1200)
+      const zh = clip(item && item.zh, 1200)
+      if (!en || !zh || cjkCount(zh) < 2) return
+      const key = lexKey(en)
+      if (key && !byKey.has(key)) byKey.set(key, zh)
+    })
+  })
+  return entries.map((entry) => {
+    const zh = byKey.get(lexKey(entry.sentence))
+    return zh ? { en: entry.sentence, zh, para: entry.para } : null
+  }).filter(Boolean)
+}
+
+async function translateFullText(text, level) {
+  const entries = translationEntries(text)
   if (!entries.length) return []
 
   // 分批时不跨自然段，避免把两段的句子混在一批里翻译导致段落错位
   const batches = []
   let batch = []
+  let batchChars = 0
   let lastPara = entries[0].para
   entries.forEach((entry) => {
-    if (entry.para !== lastPara || batch.length >= TRANSLATE_BATCH) {
+    const size = entry.sentence.length
+    if (entry.para !== lastPara || batch.length >= TRANSLATE_BATCH
+      || (batch.length && batchChars + size > TRANSLATE_CHARS)) {
       if (batch.length) batches.push(batch)
       batch = []
+      batchChars = 0
       lastPara = entry.para
     }
     batch.push(entry.sentence)
+    batchChars += size
   })
   if (batch.length) batches.push(batch)
 
-  const results = await Promise.all(batches.map((sentences) => call('translate', {
+  const started = Date.now()
+  const byKey = new Map()
+  const collect = (results) => {
+    (results || []).forEach((content) => {
+      if (!content) return
+      const list = Array.isArray(content) ? content : content.sentences
+      sanitizeFullTranslation(list, entries).forEach((item) => {
+        const key = lexKey(item.en)
+        if (key && !byKey.has(key)) byKey.set(key, item)
+      })
+    })
+  }
+  const pick = () => entries.map((entry) => byKey.get(lexKey(entry.sentence))).filter(Boolean)
+
+  collect(await Promise.all(batches.map((sentences) => call('translate', {
     sentences,
     level
-  }, 45000)))
-  const byKey = new Map()
-  results.forEach((content) => {
-    if (!content) return
-    const list = Array.isArray(content) ? content : content.sentences
-    sanitizeFullTranslation(list, entries).forEach((item) => {
-      const key = lexKey(item.en)
-      if (key && !byKey.has(key)) byKey.set(key, item)
+  }, 45000))))
+
+  // 个别批次超时或被熔断时补一轮：只重试漏掉的句子，小批量并发。
+  // 限时 15 秒内才补，模型整体不可用时不额外干等，避免顶穿云函数超时
+  if (pick().length < entries.length && Date.now() - started < 15000) {
+    const missing = entries
+      .filter((entry) => !byKey.has(lexKey(entry.sentence)))
+      .map((entry) => entry.sentence)
+    const retryBatches = []
+    for (let i = 0; i < missing.length; i += 4) retryBatches.push(missing.slice(i, i + 4))
+    clearTaskDisabled('translate')
+    collect(await Promise.all(retryBatches.map((sentences) => call('translate', {
+      sentences,
+      level
+    }, 20000))))
+  }
+
+  // 还有零星漏句时逐句补译：一次只发一句，返回的中文直接归到这一句，
+  // 不再依赖模型回传的英文与原文逐字一致（少数句子会被模型改写而匹配不上）
+  const missingEntries = entries.filter((entry) => !byKey.has(lexKey(entry.sentence)))
+  if (missingEntries.length && missingEntries.length <= 8) {
+    clearTaskDisabled('translate')
+    const singles = await Promise.all(missingEntries.map((entry) => call('translate', {
+      sentences: [entry.sentence],
+      level
+    }, 20000).catch(() => null)))
+    singles.forEach((content, index) => {
+      const entry = missingEntries[index]
+      if (!content) {
+        console.log('[ai-analyze] translate single empty', { head: String(entry.sentence).slice(0, 60) })
+        return
+      }
+      const list = Array.isArray(content) ? content : content.sentences
+      const first = Array.isArray(list) ? list[0] : null
+      const zh = clip(first && first.zh, 1200)
+      if (!zh || cjkCount(zh) < 2) {
+        console.log('[ai-analyze] translate single invalid', {
+          head: String(entry.sentence).slice(0, 60),
+          got: JSON.stringify(content).slice(0, 160)
+        })
+        return
+      }
+      byKey.set(lexKey(entry.sentence), { en: entry.sentence, zh, para: entry.para })
     })
-  })
-  const list = entries.map((entry) => byKey.get(lexKey(entry.sentence))).filter(Boolean)
+  }
+
+  const list = pick()
   // 覆盖率太低说明模型调用大面积失败，宁可不缓存也不给用户半篇残缺的对照
   return list.length >= Math.ceil(entries.length * 0.7) ? list : []
 }
@@ -493,7 +592,7 @@ function uniqueHint(value, fallback, seen) {
   return next
 }
 
-// 练习题只用模型新造的 practice 句子：第一组做英译汉，第二组做汉译英
+// 练习题只用模型新造的 practice 句子，只出英译汉
 // 这样语法详情里展示的原文句子和翻译不会直接成为练习答案
 function buildDrills(point, seenHints) {
   const practice = Array.isArray(point.practice) ? point.practice : []
@@ -510,20 +609,6 @@ function buildDrills(point, seenHints) {
       reference: forEn2zh.zh,
       keywords: [],
       hint: uniqueHint(point.en2zhHint, `先找出「${point.pattern}」的主干，再按中文语序重组。`, seenHints)
-    })
-  }
-  const forZh2en = practice[1]
-  if (forZh2en) {
-    drills.push({
-      id: `${point.id}d2`,
-      kind: 'grammar',
-      mode: 'zh2en',
-      modeLabel: '汉译英',
-      pattern: point.pattern,
-      prompt: forZh2en.zh,
-      reference: forZh2en.en,
-      keywords: [],
-      hint: uniqueHint(point.zh2enHint, `用「${point.pattern}」的结构，把中文意思写完整。`, seenHints)
     })
   }
   return drills
@@ -1135,4 +1220,20 @@ async function enhanceUnit(text, level, unitData, options) {
   }
 }
 
-module.exports = { enhanceUnit, translateFullText, DRILL_VERSION, explanationFitsSentence }
+// 管理侧预生成时清掉熔断：熔断是为了保护用户侧不反复调用失败的任务，
+// 批量预热是串行的管理调用，不该被上一次的临时失败挡住好几分钟
+function resetCircuit() {
+  const tasks = Object.keys(disabledUntil)
+  tasks.forEach((task) => { delete disabledUntil[task] })
+  return tasks
+}
+
+module.exports = {
+  enhanceUnit,
+  translateFullText,
+  translationEntries,
+  alignTranslation,
+  DRILL_VERSION,
+  explanationFitsSentence,
+  resetCircuit
+}

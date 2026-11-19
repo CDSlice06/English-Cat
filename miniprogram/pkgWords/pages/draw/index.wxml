@@ -1,0 +1,41 @@
+<view class="page draw">
+  <view class="draw-head">
+    <text class="draw-word en">{{word}}</text>
+    <text wx:if="{{meaning}}" class="draw-meaning">{{meaning}}</text>
+    <text class="draw-tip">别管画得好不好，画一个能让你想起这个意思的场景。</text>
+  </view>
+
+  <view class="draw-paper">
+    <canvas
+      type="2d"
+      id="board"
+      class="draw-board"
+      disable-scroll="{{true}}"
+      bindtouchstart="onTouchStart"
+      bindtouchmove="onTouchMove"
+      bindtouchend="onTouchEnd"
+    ></canvas>
+  </view>
+
+  <view class="draw-tools">
+    <view class="draw-colors">
+      <view
+        wx:for="{{colors}}"
+        wx:key="key"
+        class="draw-color {{color === item.value ? 'draw-color-on' : ''}}"
+        style="background: {{item.value}}"
+        data-color="{{item.value}}"
+        bindtap="pickColor"
+      ></view>
+    </view>
+    <view class="draw-tool-actions">
+      <view class="draw-tool {{canUndo ? '' : 'draw-tool-off'}}" bindtap="undo">撤销</view>
+      <view class="draw-tool" bindtap="clear">清空</view>
+    </view>
+  </view>
+
+  <view class="draw-foot">
+    <view class="draw-skip" bindtap="skip">先跳过</view>
+    <view class="draw-save {{saving ? 'draw-save-busy' : ''}}" bindtap="save">{{saving ? '保存中…' : '保存'}}</view>
+  </view>
+</view>

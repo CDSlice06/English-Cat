@@ -24,9 +24,7 @@ function getAudio() {
 }
 
 // type=1 英音，type=2 美音；学习场景统一用美音
-function speakWord(word, options) {
-  const text = String(word || '').trim()
-  if (!text) return
+function play(src, options) {
   const player = getAudio()
   // 切换到新单词时，上一条的 onEnd 不会再触发，先手动收尾，
   // 否则前一个朗读按钮会一直停在「播放中」
@@ -34,8 +32,14 @@ function speakWord(word, options) {
   handlers = options || {}
   if (previous && previous.onEnd) previous.onEnd()
   player.stop()
-  player.src = `${AUDIO_BASE}?audio=${encodeURIComponent(text)}&type=2`
+  player.src = src
   player.play()
+}
+
+function speakWord(word, options) {
+  const text = String(word || '').trim()
+  if (!text) return
+  play(`${AUDIO_BASE}?audio=${encodeURIComponent(text)}&type=2`, options)
 }
 
 function stopSpeech() {

@@ -1,0 +1,584 @@
+<view class="page trans-page">
+  <view class="th-hero enter">
+    <view class="paper-tape th-tape"></view>
+    <view class="paper-star th-star"></view>
+    <view class="th-stamp en">HAND BOOK</view>
+    <text class="th-kicker en">TRANSLATION · {{setTotal}} SETS</text>
+    <text class="th-title">真题翻译手账</text>
+    <text class="th-sub">四六级 {{setTotal}} 套翻译真题，随手查、按自己的节奏背；每天背几套由你定。</text>
+    <view class="th-scope-row">
+      <text class="th-scope">原文为公开真题 · 译文主要来自新东方机构答案，非官方答案</text>
+      <text class="th-scope-toggle" bindtap="toggleScope">{{scopeOpen ? '收起' : '说明'}}</text>
+    </view>
+    <text wx:if="{{scopeOpen}}" class="th-scope-more">每套卡内标有出处；译文主要来自新东方四六级教研的机构答案，另有少量公开整理版，仅供练习参考，不作为官方答案；提分句为教研自编，不是真题。</text>
+  </view>
+
+  <view class="th-tabs enter d1">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="th-tab {{tab === item.key ? 'th-tab-on' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="switchTab"
+    >
+      <text>{{item.label}}</text>
+    </view>
+  </view>
+
+  <!-- 今日 -->
+  <block wx:if="{{tab === 'today'}}">
+    <view class="th-section-head">
+      <text class="list-stamp en">TODAY</text>
+      <text class="th-section-title">{{todayHead}}</text>
+    </view>
+    <text wx:if="{{todayCountLabel}}" class="th-count">{{todayCountLabel}}</text>
+
+    <view wx:if="{{todaySets.length}}" class="today-list">
+      <view wx:for="{{todaySets}}" wx:key="id" class="today-card">
+        <view class="today-top">
+          <text class="today-topic">{{item.topic}}</text>
+          <text class="today-badge {{item.done ? 'today-badge-done' : ''}}">{{item.checkLabel}}</text>
+        </view>
+        <text class="today-issue">{{item.issue}}</text>
+        <text class="today-summary">{{item.summary}}</text>
+        <view class="today-foot">
+          <text class="today-btn" data-index="{{index}}" bindtap="startToday">开始翻译</text>
+          <text wx:if="{{item.done}}" class="today-result">{{item.resultLabel}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:elif="{{todayEmpty}}" class="th-empty today-empty">
+      <text>{{todayEmpty}}</text>
+    </view>
+
+    <view class="th-section-head th-review-head">
+      <text class="list-stamp en">REVIEW</text>
+      <text class="th-section-title">到期复习</text>
+    </view>
+    <view wx:if="{{reviewList.length}}" class="review-list">
+      <view wx:for="{{reviewList}}" wx:key="id" class="review-row">
+        <view class="review-copy">
+          <text class="review-topic">{{item.topic}}</text>
+          <text class="review-meta">{{item.issue}} · {{item.dueLabel}}</text>
+        </view>
+        <text class="review-btn" data-id="{{item.id}}" data-gap="{{item.gap}}" bindtap="startReview">再练一次</text>
+      </view>
+    </view>
+    <text wx:if="{{reviewHint}}" class="th-hint">{{reviewHint}}</text>
+  </block>
+
+  <!-- 题库 -->
+  <block wx:elif="{{tab === 'bank'}}">
+    <view class="th-search">
+      <input
+        class="th-search-input"
+        value="{{keyword}}"
+        placeholder="搜题材、原文或译文"
+        placeholder-class="th-ph"
+        confirm-type="search"
+        bindinput="onSearch"
+      />
+      <text wx:if="{{keyword}}" class="th-search-clear" catchtap="clearSearch">清空</text>
+    </view>
+
+    <view class="th-filter">
+      <view class="th-seg">
+        <view
+          wx:for="{{levelOptions}}"
+          wx:key="*this"
+          class="th-seg-item {{levelFilter === item ? 'th-seg-on' : ''}}"
+          data-level="{{item}}"
+          bindtap="setLevel"
+        >
+          <text>{{item}}</text>
+        </view>
+      </view>
+      <picker mode="selector" range="{{yearOptions}}" value="{{yearIndex}}" bindchange="setYear">
+        <view class="th-year">{{yearLabel}}</view>
+      </picker>
+    </view>
+
+    <view wx:if="{{bankList.length}}" class="bk-list">
+      <view wx:for="{{bankList}}" wx:key="id" class="bk-card {{item.expanded ? 'bk-card-open' : ''}}">
+        <view class="bk-head" data-id="{{item.id}}" bindtap="toggleCard">
+          <view class="bk-head-copy">
+            <view class="bk-title-row">
+              <text class="bk-topic">{{item.topic}}</text>
+              <text wx:if="{{item.starred}}" class="bk-star">收藏</text>
+              <text wx:if="{{item.done}}" class="bk-done">已背</text>
+            </view>
+            <text class="bk-issue">{{item.issue}}</text>
+            <text wx:if="{{!item.expanded}}" class="bk-summary">{{item.summary}}</text>
+          </view>
+          <text class="bk-toggle">{{item.toggleLabel}}</text>
+        </view>
+
+        <block wx:if="{{item.expanded}}">
+          <text class="bk-label">中文原文</text>
+          <text class="bk-text" user-select="{{true}}">{{item.text}}</text>
+
+          <text class="bk-label">英文译文</text>
+          <view class="bk-en-box">
+            <text class="bk-en {{item.revealed ? '' : 'bk-en-hidden'}}">{{item.en}}</text>
+            <view wx:if="{{!item.revealed}}" class="bk-en-cover" data-id="{{item.id}}" catchtap="toggleEn">
+              <text class="bk-en-cover-text">揭开译文</text>
+            </view>
+          </view>
+          <text wx:if="{{item.revealed}}" class="bk-en-hide" data-id="{{item.id}}" catchtap="toggleEn">遮回去</text>
+
+          <block wx:if="{{item.hasDiff}}">
+            <text class="bk-label">差异说明</text>
+            <text class="bk-diff">{{item.diff}}</text>
+          </block>
+
+          <text class="bk-label">来源</text>
+          <text class="bk-src">{{item.srcName}}</text>
+          <text wx:if="{{item.srcUrl}}" class="bk-src-url">{{item.srcUrl}}</text>
+
+          <view class="bk-actions">
+            <text class="bk-btn" data-id="{{item.id}}" catchtap="toggleDone">{{item.doneBtn}}</text>
+            <text
+              class="bk-btn bk-btn-star {{item.starred ? 'bk-btn-on' : ''}}"
+              data-id="{{item.id}}"
+              catchtap="toggleStar"
+            >{{item.starBtn}}</text>
+          </view>
+        </block>
+      </view>
+    </view>
+    <view wx:else class="th-empty">
+      <text>没找到，换个关键词试试</text>
+    </view>
+    <button class="content-feedback" open-type="feedback">发现内容有误？点此反馈</button>
+  </block>
+
+  <!-- 金句 -->
+  <block wx:elif="{{tab === 'quotes'}}">
+    <view class="th-seg qt-seg">
+      <view
+        wx:for="{{quoteGroups}}"
+        wx:key="key"
+        class="th-seg-item {{quoteGroup === item.key ? 'th-seg-on' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="pickQuoteGroup"
+      >
+        <text>{{item.label}}</text>
+      </view>
+    </view>
+
+    <text class="th-scope th-scope-line">{{quoteGroup === 'advanced' ? '提分句为教研自编练习句，不是真题；用于练习高阶结构。' : '真题原句均标注出处；译文主要来自新东方机构答案，非官方答案。'}}</text>
+
+    <view class="th-search">
+      <input
+        class="th-search-input"
+        value="{{quoteKeyword}}"
+        placeholder="{{quotePh}}"
+        placeholder-class="th-ph"
+        confirm-type="search"
+        bindinput="onQuoteSearch"
+      />
+      <text wx:if="{{quoteKeyword}}" class="th-search-clear" catchtap="clearQuoteSearch">清空</text>
+    </view>
+
+    <!-- 提分句 -->
+    <block wx:if="{{quoteGroup === 'advanced'}}">
+      <view wx:if="{{quoteList.length}}" class="qt-list">
+        <view wx:for="{{quoteList}}" wx:key="id" class="qt-card">
+          <view class="qt-head">
+            <text class="qt-topic">{{item.topic}}</text>
+            <text class="qt-badge">教研自编 · 非真题</text>
+          </view>
+          <text class="qt-zh qt-zh-adv">{{item.zh}}</text>
+          <text wx:if="{{item.open}}" class="qt-en qt-en-adv">{{item.en}}</text>
+          <view wx:if="{{item.open}}" class="qt-point">
+            <text class="qt-point-tag">提分点</text>
+            <text class="qt-point-text">{{item.noteText}}</text>
+          </view>
+          <view class="qt-acts">
+            <text
+              class="qt-act {{item.starred ? 'qt-act-on' : ''}}"
+              data-id="{{item.id}}"
+              bindtap="toggleStar"
+            >{{item.starred ? '已收藏' : '收藏'}}</text>
+            <text
+              class="qt-act {{item.known ? 'qt-act-on' : ''}}"
+              data-id="{{item.id}}"
+              bindtap="toggleQuoteKnown"
+            >{{item.knownLabel}}</text>
+          </view>
+          <text class="qt-toggle" data-id="{{item.id}}" bindtap="toggleQuote">{{item.toggleLabel}}</text>
+        </view>
+      </view>
+    </block>
+
+    <!-- 真题原句 -->
+    <block wx:else>
+      <view wx:if="{{quoteList.length}}" class="qt-list">
+        <view wx:for="{{quoteList}}" wx:key="id" class="qt-card">
+          <view class="qt-top">
+            <text class="qt-zh">{{item.zh}}</text>
+            <text
+              class="qt-star {{item.starred ? 'qt-star-on' : ''}}"
+              data-id="{{item.id}}"
+              bindtap="toggleStar"
+            >{{item.starred ? '已收藏' : '收藏'}}</text>
+          </view>
+          <view class="qt-src-row">
+            <text class="qt-src">{{item.quoteSrc}}</text>
+            <text wx:if="{{item.quoteTip}}" class="qt-src-tip">{{item.quoteTip}}</text>
+          </view>
+          <text wx:if="{{item.open}}" class="qt-en">{{item.en}}</text>
+          <text class="qt-toggle" data-id="{{item.id}}" bindtap="toggleQuote">{{item.toggleLabel}}</text>
+        </view>
+      </view>
+    </block>
+
+    <view wx:if="{{!quoteList.length}}" class="th-empty">
+      <text>{{quoteEmpty}}</text>
+    </view>
+
+    <button class="content-feedback" open-type="feedback">发现内容有误？点此反馈</button>
+  </block>
+
+  <!-- 词汇 -->
+  <block wx:elif="{{tab === 'vocab'}}">
+    <view class="th-search">
+      <input
+        class="th-search-input"
+        value="{{vocabKeyword}}"
+        placeholder="搜中文、英文或备注"
+        placeholder-class="th-ph"
+        confirm-type="search"
+        bindinput="onVocabSearch"
+      />
+      <text wx:if="{{vocabKeyword}}" class="th-search-clear" catchtap="clearVocabSearch">清空</text>
+    </view>
+
+    <scroll-view wx:if="{{!vocabSearching}}" class="vw-chips" scroll-x="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
+      <view
+        wx:for="{{vocabChips}}"
+        wx:key="key"
+        class="vw-chip {{vocabChip === item.key ? 'vw-chip-on' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="pickVocabChip"
+      >
+        <text>{{item.label}}</text>
+      </view>
+    </scroll-view>
+
+    <!-- 搜索结果 -->
+    <block wx:if="{{vocabMode === 'search'}}">
+      <view wx:if="{{vocabResults.length}}" class="vw-list">
+        <view
+          wx:for="{{vocabResults}}"
+          wx:key="key"
+          class="vw-srow"
+          data-key="{{item.key}}"
+          bindtap="toggleVocabEn"
+        >
+          <text class="vw-zh">{{item.zh}}</text>
+          <view class="vw-en-wrap">
+            <text class="vw-en {{item.revealed ? '' : 'vw-en-hidden'}}">{{item.en}}</text>
+            <view wx:if="{{!item.revealed}}" class="vw-en-cover"></view>
+          </view>
+          <text class="vw-from">{{item.from}}</text>
+        </view>
+      </view>
+      <view wx:else class="th-empty">
+        <text>没找到，换个词试试</text>
+      </view>
+    </block>
+
+    <!-- 章节 -->
+    <block wx:elif="{{vocabMode === 'chapter'}}">
+      <block wx:if="{{vocabChapter}}">
+        <view class="vw-progress">
+          <text class="vw-progress-name">{{vocabChapter.name}}</text>
+          <text class="vw-progress-num">{{vocabChapter.doneLabel}}</text>
+        </view>
+
+        <view class="vw-secs">
+          <view wx:for="{{vocabChapter.sections}}" wx:key="id" class="vw-sec">
+            <view class="vw-sec-head" data-id="{{item.id}}" bindtap="toggleSection">
+              <view class="vw-sec-copy">
+                <text class="vw-sec-title">{{item.title}}</text>
+                <text class="vw-sec-count">{{item.countLabel}}</text>
+              </view>
+              <text class="vw-sec-arrow {{item.open ? 'vw-sec-arrow-on' : ''}}">▾</text>
+            </view>
+
+            <view wx:if="{{item.open}}" class="vw-rows">
+              <view
+                wx:for="{{item.rows}}"
+                wx:for-item="row"
+                wx:key="key"
+                class="vw-row"
+                data-key="{{row.key}}"
+                bindtap="toggleVocabEn"
+              >
+                <view
+                  class="vw-dot {{row.known ? 'vw-dot-on' : ''}}"
+                  data-key="{{row.key}}"
+                  catchtap="toggleKnown"
+                ></view>
+                <view class="vw-row-body">
+                  <text class="vw-zh">{{row.zh}}</text>
+                  <view class="vw-en-wrap">
+                    <text class="vw-en {{row.revealed ? '' : 'vw-en-hidden'}}">{{row.en}}</text>
+                    <view wx:if="{{!row.revealed}}" class="vw-en-cover"></view>
+                  </view>
+                  <text wx:if="{{row.note}}" class="vw-note">{{row.note}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </block>
+
+    <!-- 预测 -->
+    <block wx:elif="{{vocabMode === 'predict'}}">
+      <view class="th-seg vw-seg">
+        <view
+          wx:for="{{predictTabs}}"
+          wx:key="key"
+          class="th-seg-item {{predictKind === item.key ? 'th-seg-on' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="pickPredictKind"
+        >
+          <text>{{item.label}}</text>
+        </view>
+      </view>
+
+      <view class="vw-pgroups">
+        <view wx:for="{{predictGroups}}" wx:key="title" class="vw-pgroup">
+          <text class="vw-pgroup-title">{{item.title}}</text>
+          <view
+            wx:for="{{item.rows}}"
+            wx:for-item="row"
+            wx:key="id"
+            class="vw-prow {{row.sentence ? 'vw-prow-sentence' : ''}}"
+            data-key="{{row.id}}"
+            bindtap="toggleVocabEn"
+          >
+            <view class="vw-prow-head">
+              <text class="vw-prow-zh">{{row.zh}}</text>
+              <text class="vw-tag {{row.srcReal ? 'vw-tag-real' : ''}}">{{row.src}}</text>
+            </view>
+            <view class="vw-en-wrap">
+              <text class="vw-en {{row.revealed ? '' : 'vw-en-hidden'}}">{{row.en}}</text>
+              <view wx:if="{{!row.revealed}}" class="vw-en-cover"></view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <!-- 避坑 -->
+    <block wx:elif="{{vocabMode === 'pitfall'}}">
+      <view class="vw-pits">
+        <view wx:for="{{pitfalls}}" wx:key="title" class="vw-pit">
+          <text class="vw-pit-title">{{item.title}}</text>
+          <text class="vw-pit-body">{{item.body}}</text>
+        </view>
+      </view>
+    </block>
+  </block>
+
+  <!-- 收藏 -->
+  <block wx:elif="{{tab === 'starred'}}">
+    <view class="th-section-head">
+      <text class="list-stamp en">COLLECTION</text>
+      <text class="th-section-title">我的收藏</text>
+    </view>
+    <text wx:if="{{starredTotal}}" class="th-count">共 {{starredTotal}} 条 · 最近收藏在前</text>
+
+    <view wx:for="{{starredGroups}}" wx:for-item="group" wx:key="key" class="star-group">
+      <view class="star-group-head">
+        <text class="star-group-title">{{group.label}}</text>
+        <text class="star-group-count">{{group.items.length}} 条</text>
+      </view>
+      <view wx:for="{{group.items}}" wx:key="id" class="star-card">
+        <view class="star-card-head">
+          <text class="star-card-title">{{item.title}}</text>
+          <text class="star-card-meta">{{item.meta}}</text>
+        </view>
+        <text class="star-card-zh" user-select="{{true}}">{{item.zh}}</text>
+        <text class="star-card-en" user-select="{{true}}">{{item.en}}</text>
+        <view class="star-card-acts">
+          <text wx:if="{{item.type === 'set'}}" class="star-card-act" data-id="{{item.id}}" bindtap="practiceStarred">去重练</text>
+          <text class="star-card-act star-card-remove" data-id="{{item.id}}" bindtap="toggleStar">取消收藏</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{!starredTotal}}" class="th-empty">
+      <text>{{starredEmpty}}</text>
+    </view>
+  </block>
+
+  <!-- 计划 -->
+  <block wx:elif="{{tab === 'plan'}}">
+    <view class="plan-card">
+      <text class="plan-label">每日套数{{segDrag >= 0 ? ' · ' + perDayOptions[segDrag] + ' 套' : ''}}</text>
+      <view
+        class="th-seg plan-seg"
+        bindtouchstart="segStart"
+        catchtouchmove="segMove"
+        bindtouchend="segEnd"
+        bindtouchcancel="segCancel"
+      >
+        <view
+          wx:for="{{perDayOptions}}"
+          wx:for-index="i"
+          wx:key="*this"
+          class="th-seg-item {{(segDrag >= 0 ? segDrag === i : perDay === item) ? 'th-seg-on' : ''}} {{segDrag === i ? 'th-seg-dragging' : ''}}"
+          data-n="{{item}}"
+          bindtap="setPerDay"
+        >
+          <text>{{item}} 套</text>
+        </view>
+      </view>
+
+      <view class="plan-row">
+        <text class="plan-label">开始日期</text>
+        <picker mode="date" value="{{startAt}}" bindchange="setStartAt">
+          <view class="plan-value">{{startLabel}}</view>
+        </picker>
+      </view>
+
+      <view class="plan-row plan-row-switch">
+        <view class="plan-switch-copy">
+          <text class="plan-label">完成后自动安排 1 / 3 / 7 天复习</text>
+          <text class="plan-hint">到期会在「今日」底部提醒</text>
+        </view>
+        <switch color="#a86a11" checked="{{reviewOn}}" bindchange="setReview" />
+      </view>
+    </view>
+
+    <view class="stat-grid">
+      <view class="stat-item">
+        <text class="stat-num en">{{stats.done}}/{{setTotal}}</text>
+        <text class="stat-label">已背真题</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num en">{{stats.vocab}}/{{vocabTotal}}</text>
+        <text class="stat-label">已背词汇</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-num en">{{stats.quotes}}/{{quoteTotal}}</text>
+        <text class="stat-label">提分句</text>
+      </view>
+      <view class="stat-item stat-item-link" data-key="starred" bindtap="switchTab" hover-class="stat-item-hover">
+        <text class="stat-num en">{{stats.starred}}</text>
+        <text class="stat-label">收藏条目 ›</text>
+      </view>
+      <view class="stat-item stat-item-wide">
+        <text class="stat-num stat-num-sm">{{stats.finishLabel}}</text>
+        <text class="stat-label">预计完成</text>
+      </view>
+    </view>
+
+    <view class="th-section-head">
+      <text class="list-stamp en">SCHEDULE</text>
+      <text class="th-section-title">排期</text>
+    </view>
+
+    <text wx:if="{{scheduleHintBefore}}" class="schedule-fold">{{scheduleHintBefore}}</text>
+    <view class="schedule">
+      <view
+        wx:for="{{schedule}}"
+        wx:key="key"
+        class="schedule-row {{item.today ? 'schedule-today' : ''}}"
+      >
+        <view class="schedule-date">
+          <text class="schedule-day">{{item.dayLabel}}</text>
+          <text class="schedule-week">{{item.week}}</text>
+        </view>
+        <text class="schedule-sets">{{item.names}}</text>
+      </view>
+    </view>
+    <text wx:if="{{scheduleHintAfter}}" class="schedule-fold">{{scheduleHintAfter}}</text>
+
+    <view class="reset-btn" hover-class="reset-btn-hover" bindtap="resetProgress">
+      <text>重置进度</text>
+    </view>
+    <text class="reset-hint">只清空已背记录、词汇进度、提分句和收藏，排期会保留</text>
+    <text wx:if="{{syncText}}" class="plan-sync">{{syncText}}</text>
+  </block>
+</view>
+
+<!-- 练习层：同页全屏浮层 -->
+<view wx:if="{{practice.open}}" class="pr-mask" catchtouchmove="noop">
+  <view class="pr-sheet">
+    <view class="pr-head">
+      <view class="pr-head-copy">
+        <text class="pr-kicker en">{{practice.kicker}}</text>
+        <text class="pr-title">{{practice.topic}}</text>
+        <text class="pr-issue">{{practice.issue}}</text>
+      </view>
+      <view class="pr-close" hover-class="pr-close-hover" catchtap="closePractice">
+        <text>关闭</text>
+      </view>
+    </view>
+
+    <view class="pr-body-wrap">
+      <scroll-view class="pr-body" scroll-y="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
+        <block wx:if="{{!practice.finished}}">
+          <text class="pr-label">先看中文，自己译一遍</text>
+          <text class="pr-zh" user-select="{{true}}">{{practice.text}}</text>
+
+          <textarea
+            class="pr-input"
+            value="{{practice.draft}}"
+            placeholder="先自己写一版，写不出来就跳过"
+            placeholder-class="pr-ph"
+            maxlength="600"
+            bindinput="onDraft"
+          />
+
+          <block wx:if="{{!practice.showEn}}">
+            <view class="pr-reveal" hover-class="pr-reveal-hover" catchtap="showTranslation">
+              <text>看译文</text>
+            </view>
+          </block>
+
+          <block wx:else>
+            <text class="pr-label">参考译文</text>
+            <text class="pr-en" user-select="{{true}}">{{practice.en}}</text>
+
+            <block wx:if="{{practice.hasDiff}}">
+              <text class="pr-label">差异说明</text>
+              <text class="pr-diff">{{practice.diff}}</text>
+            </block>
+
+            <text class="pr-label">来源</text>
+            <text class="pr-src">{{practice.srcName}}</text>
+            <text wx:if="{{practice.srcUrl}}" class="pr-src-url">{{practice.srcUrl}}</text>
+
+            <view class="pr-judge">
+              <view class="pr-judge-btn pr-ok" data-result="ok" catchtap="assess">
+                <text>译出来了</text>
+              </view>
+              <view class="pr-judge-btn pr-bad" data-result="bad" catchtap="assess">
+                <text>没译好</text>
+              </view>
+            </view>
+          </block>
+        </block>
+
+        <block wx:else>
+          <view class="pr-done">
+            <view class="pr-done-star"></view>
+            <text class="pr-done-title">这一轮过完了</text>
+            <text class="pr-done-desc">{{practice.doneDesc}}</text>
+            <view class="pr-done-btn" hover-class="pr-done-btn-hover" catchtap="closePractice">
+              <text>收好，回到手账</text>
+            </view>
+          </view>
+        </block>
+      </scroll-view>
+    </view>
+  </view>
+</view>

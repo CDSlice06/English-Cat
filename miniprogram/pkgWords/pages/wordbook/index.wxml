@@ -1,0 +1,356 @@
+<view class="page wordbook {{managing ? 'wordbook-managing' : ''}}" bind:tap="closeSuggest">
+  <section-title eyebrow="MY WORDBOOK" title="我的生词本" description="遇到不认识的词就收进来；真正记住以后，再亲手把它点亮。" />
+
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在读取你的词库…</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新加载" bind:tap="reload" />
+  </view>
+
+  <block wx:else>
+    <view class="shelf-hero enter d1">
+      <view class="coil-bind"></view>
+      <view class="shelf-glow"></view>
+      <view class="shelf-tape"></view>
+      <view class="shelf-sticker">
+        <cat-image custom-class="shelf-cat" name="import-book" size="medium" />
+      </view>
+      <view class="shelf-copy">
+        <text class="shelf-kicker">WORDS COLLECTED</text>
+        <view class="shelf-number-row">
+          <text class="shelf-number en">{{counts.total}}</text>
+          <text class="shelf-unit">个词</text>
+        </view>
+        <view class="shelf-split">
+          <view class="split-item">
+            <view class="dot dot-warn"></view>
+            <text>不记得 {{counts.unknown}}</text>
+          </view>
+          <view class="split-item">
+            <view class="dot dot-ok"></view>
+            <text>记得 {{counts.known}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="add-card enter d2" catchtap="noop">
+      <view class="add-row">
+        <input
+          class="add-input"
+          value="{{draft}}"
+          placeholder="输入英文或中文，例如 cognitive / 认知"
+          placeholder-class="add-placeholder"
+          confirm-type="done"
+          bind:input="onInput"
+          bind:confirm="submitWord"
+          bind:focus="onFocus"
+          bindkeyboardheightchange="onKeyboardHeightChange"
+        />
+        <view class="add-btn {{draft ? '' : 'add-btn-off'}}" bind:tap="submitWord">{{adding ? '添加中' : '收进词库'}}</view>
+      </view>
+
+      <scroll-view
+        wx:if="{{suggestions.length}}"
+        class="suggest-box"
+        style="max-height: {{suggestMax}}px"
+        scroll-y
+        catchtap="noop"
+      >
+        <view
+          wx:for="{{suggestions}}"
+          wx:key="word"
+          class="suggest-item"
+          hover-class="suggest-item-hover"
+          bind:tap="pickSuggest"
+          data-word="{{item.word}}"
+        >
+          <view class="suggest-main">
+            <text class="suggest-word en">{{item.word}}</text>
+            <text class="suggest-phonetic">{{item.phonetic}}</text>
+          </view>
+          <text class="suggest-def">{{item.meaningText}}</text>
+        </view>
+      </scroll-view>
+
+      <text class="add-hint">输入 1 个字母就会联想，越打越精确；也可以输入中文反查英文。词表里查不到的词也能先收进来。</text>
+    </view>
+
+    <view class="search-card enter d3">
+      <view class="search-icon"></view>
+      <input
+        class="search-input"
+        value="{{query}}"
+        placeholder="搜单词或中文释义"
+        placeholder-class="search-placeholder"
+        confirm-type="search"
+        bind:input="onSearchInput"
+      />
+      <view wx:if="{{query}}" class="search-clear" bind:tap="clearSearch">清空</view>
+    </view>
+
+    <view class="segmented enter d3">
+      <view class="seg {{tab === 'unknown' ? 'seg-on' : ''}}" bind:tap="switchTab" data-tab="unknown">
+        <text>不记得</text>
+        <text class="seg-count">{{counts.unknown}}</text>
+      </view>
+      <view class="seg {{tab === 'known' ? 'seg-on' : ''}}" bind:tap="switchTab" data-tab="known">
+        <text>记得</text>
+        <text class="seg-count">{{counts.known}}</text>
+      </view>
+    </view>
+
+    <view class="wb-tools enter d3">
+      <view class="wb-tool-row">
+        <text class="wb-tool-label">排序</text>
+        <view class="wb-tool-chips">
+          <view
+            wx:for="{{sortOptions}}"
+            wx:key="key"
+            class="wb-tool-chip {{sort === item.key ? 'wb-tool-chip-on' : ''}}"
+            data-sort="{{item.key}}"
+            bind:tap="selectSort"
+          >{{item.label}}</view>
+        </view>
+      </view>
+      <view class="wb-tool-row">
+        <text class="wb-tool-label">来源</text>
+        <view class="wb-tool-chips">
+          <view
+            wx:for="{{sourceOptions}}"
+            wx:key="key"
+            class="wb-tool-chip {{source === item.key ? 'wb-tool-chip-on' : ''}}"
+            data-source="{{item.key}}"
+            bind:tap="selectSource"
+          >{{item.label}}</view>
+        </view>
+        <view class="wb-manage-btn {{managing ? 'wb-manage-btn-on' : ''}}" bind:tap="toggleManage">{{managing ? '完成' : '管理'}}</view>
+      </view>
+    </view>
+
+    <view class="list">
+      <view
+        wx:for="{{words}}"
+        wx:key="id"
+        class="wb-card {{item.state === 'known' ? 'wb-known' : ''}} {{managing && item.picked ? 'wb-card-picked' : ''}}"
+      >
+        <view class="wb-accent"></view>
+        <view class="wb-top">
+          <view class="wb-main">
+            <text class="wb-word en">{{item.word}}</text>
+            <text class="wb-phonetic">{{item.phonetic}}</text>
+            <view wx:if="{{item.star}}" class="wb-meta">
+              <view class="wb-stars">
+                <view
+                  wx:for="{{[1, 2, 3]}}"
+                  wx:for-item="level"
+                  wx:key="*this"
+                  class="wb-star {{level <= item.star ? 'wb-star-on' : ''}}"
+                ></view>
+              </view>
+              <text class="wb-freq">{{item.starLabel}}</text>
+            </view>
+            <view class="wb-speak"><speak-btn word="{{item.word}}" /></view>
+          </view>
+          <view wx:if="{{managing}}" class="wb-pick {{item.picked ? 'wb-pick-on' : ''}}" data-id="{{item.id}}" catch:tap="toggleSelect">
+            <view wx:if="{{item.picked}}" class="wb-pick-mark"></view>
+          </view>
+          <view wx:else class="wb-remove" bind:tap="removeItem" data-id="{{item.id}}">移除</view>
+        </view>
+
+        <meaning-list wx:if="{{item.meanings.length}}" meanings="{{item.meanings}}" />
+        <text wx:else class="wb-nomap">暂未收录释义，回到原文结合语境记忆更牢。</text>
+
+        <view wx:if="{{item.drawingPath}}" class="wb-drawing" bind:tap="previewDrawing" data-path="{{item.drawingPath}}">
+          <image class="wb-drawing-img" src="{{item.drawingPath}}" mode="aspectFit" />
+          <text class="wb-drawing-tip">我画的 · 点开看大图</text>
+          <view class="wb-drawing-actions">
+            <text class="wb-drawing-act" catch:tap="redraw" data-id="{{item.id}}">重新画一张</text>
+            <text class="wb-drawing-act is-danger" catch:tap="removeDrawing" data-id="{{item.id}}">删掉这张画</text>
+          </view>
+        </view>
+
+        <view wx:if="{{item.patterns.length}}" class="wb-patterns">
+          <text class="wb-patterns-label">常用搭配</text>
+          <view class="wb-pattern-list">
+            <view
+              wx:for="{{item.patterns}}"
+              wx:for-item="pattern"
+              wx:key="text"
+              class="wb-pattern-row"
+            >
+              <text class="wb-pattern en">{{pattern.text}}</text>
+              <text wx:if="{{pattern.gloss}}" class="wb-pattern-gloss">{{pattern.gloss}}</text>
+            </view>
+          </view>
+          <text wx:if="{{item.patternExample}}" class="wb-pattern-example en">例：{{item.patternExample}}</text>
+        </view>
+
+        <view wx:if="{{item.synonyms.length}}" class="wb-syns">
+          <text class="wb-patterns-label">近义词</text>
+          <view class="wb-syn-list">
+            <view wx:for="{{item.synonyms}}" wx:for-item="syn" wx:key="w" class="wb-syn">
+              <text class="wb-syn-word en">{{syn.w}}</text>
+              <text wx:if="{{syn.def}}" class="wb-syn-def">{{syn.def}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{item.family.length || item.similar.length}}" class="wb-related">
+          <view wx:if="{{item.family.length}}" class="wb-related-row">
+            <text class="wb-related-label">派生</text>
+            <view class="wb-related-list">
+              <text
+                wx:for="{{item.family}}"
+                wx:for-item="rel"
+                wx:key="w"
+                class="wb-related-chip en"
+                data-word="{{rel.w}}"
+                data-pos="{{rel.pos}}"
+                data-def="{{rel.def}}"
+                bind:tap="openRelated"
+              >{{rel.w}}</text>
+            </view>
+          </view>
+          <view wx:if="{{item.similar.length}}" class="wb-related-row">
+            <text class="wb-related-label">形近</text>
+            <view class="wb-related-list">
+              <text
+                wx:for="{{item.similar}}"
+                wx:for-item="rel"
+                wx:key="w"
+                class="wb-related-chip en"
+                data-word="{{rel.w}}"
+                data-pos="{{rel.pos}}"
+                data-def="{{rel.def}}"
+                bind:tap="openRelated"
+              >{{rel.w}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="wb-foot">
+          <text class="wb-source">{{item.sourceLabel}}</text>
+          <block wx:if="{{!managing}}">
+            <view
+              wx:if="{{item.state !== 'known'}}"
+              class="wb-know {{busyId === item.id ? 'wb-know-busy' : ''}}"
+              bind:tap="tapKnown"
+              data-id="{{item.id}}"
+            >
+              <view class="wb-check"></view>
+              <text>{{busyId === item.id ? '保存中…' : '我记住了'}}</text>
+            </view>
+            <view wx:else class="wb-done">
+              <view class="wb-done-mark"></view>
+              <text>已记住</text>
+            </view>
+          </block>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{!words.length}}" class="empty">
+      <cat-image name="{{query ? 'not-found' : (tab === 'known' ? 'complete-halo' : 'not-found')}}" size="large" />
+      <text class="empty-title">{{query ? '没有找到「' + query + '」' : (source !== 'all' ? '这个来源下还没有词' : (tab === 'known' ? '记住的词还没有搬进来' : '词库空着，猫趴在上面打盹'))}}</text>
+      <text class="empty-text">{{query ? searchEmptyText : (source !== 'all' ? '换一个来源，或点「全部」查看整个词库。' : (tab === 'known' ? '在不记得列表点「我记住了」，它就搬到这里住下。' : '读到不认识的词，点「加入生词本」，它就归你了。'))}}</text>
+      <view wx:if="{{query}}" class="empty-clear" bind:tap="clearSearch">清空搜索</view>
+    </view>
+  </block>
+
+  <view wx:if="{{managing}}" class="wb-manage-bar">
+    <view class="wb-manage-all" hover-class="wb-manage-all-hover" bind:tap="toggleSelectAll">{{allSelected ? '取消全选' : '全选'}}</view>
+    <text class="wb-manage-count">已选 {{selectedCount}} 个</text>
+    <view class="wb-manage-delete {{selectedCount ? '' : 'wb-manage-delete-off'}}" hover-class="wb-manage-delete-hover" bind:tap="removeSelected">移除</view>
+  </view>
+
+  <!-- 派生 / 形近词释义小面板：点一下词就出来，不用离开生词本 -->
+  <view wx:if="{{related}}" class="wb-rel-mask" bind:tap="closeRelated" catchtouchmove="noop">
+    <view class="wb-rel-panel" catch:tap="noop">
+      <view class="wb-rel-head">
+        <view class="wb-rel-title">
+          <text class="wb-rel-word en">{{related.word}}</text>
+          <text wx:if="{{related.phonetic}}" class="wb-rel-phonetic">{{related.phonetic}}</text>
+        </view>
+        <text class="wb-rel-close" catch:tap="closeRelated">关闭</text>
+      </view>
+      <scroll-view scroll-y class="wb-rel-body">
+        <view wx:if="{{related.error}}" class="wb-rel-tip">{{related.error}}</view>
+        <view wx:elif="{{related.loading && !related.meanings.length}}" class="wb-rel-tip">正在查释义…</view>
+        <block wx:else>
+          <view
+            wx:for="{{related.meanings}}"
+            wx:for-item="mean"
+            wx:key="key"
+            class="wb-rel-meaning"
+          >
+            <text wx:if="{{mean.pos}}" class="wb-rel-pos">{{mean.pos}}</text>
+            <text class="wb-rel-def">{{mean.def}}</text>
+          </view>
+          <text wx:if="{{related.loading}}" class="wb-rel-loading">正在补全完整释义…</text>
+
+          <view wx:if="{{related.synonyms.length}}" class="wb-rel-syn">
+            <text class="wb-rel-root-label">近义</text>
+            <view class="wb-rel-root-list">
+              <text
+                wx:for="{{related.synonyms}}"
+                wx:for-item="syn"
+                wx:key="w"
+                class="wb-rel-root-chip en"
+                data-word="{{syn.w}}"
+                data-pos="{{syn.pos}}"
+                data-def="{{syn.def}}"
+                bind:tap="openRelated"
+              >{{syn.w}}</text>
+            </view>
+          </view>
+
+          <view wx:if="{{related.root}}" class="wb-rel-root">
+            <view class="wb-rel-root-head">
+              <text class="wb-rel-root-label">词根</text>
+              <text class="wb-rel-root-form en">{{related.root.form}}</text>
+              <text class="wb-rel-root-meaning">{{related.root.meaning}}</text>
+            </view>
+            <text wx:if="{{related.root.build}}" class="wb-rel-root-line">构词：{{related.root.build}}</text>
+            <text wx:if="{{related.root.core}}" class="wb-rel-root-line">核心义：{{related.root.core}}</text>
+            <view wx:if="{{related.root.family.length}}" class="wb-rel-root-family">
+              <text class="wb-rel-root-label">同根</text>
+              <view class="wb-rel-root-list">
+                <text
+                  wx:for="{{related.root.family}}"
+                  wx:for-item="rootWord"
+                  wx:key="*this"
+                  class="wb-rel-root-chip en"
+                  data-word="{{rootWord}}"
+                  bind:tap="openRelated"
+                >{{rootWord}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view wx:if="{{related.confusables.length}}" class="wb-rel-confuse">
+            <text class="wb-rel-root-label">易混</text>
+            <view
+              wx:for="{{related.confusables}}"
+              wx:for-item="confuse"
+              wx:key="w"
+              class="wb-rel-confuse-row"
+            >
+              <view class="wb-rel-confuse-head">
+                <text class="wb-rel-confuse-word en">{{confuse.w}}</text>
+                <text wx:if="{{confuse.pos}}" class="wb-rel-pos">{{confuse.pos}}</text>
+                <text wx:if="{{confuse.def}}" class="wb-rel-confuse-def">{{confuse.def}}</text>
+              </view>
+              <text class="wb-rel-confuse-note">{{confuse.note}}</text>
+            </view>
+          </view>
+        </block>
+      </scroll-view>
+    </view>
+  </view>
+</view>

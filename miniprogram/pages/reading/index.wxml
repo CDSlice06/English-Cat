@@ -1,0 +1,216 @@
+<view class="reading-page {{displayClass}}" bindtouchstart="onUserTouch" bindtouchmove="onUserTouch">
+  <view wx:if="{{loading}}" class="state">
+    <text class="state-title">正在铺开这篇文章…</text>
+    <text class="state-sub">很快就好</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="state">
+    <text class="state-title">{{error}}</text>
+    <view class="state-btn" bindtap="retry">再试一次</view>
+  </view>
+
+  <block wx:else>
+    <view class="article-head read-article-head">
+      <text class="article-title">{{title}}</text>
+      <text class="article-meta">{{metaLine}}</text>
+    </view>
+
+    <view class="read-head">
+      <view class="timer-row">
+        <text class="timer-value">{{elapsedText}}<text class="timer-total"> / {{targetText}}</text></text>
+        <view class="tools">
+          <view class="tool tool-mode mode-plain {{mode === 'plain' ? 'is-on' : ''}}" data-mode="plain" bindtap="setMode">纯读</view>
+          <view class="tool tool-mode mode-study {{mode === 'study' ? 'is-on' : ''}}" data-mode="study" bindtap="setMode">精读</view>
+          <view class="tool tool-mode mode-review {{mode === 'review' ? 'is-on' : ''}}" data-mode="review" bindtap="setMode">复盘</view>
+          <view class="tool tool-display" bindtap="openDisplay">Aa</view>
+        </view>
+        <text class="timer-state {{finished ? 'is-done' : (paused ? 'is-paused' : 'is-live')}}">{{finished ? '学完啦' : (paused ? '已暂停' : '读到 ' + positionPercent + '%')}}</text>
+      </view>
+      <view class="bar">
+        <view class="bar-fill {{finished ? 'bar-done' : ''}}" style="width: {{finished ? 100 : positionPercent}}%"></view>
+      </view>
+      <text wx:if="{{finished || paused}}" class="timer-hint">{{finished ? '累计读满 ' + targetMinutes + ' 分钟，进度已经存下来了。' : '很久没动屏幕，计时先停了下来，碰一下页面继续。'}}</text>
+    </view>
+
+    <view wx:if="{{guide}}" class="guide-card">
+      <view class="guide-head" bindtap="toggleGuide">
+        <view class="guide-head-copy">
+          <text class="guide-kicker en">BEFORE READING</text>
+          <text class="guide-title">{{guide.zhTitle}}</text>
+        </view>
+        <text class="guide-toggle">{{guideOpen ? '收起' : '展开导读'}}</text>
+      </view>
+      <view wx:if="{{guideOpen}}" class="guide-body">
+        <text wx:if="{{guide.summary}}" class="guide-summary">{{guide.summary}}</text>
+        <view wx:if="{{guide.question}}" class="guide-block">
+          <text class="guide-label">带着问题读</text>
+          <text class="guide-question">{{guide.question}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="article-card">
+      <view class="paragraph" wx:for="{{paragraphs}}" wx:for-item="para" wx:for-index="pi">
+        <view class="para-en">
+          <block wx:for="{{para.tokens}}" wx:for-item="tok" wx:for-index="ti">
+            <text class="tok {{showPhrases && tok.phraseId ? 'tok-phrase' : ''}} {{showGrammar && tok.inGrammar ? 'tok-grammar' : ''}}" data-p="{{pi}}" data-t="{{ti}}" bindtap="tapToken">{{tok.text}}</text>
+            <text wx:if="{{showGrammar && tok.badge}}" class="grammar-label" data-gid="{{tok.badge}}" catchtap="openGrammar">{{tok.badgeLabel}}</text>
+          </block>
+        </view>
+        <view wx:if="{{showTranslation}}" class="para-zh">
+          <text wx:if="{{translationLoading}}" class="zh-hint">译文生成中…</text>
+          <text wx:elif="{{para.zh}}" class="zh-text">{{para.zh}}</text>
+          <text wx:else class="zh-hint">这段暂无译文</text>
+        </view>
+      </view>
+
+      <view wx:if="{{translationError}}" class="trans-error" bindtap="loadTranslation">{{translationError}} · 点我重试</view>
+
+      <view class="read-tips">
+        <text>点任意单词就能看释义，也能顺手收进生词本；蓝色底是词组，绿色下划线是长难句，点句尾的句型标签可以看拆解。</text>
+      </view>
+    </view>
+
+    <view wx:if="{{nextArticle}}" class="next-card">
+      <view class="next-copy">
+        <text class="next-kicker en">NEXT UP</text>
+        <text class="next-title">{{nextArticle.zhTitle}}</text>
+        <text class="next-meta">约 {{nextArticle.minutes}} 分钟</text>
+      </view>
+      <view class="next-btn {{nexting ? 'is-busy' : ''}}" bindtap="openNext">{{nexting ? '打开中…' : '读下一篇'}}</view>
+    </view>
+  </block>
+
+  <view wx:if="{{showSummary && summary}}" class="done-mask" catchtap="closeSummary" catchtouchmove="noop">
+    <view class="done-card" catchtap="noop">
+      <text class="done-kicker">READING DONE</text>
+      <text class="done-title">这篇读完了</text>
+      <text class="done-sub">累计阅读 {{targetText}}，知识点和进度都存下来了。</text>
+      <view class="done-stats">
+        <view class="done-stat">
+          <text class="done-num">{{summary.vocab}}</text>
+          <text class="done-label">生词</text>
+        </view>
+        <view class="done-stat">
+          <text class="done-num">{{summary.phrases}}</text>
+          <text class="done-label">词组</text>
+        </view>
+        <view class="done-stat">
+          <text class="done-num">{{summary.grammar}}</text>
+          <text class="done-label">长难句</text>
+        </view>
+      </view>
+      <view class="done-btn" bindtap="reviewAfterDone">用复盘模式再过一遍</view>
+      <text class="done-close" bindtap="closeSummary">知道了</text>
+    </view>
+  </view>
+
+  <view wx:if="{{panel}}" class="panel-mask" catchtap="closePanel" catchtouchmove="noop">
+    <view class="panel" catchtap="noop">
+      <view class="panel-head">
+        <view class="panel-head-copy">
+          <text class="panel-kicker">{{panel.type === 'word' ? '单词' : (panel.type === 'phrase' ? '词组' : (panel.type === 'display' ? '显示' : '结构提示'))}}</text>
+          <text class="panel-title">{{panel.title}}</text>
+          <text wx:if="{{panel.phonetic}}" class="panel-phonetic">{{panel.phonetic}}</text>
+        </view>
+        <view class="panel-head-tools">
+          <speak-btn wx:if="{{panel.type === 'word' && !panel.loading}}" word="{{panel.title}}" />
+          <text class="panel-close" bindtap="closePanel">×</text>
+        </view>
+      </view>
+
+      <block wx:if="{{panel.type === 'word'}}">
+        <view wx:if="{{panel.loading}}" class="panel-hint">正在翻词典…</view>
+        <view wx:elif="{{panel.empty}}" class="panel-hint">词库暂未收录，先结合上下文猜一猜。</view>
+        <view wx:else class="meanings">
+          <view class="meaning-row" wx:for="{{panel.meanings}}" wx:for-item="meaning" wx:key="definition">
+            <text class="pos">{{meaning.pos}}</text>
+            <text class="meaning-text">{{meaning.definition}}</text>
+          </view>
+        </view>
+        <view wx:if="{{panel.synonyms.length}}" class="panel-syn">
+          <text class="sub-label">近义</text>
+          <view class="panel-syn-list">
+            <text
+              wx:for="{{panel.synonyms}}"
+              wx:key="*this"
+              class="panel-syn-chip en"
+              data-word="{{item}}"
+              bindtap="tapSynonym"
+            >{{item}}</text>
+          </view>
+        </view>
+        <view wx:if="{{panel.phrase}}" class="phrase-note">
+          <text class="sub-label">它在这里构成词组</text>
+          <text class="sub-title">{{panel.phrase.phrase}}</text>
+          <text wx:if="{{panel.phrase.meaning}}" class="sub-text">{{panel.phrase.meaning}}</text>
+          <view class="mini-add {{panel.phrase.added ? 'is-added' : ''}}" bindtap="addRelatedPhrase">{{panel.phrase.added ? '已在词组本' : '加入词组本'}}</view>
+        </view>
+      </block>
+
+      <block wx:elif="{{panel.type === 'phrase'}}">
+        <text wx:if="{{panel.meaning}}" class="panel-body">{{panel.meaning}}</text>
+        <text wx:if="{{panel.note}}" class="panel-note">{{panel.note}}</text>
+        <text wx:if="{{panel.sentence}}" class="panel-quote">{{panel.sentence}}</text>
+      </block>
+
+      <block wx:elif="{{panel.type === 'grammar'}}">
+        <block wx:if="{{panel.chunks.length}}">
+          <text class="panel-caption">把句子切成几块，逐块对上中文</text>
+          <view class="chunks">
+            <view class="chunk-row" wx:for="{{panel.chunks}}" wx:for-item="chunk" wx:key="en">
+              <text class="chunk-index">{{index + 1}}</text>
+              <view class="chunk-copy">
+                <text class="chunk-en">{{chunk.en}}</text>
+                <text class="chunk-zh">{{chunk.zh}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+        <block wx:else>
+          <text class="panel-caption">按这一句的实际结构归纳，只作阅读辅助</text>
+          <text wx:if="{{panel.sentence}}" class="panel-quote">{{panel.sentence}}</text>
+        </block>
+        <text wx:if="{{panel.translation}}" class="panel-body">{{panel.translation}}</text>
+        <text wx:if="{{panel.meaning}}" class="panel-note">{{panel.meaning}}</text>
+        <view wx:if="{{panel.steps.length}}" class="steps">
+          <view class="step" wx:for="{{panel.steps}}" wx:for-item="step" wx:key="title">
+            <text class="step-title">{{index + 1}}. {{step.title}}</text>
+            <text class="step-detail">{{step.detail}}</text>
+          </view>
+        </view>
+      </block>
+
+      <block wx:else>
+        <view class="display-group">
+          <text class="display-label">字号</text>
+          <view class="display-options">
+            <view class="display-option {{display.fontSize === 'sm' ? 'is-on' : ''}}" data-v="sm" bindtap="setFontSize">小</view>
+            <view class="display-option {{display.fontSize === 'md' ? 'is-on' : ''}}" data-v="md" bindtap="setFontSize">标准</view>
+            <view class="display-option {{display.fontSize === 'lg' ? 'is-on' : ''}}" data-v="lg" bindtap="setFontSize">大</view>
+          </view>
+        </view>
+        <view class="display-group">
+          <text class="display-label">行距</text>
+          <view class="display-options">
+            <view class="display-option {{display.lineHeight === 'normal' ? 'is-on' : ''}}" data-v="normal" bindtap="setLineHeight">标准</view>
+            <view class="display-option {{display.lineHeight === 'loose' ? 'is-on' : ''}}" data-v="loose" bindtap="setLineHeight">宽松</view>
+          </view>
+        </view>
+        <view class="display-row" bindtap="toggleNight">
+          <view class="display-row-copy">
+            <text class="display-label">夜间模式</text>
+            <text class="display-sub">暗色纸面，适合弱光环境</text>
+          </view>
+          <view class="switch {{display.night ? 'is-on' : ''}}">
+            <view class="switch-knob"></view>
+          </view>
+        </view>
+      </block>
+
+      <view wx:if="{{panel.type !== 'display'}}" class="panel-actions">
+        <view class="panel-btn {{panel.added ? 'is-added' : ''}} {{panelSaving ? 'is-busy' : ''}}" bindtap="addPanel">{{panel.added ? '已加入本子' : (panelSaving ? '正在收…' : (panel.type === 'word' ? '加入生词本' : (panel.type === 'phrase' ? '加入词组本' : '加入语法本')))}}</view>
+      </view>
+    </view>
+  </view>
+</view>

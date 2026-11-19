@@ -4,6 +4,7 @@ Component({
     list: [
       { pagePath: '/pages/index/index', text: '首页', icon: 'home' },
       { pagePath: '/pages/workbench/index', text: '学习', icon: 'study' },
+      { pagePath: '/pages/journal/index', text: '外刊', icon: 'journal' },
       { pagePath: '/pages/profile/index', text: '我的', icon: 'profile' }
     ]
   },

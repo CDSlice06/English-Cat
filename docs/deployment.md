@@ -59,9 +59,9 @@ wordbook 20s · grammarbook 20s · evaluateTranslation 25s
 
 ## 五、数据库与云存储
 
-集合清单与字段以 `cloud/database.json` 为准（共 9 个）：`articles`、`article_units`、`attempts`、`wordbooks`、`grammarbooks`、`known_words`、`word_cache`、`grammar_cache`、`article_cache`。
+集合清单与字段以 `cloud/database.json` 为准（共 10 个）：`articles`、`article_units`、`attempts`、`wordbooks`、`grammarbooks`、`known_words`、`checkins`、`word_cache`、`grammar_cache`、`article_cache`。
 
-- 9 个集合的读写权限均为 `false`：**只允许云函数访问**，前端不直连数据库。控制台里的实际权限要与该声明保持一致，避免平台默认权限导致数据被越权读取。
+- 10 个集合的读写权限均为 `false`：**只允许云函数访问**，前端不直连数据库。控制台里的实际权限要与该声明保持一致，避免平台默认权限导致数据被越权读取。
 - 新增集合时同步更新 `cloud/database.json`，否则后续接手的人会漏配权限。
 - 云存储用于暂存用户上传的 PDF/Word 原文件；解析完成后由前端清理，避免残留孤儿文件。
 - 用户在文章里看到的正文与学习记录只属于本人（按 `openid` 隔离），不会跨账号共享；共享的只有「同一篇正文的精讲缓存」。

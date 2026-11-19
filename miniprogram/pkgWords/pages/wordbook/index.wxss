@@ -1,0 +1,1141 @@
+/* 生词本在分包内，样式与主包 styles/book-page.wxss 保持一致（词组本、语法本引用那份），
+   改动这里的卡片样式时记得同步过去。 */
+.wordbook { padding-top: 6rpx; }
+
+/* ---------- 顶部概览 ---------- */
+.shelf-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: 26rpx 26rpx 24rpx 50rpx;
+  border-radius: var(--r-lg);
+  background: linear-gradient(150deg, #fff8e6 0%, #ffedc6 60%, #ffe3a6 100%);
+  border: 2rpx solid rgba(116, 72, 40, 0.22);
+  box-shadow: 7rpx 8rpx 0 rgba(116, 72, 40, 0.16);
+}
+
+.shelf-glow {
+  position: absolute;
+  top: -110rpx;
+  right: -60rpx;
+  width: 280rpx;
+  height: 280rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 247, 224, 0.85), rgba(255, 240, 200, 0) 70%);
+}
+
+/* 本册封面顶边的和纸胶带 */
+.shelf-tape {
+  position: absolute;
+  z-index: 3;
+  left: 74rpx;
+  top: 2rpx;
+  width: 96rpx;
+  height: 26rpx;
+  pointer-events: none;
+  background: rgba(255, 232, 176, 0.88);
+  border-left: 2rpx dashed rgba(116, 72, 40, 0.16);
+  border-right: 2rpx dashed rgba(116, 72, 40, 0.16);
+  transform: rotate(-5deg);
+}
+
+/* 猫猫做成白边贴纸，压在本册封面上 */
+.shelf-sticker {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  padding: 5rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.2);
+  border-radius: var(--r-md);
+  background: #fffdf8;
+  box-shadow: 4rpx 5rpx 0 rgba(116, 72, 40, 0.14);
+  transform: rotate(-4deg);
+}
+
+.shelf-cat {
+  position: relative !important;
+  z-index: 1;
+  display: block;
+  width: 140rpx !important;
+  height: 140rpx !important;
+  flex-shrink: 0;
+}
+
+.shelf-copy {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+.shelf-kicker {
+  display: block;
+  color: #8a5a0d;
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 18rpx;
+  font-weight: 700;
+  letter-spacing: 2.5rpx;
+}
+
+.shelf-number-row {
+  display: flex;
+  align-items: baseline;
+  margin-top: 6rpx;
+}
+
+.shelf-number {
+  color: #33280f;
+  font-size: 62rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.shelf-unit {
+  margin-left: 8rpx;
+  color: #8a6a2c;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.shelf-split {
+  display: flex;
+  align-items: center;
+  gap: 22rpx;
+  margin-top: 12rpx;
+}
+
+.split-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  color: #7a5713;
+  font-size: 21rpx;
+}
+
+.dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+}
+
+.dot-warn { background: #ef8368; }
+.dot-ok { background: #5fa87c; }
+
+/* ---------- 添加 ---------- */
+.add-card {
+  margin-top: var(--card-gap);
+  padding: var(--card-pad-y);
+  border-radius: var(--r-lg);
+  background: var(--paper);
+  border: 2rpx solid var(--paper-line);
+  box-shadow: var(--shadow-paper);
+}
+
+.add-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.add-input {
+  flex: 1;
+  min-width: 0;
+  height: 84rpx;
+  padding: 0 24rpx;
+  border-radius: var(--r-md);
+  background: #f7f1e4;
+  color: var(--ink);
+  font-size: 27rpx;
+}
+
+.add-placeholder { color: var(--faint); }
+
+.add-btn {
+  flex-shrink: 0;
+  height: 84rpx;
+  padding: 0 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-md);
+  background: linear-gradient(150deg, #ffd25c 0%, #f7b733 100%);
+  border: 2rpx solid rgba(116, 72, 40, 0.26);
+  color: #4a3200;
+  font-size: 25rpx;
+  font-weight: 700;
+  box-shadow: 4rpx 4rpx 0 rgba(116, 72, 40, 0.22);
+}
+
+.add-btn-off {
+  background: #f0e7d6;
+  color: #ad9d86;
+  box-shadow: none;
+}
+
+.add-hint {
+  display: block;
+  margin-top: 14rpx;
+  color: var(--faint);
+  font-size: 20rpx;
+  line-height: 1.6;
+}
+
+/* ---------- 查询建议 ---------- */
+/* 列表放在 scroll-view 里，键盘弹起时仍可在列表内部滑动挑选 */
+.suggest-box {
+  margin-top: 12rpx;
+  border-radius: var(--r-md);
+  background: #fdfaf2;
+  border: 2rpx solid var(--paper-line);
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.suggest-item {
+  padding: 14rpx 22rpx;
+  border-top: 1rpx dashed rgba(48, 40, 28, 0.10);
+}
+
+.suggest-item:first-child {
+  border-top: none;
+}
+
+.suggest-item-hover {
+  background: #f6edd9;
+}
+
+.suggest-main {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  min-width: 0;
+}
+
+.suggest-word {
+  color: var(--ink);
+  font-size: 27rpx;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.suggest-phonetic {
+  color: var(--faint);
+  font-size: 19rpx;
+}
+
+.suggest-def {
+  display: block;
+  margin-top: 4rpx;
+  color: var(--muted);
+  font-size: 21rpx;
+  line-height: 1.5;
+}
+
+/* ---------- 生词本搜索：单词和中文释义都能搜 ---------- */
+.search-card {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  min-height: 84rpx;
+  margin-top: 22rpx;
+  padding: 0 20rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-md);
+  background: rgba(255, 253, 249, 0.94);
+}
+
+.search-icon {
+  position: relative;
+  flex: none;
+  width: 24rpx;
+  height: 24rpx;
+  border: 4rpx solid #b8a68a;
+  border-radius: 50%;
+}
+
+.search-icon::after {
+  content: '';
+  position: absolute;
+  right: -11rpx;
+  bottom: -8rpx;
+  width: 14rpx;
+  height: 4rpx;
+  border-radius: 2rpx;
+  background: #b8a68a;
+  transform: rotate(45deg);
+}
+
+.search-input {
+  flex: 1;
+  min-width: 0;
+  height: 84rpx;
+  color: var(--ink);
+  font-size: 26rpx;
+}
+
+.search-placeholder { color: var(--faint); }
+
+.search-clear {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56rpx;
+  padding: 0 18rpx;
+  border-radius: 999rpx;
+  background: #f1e9d9;
+  color: #6d6151;
+  font-size: 22rpx;
+}
+
+/* ---------- 切换 ---------- */
+.segmented {
+  display: flex;
+  gap: 8rpx;
+  margin: 26rpx 0 18rpx;
+  padding: 8rpx;
+  border-radius: var(--r-md);
+  background: rgba(255, 253, 249, 0.9);
+  border: 2rpx solid var(--paper-line);
+}
+
+.seg {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  height: 72rpx;
+  border-radius: var(--r-sm);
+  color: var(--muted);
+  font-size: 25rpx;
+  font-weight: 700;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.seg-on {
+  background: linear-gradient(150deg, #fff3d4 0%, #ffe1a3 100%);
+  color: #6b4a05;
+  font-weight: 700;
+  box-shadow: 0 8rpx 18rpx rgba(214, 152, 34, 0.16);
+}
+
+.seg-count {
+  min-width: 36rpx;
+  padding: 0 8rpx;
+  height: 34rpx;
+  line-height: 34rpx;
+  text-align: center;
+  border-radius: 999rpx;
+  background: rgba(48, 40, 28, 0.07);
+  font-size: 19rpx;
+  font-weight: 700;
+}
+
+.seg-on .seg-count {
+  background: rgba(168, 106, 17, 0.14);
+  color: #6b4a05;
+}
+
+/* ---------- 词条 ---------- */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+}
+
+/* 词条卡按错位纸卡摆放，像一张张贴在词本上的单词卡 */
+.wb-card {
+  position: relative;
+  overflow: hidden;
+  padding: var(--card-pad-y);
+  border-radius: var(--r-lg) var(--r-md) var(--r-lg) var(--r-md);
+  background: var(--paper);
+  border: 2rpx solid var(--paper-line);
+  box-shadow: var(--shadow-1);
+}
+
+.wb-card:nth-child(odd) { transform: rotate(-0.5deg); }
+.wb-card:nth-child(even) { transform: rotate(0.5deg); }
+
+.wb-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8rpx;
+  background: linear-gradient(180deg, #ffb08a, #ef8368);
+}
+
+.wb-known {
+  background: linear-gradient(160deg, #f7fdf8 0%, #eef8f1 100%);
+  border-color: rgba(95, 168, 124, 0.22);
+}
+
+.wb-known .wb-accent {
+  background: linear-gradient(180deg, #8fcfa8, #5fa87c);
+}
+
+.wb-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
+.wb-main {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  min-width: 0;
+}
+
+.wb-word {
+  color: var(--ink);
+  font-size: 38rpx;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.wb-phonetic {
+  color: var(--faint);
+  font-size: 21rpx;
+}
+
+.wb-speak {
+  display: flex;
+  align-self: center;
+}
+
+.wb-remove {
+  flex-shrink: 0;
+  padding: 4rpx 10rpx;
+  color: #b6a992;
+  font-size: 20rpx;
+}
+
+.wb-nomap {
+  display: block;
+  color: var(--faint);
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+/* 背诵时自己画的草图：放在释义下面，记住之后也一直留着 */
+.wb-drawing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  margin-top: 14rpx;
+  padding: 10rpx;
+  border: 2rpx dashed rgba(168, 106, 17, 0.35);
+  border-radius: var(--r-md);
+  background: rgba(255, 253, 249, 0.92);
+}
+
+.wb-drawing-img {
+  width: 100%;
+  height: 200rpx;
+}
+
+.wb-drawing-tip {
+  color: var(--faint);
+  font-size: 20rpx;
+}
+
+.wb-drawing-actions {
+  display: flex;
+  align-items: center;
+  gap: 28rpx;
+}
+
+.wb-drawing-act {
+  color: var(--amber);
+  font-size: 20rpx;
+  padding: 2rpx 8rpx;
+}
+
+.wb-drawing-act.is-danger {
+  color: #b23b30;
+}
+
+/* 常用搭配：这个词的句型，跟在释义后面，弱化成一张小纸条 */
+.wb-patterns {
+  margin-top: 14rpx;
+  padding: 14rpx 16rpx;
+  border-radius: var(--r-md);
+  background: rgba(255, 238, 226, 0.6);
+}
+
+.wb-patterns-label {
+  display: block;
+  margin-bottom: 8rpx;
+  color: #a8865c;
+  font-size: 19rpx;
+  letter-spacing: 1rpx;
+}
+
+.wb-pattern-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.wb-pattern {
+  color: #5c4a32;
+  font-size: 24rpx;
+  line-height: 1.5;
+}
+
+/* 一行一个句型：英文搭配在前，中文释义跟在后面 */
+.wb-pattern-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.wb-pattern-gloss {
+  margin-left: 10rpx;
+  color: #8d7a5c;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+
+/* 搭配下面的示范句：直接跟在句型后，不再单独占一张例句卡 */
+.wb-pattern-example {
+  display: block;
+  margin-top: 8rpx;
+  color: #7a6a52;
+  font-size: 23rpx;
+  line-height: 1.6;
+}
+
+/* 近义词：和搭配同一种小纸条，层级上更轻 */
+.wb-syns {
+  margin-top: 10rpx;
+  padding: 14rpx 16rpx;
+  border-radius: var(--r-md);
+  background: rgba(245, 241, 232, 0.75);
+}
+
+.wb-syn-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.wb-syn {
+  display: flex;
+  align-items: baseline;
+  gap: 6rpx;
+  padding: 6rpx 12rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.wb-syn-word {
+  color: #4a5c46;
+  font-size: 23rpx;
+}
+
+.wb-syn-def {
+  color: var(--faint);
+  font-size: 20rpx;
+}
+
+.wb-related {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  margin-top: 10rpx;
+}
+
+.wb-related-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10rpx;
+}
+
+.wb-related-label {
+  flex: none;
+  color: var(--faint);
+  font-size: 20rpx;
+}
+
+.wb-related-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+/* 点一下就能看释义：用虚线下划线提示这枚小标签是可点的 */
+.wb-related-chip {
+  padding: 2rpx 10rpx;
+  border-radius: 8rpx;
+  border-bottom: 2rpx dotted rgba(168, 106, 17, 0.55);
+  background: rgba(92, 74, 50, 0.07);
+  color: #5c4a32;
+  font-size: 22rpx;
+}
+
+.wb-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-top: 18rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx dashed rgba(48, 40, 28, 0.10);
+}
+
+.wb-source {
+  flex: 1;
+  min-width: 0;
+  color: #b6a992;
+  font-size: 19rpx;
+}
+
+.wb-know {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  height: 62rpx;
+  padding: 0 22rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(150deg, #ffe7de 0%, #ffd3c5 100%);
+  color: #b4503a;
+  font-size: 23rpx;
+  font-weight: 700;
+  transition: transform 0.16s ease, opacity 0.16s ease;
+}
+
+.wb-know:active { transform: scale(0.96); }
+
+.wb-know-busy {
+  opacity: 0.6;
+}
+
+/* 勾选态用描边勾拼合，避免字符图标 */
+.wb-check {
+  position: relative;
+  width: 30rpx;
+  height: 30rpx;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(180, 80, 58, 0.16);
+}
+
+.wb-check::after {
+  content: '';
+  position: absolute;
+  left: 10rpx;
+  top: 6rpx;
+  width: 8rpx;
+  height: 14rpx;
+  border-right: 3rpx solid #b4503a;
+  border-bottom: 3rpx solid #b4503a;
+  border-radius: 0 0 2rpx 0;
+  transform: rotate(40deg);
+}
+
+.wb-done {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  height: 62rpx;
+  padding: 0 22rpx;
+  border-radius: 999rpx;
+  background: rgba(95, 168, 124, 0.14);
+  color: #3f7d57;
+  font-size: 23rpx;
+  font-weight: 700;
+}
+
+.wb-done-mark {
+  position: relative;
+  width: 30rpx;
+  height: 30rpx;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #5fa87c;
+}
+
+.wb-done-mark::after {
+  content: '';
+  position: absolute;
+  left: 10rpx;
+  top: 6rpx;
+  width: 8rpx;
+  height: 14rpx;
+  border-right: 3rpx solid #ffffff;
+  border-bottom: 3rpx solid #ffffff;
+  border-radius: 0 0 2rpx 0;
+  transform: rotate(40deg);
+}
+
+/* ---------- 空态 ---------- */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 40rpx 60rpx;
+  text-align: center;
+}
+
+.empty-title {
+  margin-top: 12rpx;
+  color: var(--ink);
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.empty-clear {
+  margin-top: 18rpx;
+  padding: 14rpx 26rpx;
+  border: 2rpx dashed rgba(168, 106, 17, 0.4);
+  border-radius: 999rpx;
+  color: #8a5a0d;
+  font-size: 23rpx;
+  font-weight: 700;
+}
+
+.empty-text {
+  max-width: 520rpx;
+  margin-top: 10rpx;
+  color: var(--muted);
+  font-size: 21rpx;
+  line-height: 1.7;
+}
+
+/* ---------- 词频星级 ---------- */
+.wb-meta {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.wb-stars {
+  display: flex;
+  align-items: center;
+  gap: 3rpx;
+}
+
+.wb-star {
+  width: 18rpx;
+  height: 18rpx;
+  background: #ded0b4;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.wb-star-on { background: #e0a12a; }
+
+.wb-freq {
+  color: #8a6a2c;
+  font-size: 19rpx;
+  letter-spacing: 1rpx;
+}
+
+/* ---------- 派生 / 形近词释义小面板 ---------- */
+.wb-related-chip:active {
+  background: rgba(168, 106, 17, 0.18);
+}
+
+/* 点词看释义：从底部升起的一小张纸，盖住列表但不打断阅读 */
+.wb-rel-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 900;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(59, 51, 39, 0.46);
+}
+
+.wb-rel-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 72vh;
+  padding: 26rpx 32rpx calc(24rpx + env(safe-area-inset-bottom));
+  border-radius: 28rpx 28rpx 0 0;
+  background: #fdf7ea;
+  box-shadow: 0 -8rpx 32rpx rgba(76, 56, 28, 0.18);
+  animation: wb-rel-rise 0.2s ease-out;
+}
+
+@keyframes wb-rel-rise {
+  from { transform: translateY(40rpx); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.wb-rel-head {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 2rpx dashed rgba(116, 72, 40, 0.2);
+}
+
+.wb-rel-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.wb-rel-word {
+  color: #3b3327;
+  font-size: 40rpx;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.wb-rel-phonetic {
+  color: #a8865c;
+  font-size: 24rpx;
+}
+
+.wb-rel-close {
+  flex-shrink: 0;
+  padding: 12rpx 24rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.28);
+  border-radius: 999rpx;
+  color: #6b5a42;
+  font-size: 23rpx;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.wb-rel-close:active { opacity: 0.7; }
+
+.wb-rel-body {
+  flex: 1;
+  min-height: 0;
+  max-height: 56vh;
+  margin-top: 6rpx;
+}
+
+.wb-rel-meaning {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  padding: 14rpx 0;
+  border-bottom: 2rpx solid rgba(116, 72, 40, 0.08);
+}
+
+.wb-rel-meaning:last-child { border-bottom: 0; }
+
+.wb-rel-pos {
+  flex-shrink: 0;
+  min-width: 76rpx;
+  color: var(--amber);
+  font-size: 22rpx;
+  font-style: italic;
+  font-weight: 700;
+}
+
+.wb-rel-def {
+  flex: 1;
+  min-width: 0;
+  color: #4a3f30;
+  font-size: 26rpx;
+  line-height: 1.65;
+}
+
+.wb-rel-tip {
+  padding: 26rpx 0;
+  color: var(--muted);
+  font-size: 24rpx;
+  text-align: center;
+}
+
+.wb-rel-loading {
+  display: block;
+  padding: 14rpx 0 2rpx;
+  color: var(--faint);
+  font-size: 21rpx;
+  text-align: center;
+}
+
+/* ---------- 查词面板：词根 / 易混 ---------- */
+.wb-rel-root,
+.wb-rel-confuse,
+.wb-rel-syn {
+  margin-top: 18rpx;
+  padding: 16rpx 18rpx;
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.wb-rel-root-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.wb-rel-root-label {
+  flex-shrink: 0;
+  color: var(--amber);
+  font-size: 21rpx;
+  font-weight: 700;
+}
+
+.wb-rel-root-form {
+  color: #4a3f30;
+  font-size: 25rpx;
+}
+
+.wb-rel-root-meaning {
+  color: #6b5a42;
+  font-size: 22rpx;
+}
+
+.wb-rel-root-line {
+  display: block;
+  margin-top: 8rpx;
+  color: #5e5445;
+  font-size: 23rpx;
+  line-height: 1.6;
+}
+
+.wb-rel-root-family {
+  margin-top: 10rpx;
+}
+
+.wb-rel-root-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-top: 8rpx;
+}
+
+.wb-rel-root-chip {
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  color: #5d4a2f;
+  font-size: 22rpx;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.wb-rel-root-chip:active { opacity: 0.7; }
+
+.wb-rel-confuse-row {
+  margin-top: 12rpx;
+  padding-top: 12rpx;
+  border-top: 2rpx solid rgba(116, 72, 40, 0.08);
+}
+
+.wb-rel-confuse-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.wb-rel-confuse-word {
+  color: #4a3f30;
+  font-size: 25rpx;
+  font-weight: 700;
+}
+
+.wb-rel-confuse-def {
+  color: #6b5a42;
+  font-size: 22rpx;
+}
+
+.wb-rel-confuse-note {
+  display: block;
+  margin-top: 6rpx;
+  color: #6b5a44;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+/* ---------- 词库管理：排序 / 来源 / 批量删除 ---------- */
+.wb-tools {
+  margin: 0 0 20rpx;
+  padding: 2rpx 18rpx;
+  border: 2rpx dashed rgba(168, 106, 17, 0.22);
+  border-radius: var(--r-md);
+  background: rgba(255, 253, 249, 0.86);
+}
+
+.wb-tool-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  min-height: 84rpx;
+}
+
+.wb-tool-row + .wb-tool-row {
+  border-top: 1rpx dashed rgba(168, 106, 17, 0.12);
+}
+
+.wb-tool-label {
+  flex: none;
+  width: 56rpx;
+  color: #a8865c;
+  font-size: 20rpx;
+  letter-spacing: 1rpx;
+}
+
+.wb-tool-chips {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4rpx;
+  min-width: 0;
+}
+
+.wb-tool-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64rpx;
+  padding: 0 18rpx;
+  border-radius: 999rpx;
+  color: var(--muted);
+  font-size: 22rpx;
+}
+
+.wb-tool-chip-on {
+  background: linear-gradient(135deg, #ffe6a6 0%, #ffd979 100%);
+  color: #6b4a05;
+  font-weight: 700;
+}
+
+.wb-manage-btn {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64rpx;
+  padding: 0 22rpx;
+  border: 2rpx solid rgba(168, 106, 17, 0.32);
+  border-radius: 999rpx;
+  background: #fffdf8;
+  color: #8a5a0d;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.wb-manage-btn-on {
+  border-color: rgba(95, 138, 102, 0.42);
+  background: #eef3ec;
+  color: #547259;
+}
+
+/* 批量勾选：视觉是枚小圆点，热区撑到 88rpx */
+.wb-pick {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36rpx;
+  height: 36rpx;
+  margin-top: 2rpx;
+  padding: 14rpx;
+  box-sizing: content-box;
+  border: 2rpx solid rgba(168, 106, 17, 0.36);
+  border-radius: 50%;
+  background: #fffdf8;
+}
+
+.wb-pick-on {
+  border-color: #5fa87c;
+  background: #eef8f1;
+}
+
+.wb-pick-mark {
+  width: 18rpx;
+  height: 9rpx;
+  border-left: 4rpx solid #3f7d57;
+  border-bottom: 4rpx solid #3f7d57;
+  transform: rotate(-45deg) translate(1rpx, -2rpx);
+}
+
+.wb-card-picked {
+  border-color: rgba(95, 168, 124, 0.55);
+  box-shadow: 0 0 0 3rpx rgba(95, 168, 124, 0.14), 5rpx 6rpx 0 rgba(116, 72, 40, 0.10);
+}
+
+/* 底部操作栏会盖住列表末尾，管理模式下给页面留出高度 */
+.wordbook-managing {
+  padding-bottom: calc(180rpx + env(safe-area-inset-bottom));
+}
+
+.wb-manage-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx 28rpx calc(16rpx + env(safe-area-inset-bottom));
+  border-top: 2rpx solid rgba(116, 72, 40, 0.26);
+  background: #fffdf8;
+  box-shadow: 0 -8rpx 20rpx rgba(103, 73, 40, 0.10);
+}
+
+.wb-manage-all {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 72rpx;
+  padding: 0 24rpx;
+  border: 2rpx solid rgba(168, 106, 17, 0.32);
+  border-radius: 999rpx;
+  color: #8a5a0d;
+  font-size: 23rpx;
+  font-weight: 700;
+}
+
+.wb-manage-all-hover {
+  background: rgba(255, 232, 176, 0.4);
+}
+
+.wb-manage-count {
+  flex: 1;
+  color: var(--muted);
+  font-size: 23rpx;
+}
+
+.wb-manage-delete {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 76rpx;
+  padding: 0 34rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(150deg, #ffe0d9 0%, #ffc9be 100%);
+  color: #b4503a;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.wb-manage-delete-off {
+  background: #f1e9d9;
+  color: #b6a992;
+}
+
+.wb-manage-delete-hover {
+  opacity: 0.78;
+}

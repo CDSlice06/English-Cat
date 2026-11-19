@@ -1,4 +1,4 @@
-const { LEVELS, listOf, findByLevel, findById } = require('../../content/bank')
+const { LEVELS, listOf, findById } = require('../../content/bank')
 const { prepareBankArticle } = require('../../services/article')
 const { listArticles, previewArticle, deleteArticle, setArticleYear } = require('../../services/study')
 const { listExams, getExam } = require('../../services/examBank')
@@ -15,6 +15,15 @@ function issueShort(item) {
 
 // 学过的篇章在列表里留个标记：下次挑文章时不用逐篇点开确认
 function markProgress(item) {
+  // 外刊与用户导入按阅读时长记进度，显示「已读 x 分钟」而不是四站百分比
+  if (item.readingMode) {
+    const seconds = Math.max(0, Number(item.readingSeconds) || 0)
+    const done = seconds >= 15 * 60
+    let label = ''
+    if (done) label = '已学完'
+    else if (seconds > 0) label = `已读 ${Math.max(1, Math.floor(seconds / 60))} 分钟`
+    return Object.assign({}, item, { progressLabel: label, progressDone: done })
+  }
   const studied = item.studied === true
   const percent = Number(item.percent)
   let label = ''
@@ -74,7 +83,7 @@ Page({
   data: {
     levels: LEVELS,
     level: 'cet4',
-    source: 'bank', // bank = 内置模拟篇，exams = 内置真题库，imported = 我的导入
+    source: 'bank', // bank = 内置模拟篇，exams = 真题库，imported = 我的导入
     list: [],
     imported: [],
     mineView: [],
@@ -140,11 +149,16 @@ Page({
 
   applyMine(level, mineAll) {
     this.mineAll = mineAll || []
-    const scoped = this.mineAll.filter((item) => item.level === level)
+    // 外刊统一走「外刊」导航栏，不再混进「我的导入」
+    const scoped = this.mineAll.filter((item) => item.level === level && item.origin !== 'journal')
     // 我导入的都收在「我的导入」里，真题和普通文章不再分栏
-    const imported = scoped.map((item) => markProgress(Object.assign({}, item, { issue: issueShort(item) })))
+    const imported = scoped.map((item) => markProgress(Object.assign({}, item, {
+      issue: issueShort(item)
+    })))
     // 真题库共用这份进度：学过的内置真题在这里也能看到「已学完 / 学了 x%」
-    this.realProgress = scoped.filter((item) => item.kind === 'real' || (!item.kind && item.year > 0))
+    // 外刊是阅读型，不参与真题库对齐，避免阅读时长误标内置真题
+    this.realProgress = scoped
+      .filter((item) => (item.kind === 'real' || (!item.kind && item.year > 0)) && !item.readingMode)
       .map((item) => markProgress(item))
     const source = this.data.source
     this.setData({
@@ -232,38 +246,6 @@ Page({
           error: (error && error.message) || '这篇真题没能准备好，换一篇试试'
         })
       })
-  },
-
-  draw() {
-    if (this.data.starting) return
-    if (this.data.source === 'exams') {
-      const pool = this.currentExam()
-      if (!pool.length) {
-        wx.showToast({ title: '这个级别还没有内置真题', icon: 'none' })
-        return
-      }
-      this.pickExam({ currentTarget: { dataset: { id: pool[Math.floor(Math.random() * pool.length)].id } } })
-      return
-    }
-    if (this.data.source === 'imported') {
-      const pool = this.data.imported
-      if (!pool.length) {
-        wx.showToast({ title: '这个级别还没有你导入的文章', icon: 'none' })
-        return
-      }
-      this.open(pool[Math.floor(Math.random() * pool.length)]._id)
-      return
-    }
-    this.start(findByLevel(this.data.level))
-  },
-
-  // 真题库里当前年份筛选出的篇目
-  currentExam() {
-    const pool = []
-    ;(this.data.examGroups || []).forEach((group) => {
-      group.items.forEach((item) => pool.push(item))
-    })
-    return pool
   },
 
   pick(event) {

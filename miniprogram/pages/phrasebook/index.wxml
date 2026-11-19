@@ -1,4 +1,4 @@
-<view class="page phrasebook">
+<view class="page phrasebook" bind:tap="closeSuggest">
   <section-title eyebrow="MY PHRASEBOOK" title="我的词组本" description="把词组、用法和原句放在一起，回到语境里记得更牢。" />
 
   <view wx:if="{{loading}}" class="loading">
@@ -39,7 +39,61 @@
       </view>
     </view>
 
-    <view class="segmented enter d2">
+    <view class="add-card enter d2" catchtap="noop">
+      <view class="add-row">
+        <input
+          class="add-input"
+          value="{{draft}}"
+          placeholder="输入英文词组或中文，例如 take into account / 考虑到"
+          placeholder-class="add-placeholder"
+          confirm-type="done"
+          bind:input="onInput"
+          bind:confirm="submitPhrase"
+          bind:focus="onFocus"
+          bindkeyboardheightchange="onKeyboardHeightChange"
+        />
+        <view class="add-btn {{draft ? '' : 'add-btn-off'}}" bind:tap="submitPhrase">{{adding ? '添加中' : '收进词组本'}}</view>
+      </view>
+
+      <scroll-view
+        wx:if="{{suggestions.length}}"
+        class="suggest-box"
+        style="max-height: {{suggestMax}}px"
+        scroll-y
+        catchtap="noop"
+      >
+        <view
+          wx:for="{{suggestions}}"
+          wx:key="phrase"
+          class="suggest-item"
+          hover-class="suggest-item-hover"
+          bind:tap="pickSuggest"
+          data-phrase="{{item.phrase}}"
+        >
+          <view class="suggest-main">
+            <text class="suggest-word en">{{item.phrase}}</text>
+          </view>
+          <text class="suggest-def">{{item.meaning}}</text>
+        </view>
+      </scroll-view>
+
+      <text class="add-hint">输入 1 个字母就会联想，越打越精确；也可以输入中文找词组。词库里没有的词组也能先收进来。</text>
+    </view>
+
+    <view class="search-card enter d3">
+      <view class="search-icon"></view>
+      <input
+        class="search-input"
+        value="{{query}}"
+        placeholder="搜已收词组、释义或原句"
+        placeholder-class="search-placeholder"
+        confirm-type="search"
+        bind:input="onSearchInput"
+      />
+      <view wx:if="{{query}}" class="search-clear" bind:tap="clearSearch">清空</view>
+    </view>
+
+    <view class="segmented enter d3">
       <view class="seg {{tab === 'unknown' ? 'seg-on' : ''}}" bind:tap="switchTab" data-tab="unknown">
         <text>不记得</text>
         <text class="seg-count">{{counts.unknown}}</text>
@@ -62,7 +116,7 @@
         </view>
 
         <meaning-list wx:if="{{item.meanings.length}}" meanings="{{item.meanings}}" />
-        <text wx:else class="wb-nomap">暂未收录释义，可回到原文结合语境复习。</text>
+        <text wx:else class="wb-nomap">{{item.source === 'manual' ? '暂未收录释义，可以自己记一句用法。' : '暂未收录释义，可回到原文结合语境复习。'}}</text>
         <text wx:if="{{item.matched}}" class="phrase-matched">文中形式：{{item.matched}}</text>
 
         <view wx:if="{{item.note}}" class="phrase-note">
@@ -95,9 +149,10 @@
     </view>
 
     <view wx:if="{{!phrases.length}}" class="empty">
-      <cat-image name="{{tab === 'known' ? 'complete-halo' : 'not-found'}}" size="large" />
-      <text class="empty-title">{{tab === 'known' ? '记住的词组还没有搬进来' : '词组本还没开张'}}</text>
-      <text class="empty-text">{{tab === 'known' ? '在不记得列表点「我记住了」，它就搬到这里住下。' : '在「词组搭配」页点「加入词组本」，好用的搭配就留下来了。'}}</text>
+      <cat-image name="{{query ? 'not-found' : (tab === 'known' ? 'complete-halo' : 'not-found')}}" size="large" />
+      <text class="empty-title">{{query ? '没有找到「' + query + '」' : (tab === 'known' ? '记住的词组还没有搬进来' : '词组本还没开张')}}</text>
+      <text class="empty-text">{{query ? searchEmptyText : (tab === 'known' ? '在不记得列表点「我记住了」，它就搬到这里住下。' : '在「词组搭配」页点「加入词组本」，好用的搭配就留下来了。')}}</text>
+      <view wx:if="{{query}}" class="empty-clear" bind:tap="clearSearch">清空搜索</view>
     </view>
   </block>
 </view>

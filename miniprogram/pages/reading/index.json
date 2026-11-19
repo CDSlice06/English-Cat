@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "阅读",
+  "backgroundColor": "#fdf7ea",
+  "usingComponents": {
+    "speak-btn": "/components/speak-btn/index"
+  }
+}

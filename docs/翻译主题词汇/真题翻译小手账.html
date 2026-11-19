@@ -1,0 +1,2555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light" />
+<title>真题翻译小手账</title>
+<style>
+  :root {
+    --paper: #fbf7ef;
+    --card: #fffdf8;
+    --line: #e6ddc9;
+    --ink: #2f5d50;
+    --accent: #b4553e;
+    --muted: #8a8175;
+    --text: #33302a;
+    --serif: Georgia, "Songti SC", "STSong", serif;
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  }
+
+  *,
+  *::before,
+  *::after { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    background-color: var(--paper);
+    background-image:
+      repeating-linear-gradient(to right, rgba(47, 93, 80, .055) 0 1px, transparent 1px 24px),
+      repeating-linear-gradient(to bottom, rgba(47, 93, 80, .055) 0 1px, transparent 1px 24px);
+  }
+
+  body.no-scroll { overflow: hidden; }
+
+  h1, h2, h3, h4, p { margin: 0; }
+
+  button, input, select, textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button { cursor: pointer; }
+
+  a { color: var(--ink); }
+
+  svg { display: block; }
+
+  [hidden] { display: none !important; }
+
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .app {
+    max-width: 760px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 手撕纸页头 */
+  .masthead {
+    position: relative;
+    padding: 28px 20px 38px;
+    background: linear-gradient(180deg, #fdfaf3 0%, #f7efdf 100%);
+    clip-path: polygon(
+      0 0, 100% 0, 100% 93%,
+      97% 96%, 94% 92%, 91% 97%, 88% 93%, 85% 98%, 82% 94%,
+      79% 97%, 76% 92%, 73% 96%, 70% 93%, 67% 98%, 64% 94%,
+      61% 97%, 58% 92%, 55% 96%, 52% 93%, 49% 98%, 46% 94%,
+      43% 97%, 40% 92%, 37% 96%, 34% 93%, 31% 98%, 28% 94%,
+      25% 97%, 22% 92%, 19% 96%, 16% 93%, 13% 98%, 10% 94%,
+      7% 97%, 4% 93%, 0 96%
+    );
+  }
+
+  .masthead-tape {
+    position: absolute;
+    top: 13px;
+    right: 22px;
+    width: 74px;
+    height: 18px;
+    border-radius: 2px;
+    background: rgba(180, 85, 62, .14);
+    box-shadow: inset 0 0 0 1px rgba(180, 85, 62, .07);
+    transform: rotate(2.4deg);
+  }
+
+  .masthead-kicker {
+    font-family: var(--serif);
+    font-size: 10px;
+    letter-spacing: .24em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .masthead h1 {
+    margin-top: 7px;
+    font-family: var(--serif);
+    font-size: 29px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: .05em;
+    color: #2c2a24;
+  }
+
+  .masthead h1::after {
+    content: "";
+    display: block;
+    width: 106px;
+    height: 4px;
+    margin-top: 7px;
+    border-radius: 60% 40% 55% 45%;
+    background: var(--accent);
+    opacity: .28;
+    transform: rotate(-.7deg);
+  }
+
+  .masthead-sub {
+    margin-top: 9px;
+    font-size: 12px;
+    letter-spacing: .06em;
+    color: var(--muted);
+  }
+
+  main {
+    flex: 1;
+    padding: 20px 18px calc(108px + env(safe-area-inset-bottom));
+  }
+
+  .panel { animation: panelIn .22s ease-out; }
+
+  @keyframes panelIn {
+    from { opacity: .35; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .eyebrow {
+    font-size: 10.5px;
+    line-height: 1.5;
+    letter-spacing: .16em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+
+  .day-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin: 2px 2px 16px;
+  }
+
+  .day-title {
+    margin-top: 3px;
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #2c2a24;
+    letter-spacing: .02em;
+  }
+
+  .day-sub {
+    margin-top: 3px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .day-dots {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+    max-width: 96px;
+    padding-top: 26px;
+  }
+
+  .dot {
+    width: 9px;
+    height: 9px;
+    border: 1px solid rgba(47, 93, 80, .45);
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  .dot.is-done {
+    border-color: var(--ink);
+    background: var(--ink);
+  }
+
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 1px 0 rgba(90, 74, 48, .04), 0 9px 18px -14px rgba(90, 74, 48, .55);
+  }
+
+  /* 胶带贴纸 */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid rgba(47, 93, 80, .13);
+    border-radius: 3px;
+    background: rgba(47, 93, 80, .09);
+    color: var(--ink);
+    font-size: 11px;
+    line-height: 1.55;
+    letter-spacing: .02em;
+    white-space: nowrap;
+    transform: rotate(-1.2deg);
+  }
+
+  .tags .tag:nth-child(2n) {
+    border-color: rgba(180, 85, 62, .15);
+    background: rgba(180, 85, 62, .09);
+    color: var(--accent);
+    transform: rotate(1.3deg);
+  }
+
+  .tags .tag:nth-child(3n) { transform: rotate(-.6deg); }
+
+  .tag.tag--done {
+    border-color: rgba(47, 93, 80, .3);
+    background: rgba(47, 93, 80, .13);
+    color: var(--ink);
+  }
+
+  .tag.tag--bad {
+    border-color: rgba(180, 85, 62, .3);
+    background: rgba(180, 85, 62, .13);
+    color: var(--accent);
+  }
+
+  .tag.tag--star {
+    border-color: rgba(180, 85, 62, .28);
+    background: rgba(180, 85, 62, .12);
+    color: var(--accent);
+  }
+
+  .tag.tag--accent {
+    border-color: rgba(180, 85, 62, .28);
+    background: rgba(180, 85, 62, .12);
+    color: var(--accent);
+  }
+
+  .tag.tag--soft {
+    border-color: rgba(138, 129, 117, .2);
+    background: rgba(138, 129, 117, .1);
+    color: var(--muted);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 8px 16px;
+    border: 1px solid var(--ink);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.2;
+    text-align: center;
+    transition: background .18s ease, color .18s ease, transform .18s ease;
+  }
+
+  .btn:active { transform: translateY(1px); }
+
+  .btn--primary {
+    background: var(--ink);
+    color: #fffdf8;
+  }
+
+  .btn--accent {
+    border-color: var(--accent);
+    background: rgba(180, 85, 62, .08);
+    color: var(--accent);
+  }
+
+  .btn--ghost {
+    border-color: var(--line);
+    background: rgba(255, 253, 248, .65);
+    color: var(--ink);
+  }
+
+  .btn--sm {
+    min-height: 34px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  .btn--block { width: 100%; }
+
+  @media (hover: hover) {
+    .btn--primary:hover { background: #264d42; }
+    .btn--accent:hover { background: rgba(180, 85, 62, .15); }
+    .btn--ghost:hover { background: rgba(47, 93, 80, .06); }
+  }
+
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--muted);
+    transition: color .18s ease, background .18s ease;
+  }
+
+  .icon-btn:hover { background: rgba(47, 93, 80, .06); }
+
+  .star[aria-pressed="true"] { color: var(--accent); }
+  .star[aria-pressed="true"] svg { fill: currentColor; }
+
+  /* 今日任务卡 */
+  .task-card { padding: 14px 15px 15px; }
+
+  .task-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .task-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .task-topic {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: .03em;
+    color: #3a352c;
+  }
+
+  .task-card.is-done .task-topic {
+    color: var(--muted);
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+  }
+
+  .task-excerpt {
+    margin: 9px 0 11px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .task-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+  }
+
+  .task-state {
+    flex: 1;
+    min-width: 0;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  .stamp {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 7px;
+    border: 1px solid rgba(47, 93, 80, .45);
+    border-radius: 4px;
+    background: rgba(47, 93, 80, .04);
+    color: var(--ink);
+    font-size: 10.5px;
+    line-height: 1.5;
+    letter-spacing: .08em;
+    transform: rotate(-1.5deg);
+  }
+
+  .stamp--bad {
+    border-color: rgba(180, 85, 62, .4);
+    background: rgba(180, 85, 62, .05);
+    color: var(--accent);
+  }
+
+  .stamp svg { width: 12px; height: 12px; }
+
+  .today-done {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(47, 93, 80, .055);
+    border-style: dashed;
+  }
+
+  .today-done .seal-sm {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(47, 93, 80, .35);
+    border-radius: 50%;
+    color: var(--ink);
+    transform: rotate(-4deg);
+  }
+
+  .today-done strong {
+    display: block;
+    font-family: var(--serif);
+    font-size: 16px;
+    color: var(--ink);
+  }
+
+  .today-done p { font-size: 12px; color: var(--muted); }
+
+  .review-block { margin-top: 24px; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 2px 10px;
+  }
+
+  .section-head h3 {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    color: var(--ink);
+  }
+
+  .section-head span {
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+
+  .review-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+
+  .review-main { flex: 1; min-width: 0; }
+
+  .review-title {
+    margin-bottom: 6px;
+    font-family: var(--serif);
+    font-size: 16.5px;
+    font-weight: 600;
+    color: #3a352c;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .empty {
+    padding: 26px 18px;
+    border: 1px dashed #d9cfba;
+    border-radius: 14px;
+    background: rgba(255, 253, 248, .62);
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.85;
+  }
+
+  .empty strong {
+    display: block;
+    margin-bottom: 5px;
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .empty--sm {
+    padding: 16px;
+    font-size: 12.5px;
+  }
+
+  /* 题库 */
+  .panel-head { margin: 2px 2px 14px; }
+
+  .panel-title {
+    margin-top: 3px;
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: .02em;
+    color: #2c2a24;
+  }
+
+  .panel-sub {
+    margin-top: 4px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--card);
+    box-shadow: 0 1px 0 rgba(90, 74, 48, .03);
+  }
+
+  .search:focus-within {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 2px rgba(47, 93, 80, .12);
+  }
+
+  .search svg { flex: 0 0 auto; color: var(--muted); }
+
+  .search input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 0;
+    border: 0;
+    background: transparent;
+    font-size: 14px;
+    outline-offset: -2px;
+  }
+
+  .search input::placeholder { color: #b3aa9b; }
+
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .chip {
+    min-height: 36px;
+    padding: 5px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(255, 253, 248, .7);
+    color: var(--muted);
+    font-size: 13px;
+    transition: background .18s ease, color .18s ease, border-color .18s ease;
+  }
+
+  .chip[aria-pressed="true"] {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: #fffdf8;
+  }
+
+  .select-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .select-wrap select {
+    min-height: 36px;
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--card);
+    color: var(--text);
+  }
+
+  .result-count {
+    margin: 0 2px 9px;
+    font-size: 11.5px;
+    color: var(--muted);
+    letter-spacing: .04em;
+  }
+
+  .set-card { overflow: hidden; }
+
+  .set-card + .set-card { margin-top: 12px; }
+
+  .card-toggle {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+    width: 100%;
+    padding: 14px 15px 11px;
+    border: 0;
+    background: transparent;
+    text-align: left;
+  }
+
+  .set-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding-right: 26px;
+  }
+
+  .set-topic {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: .02em;
+    color: #3a352c;
+  }
+
+  .set-excerpt {
+    padding-right: 26px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .set-caret {
+    position: absolute;
+    top: 16px;
+    right: 12px;
+    color: var(--muted);
+    transition: transform .2s ease;
+  }
+
+  .set-card.is-open .set-caret { transform: rotate(180deg); }
+
+  .set-detail {
+    margin: 0 15px;
+    padding: 13px 0 0;
+    border-top: 1px dashed var(--line);
+  }
+
+  .card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px 15px 13px;
+    border-top: 1px dashed var(--line);
+  }
+
+  .set-card .card-foot { margin-top: 0; }
+
+  .text-block + .text-block { margin-top: 14px; }
+
+  .text-block h4 {
+    margin-bottom: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .13em;
+    color: var(--muted);
+  }
+
+  .text-block p {
+    font-size: 14.5px;
+    line-height: 1.9;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+
+  .block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 5px;
+  }
+
+  .block-head h3,
+  .block-head h4 { margin: 0; }
+
+  .text-btn {
+    min-height: 28px;
+    padding: 2px 0;
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    font-size: 12px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .en-block .en-text {
+    font-family: var(--serif);
+    font-size: 15px;
+    line-height: 1.9;
+    color: #34514a;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    transition: filter .2s ease;
+  }
+
+  .en-block.is-blurred .en-text {
+    filter: blur(5px);
+    user-select: none;
+    pointer-events: none;
+  }
+
+  details.diff {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+  }
+
+  details.diff summary {
+    color: var(--accent);
+    font-size: 12.5px;
+    line-height: 1.5;
+    cursor: pointer;
+    list-style-position: inside;
+    width: fit-content;
+  }
+
+  details.diff p {
+    margin-top: 7px;
+    color: #6d6559;
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+
+  .source {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .source a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .src-url {
+    font-size: 11px;
+    color: var(--muted);
+    word-break: break-all;
+  }
+
+  .meta-label {
+    color: var(--muted);
+    font-size: 10.5px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+
+  /* 金句 */
+  .quote-card { padding: 14px 15px 13px; }
+
+  .quote-card + .quote-card { margin-top: 12px; }
+
+  .quote-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .quote-zh {
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.9;
+    color: #3a352c;
+    letter-spacing: .015em;
+  }
+
+  .quote-en {
+    margin-top: 10px;
+    padding-left: 10px;
+    border-left: 2px solid rgba(47, 93, 80, .25);
+    font-family: var(--serif);
+    font-size: 14px;
+    line-height: 1.85;
+    color: #34514a;
+  }
+
+  .quote-foot { margin-top: 8px; }
+
+  .quote-note {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--line);
+    font-size: 11.5px;
+    line-height: 1.65;
+    color: var(--muted);
+  }
+
+  /* 计划 */
+  .plan-card { padding: 15px; }
+  .plan-card + .plan-card { margin-top: 12px; }
+
+  .plan-card h3 {
+    margin-bottom: 10px;
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    color: var(--ink);
+  }
+
+  .seg {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    padding: 4px;
+    border-radius: 12px;
+    background: rgba(47, 93, 80, .055);
+  }
+
+  .seg button {
+    min-height: 40px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    transition: background .18s ease, color .18s ease;
+  }
+
+  .seg button[aria-pressed="true"] {
+    background: var(--ink);
+    color: #fffdf8;
+    box-shadow: 0 2px 5px -2px rgba(47, 93, 80, .55);
+  }
+
+  .field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 0 1px;
+    margin-top: 10px;
+    border-top: 1px dashed var(--line);
+    font-size: 13.5px;
+    color: var(--text);
+  }
+
+  input[type="date"] {
+    min-height: 38px;
+    padding: 5px 8px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    background: var(--card);
+    color: var(--text);
+    font-size: 13px;
+  }
+
+  .switch-row { cursor: pointer; }
+
+  .switch {
+    position: relative;
+    flex: 0 0 auto;
+    display: inline-flex;
+    width: 44px;
+    height: 26px;
+  }
+
+  .switch input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .switch .track {
+    position: relative;
+    display: block;
+    width: 44px;
+    height: 26px;
+    border-radius: 999px;
+    background: #ded5c4;
+    transition: background .18s ease;
+  }
+
+  .switch .track::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fffdf8;
+    box-shadow: 0 1px 3px rgba(70, 58, 38, .28);
+    transition: transform .18s ease;
+  }
+
+  .switch input:checked + .track { background: var(--ink); }
+  .switch input:checked + .track::after { transform: translateX(18px); }
+  .switch input:focus-visible + .track {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 16px 8px;
+  }
+
+  .stat {
+    position: relative;
+    text-align: center;
+    padding: 0 4px;
+  }
+
+  .stat + .stat::before {
+    content: "";
+    position: absolute;
+    top: 15%;
+    bottom: 15%;
+    left: 0;
+    width: 1px;
+    background: var(--line);
+  }
+
+  .stat strong {
+    display: block;
+    font-family: var(--serif);
+    font-size: 25px;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+
+  .stat span {
+    display: block;
+    margin-top: 3px;
+    font-size: 11.5px;
+    letter-spacing: .04em;
+    color: var(--muted);
+  }
+
+  .schedule {
+    max-height: 338px;
+    overflow-y: auto;
+    padding: 3px 2px;
+    border-top: 1px dashed var(--line);
+    border-bottom: 1px dashed var(--line);
+    overscroll-behavior: contain;
+  }
+
+  .schedule-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 8px;
+    border-bottom: 1px dashed rgba(230, 221, 201, .75);
+    font-size: 12.5px;
+  }
+
+  .schedule-row:last-child { border-bottom: 0; }
+
+  .schedule-row.is-today {
+    border-bottom-color: transparent;
+    border-radius: 8px;
+    background: rgba(47, 93, 80, .075);
+  }
+
+  .sched-date {
+    flex: 0 0 88px;
+    font-family: var(--serif);
+    color: var(--ink);
+    letter-spacing: .02em;
+  }
+
+  .sched-topics {
+    flex: 1;
+    min-width: 0;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .is-today .sched-date,
+  .is-today .sched-topics { color: var(--ink); }
+
+  .today-mark {
+    flex: 0 0 auto;
+    display: inline-grid;
+    place-items: center;
+    width: 19px;
+    height: 19px;
+    border: 1px solid rgba(180, 85, 62, .4);
+    border-radius: 50%;
+    color: var(--accent);
+    font-size: 10px;
+    transform: rotate(-6deg);
+  }
+
+  .finish-line {
+    margin-top: 10px;
+    text-align: right;
+    font-family: var(--serif);
+    font-size: 13.5px;
+    color: var(--accent);
+    letter-spacing: .02em;
+  }
+
+  .data-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 12px;
+  }
+
+  .data-actions .btn { flex: 1 1 130px; }
+
+  .storage-note {
+    margin-top: 10px;
+    color: var(--accent);
+    font-size: 11.5px;
+    line-height: 1.6;
+  }
+
+  /* 底部 tabbar */
+  .tabbar {
+    position: fixed;
+    left: 50%;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    z-index: 30;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    width: calc(100% - 20px);
+    max-width: 740px;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: rgba(255, 253, 248, .97);
+    box-shadow: 0 12px 28px -16px rgba(63, 52, 34, .6);
+    transform: translateX(-50%);
+    backdrop-filter: blur(6px);
+  }
+
+  .tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 7px 2px 6px;
+    border: 0;
+    border-radius: 11px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 10.5px;
+    line-height: 1.3;
+    letter-spacing: .04em;
+    transition: background .18s ease, color .18s ease;
+  }
+
+  .tab[aria-selected="true"] {
+    background: var(--ink);
+    color: #fffdf8;
+  }
+
+  /* 练习覆盖层 */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(38, 34, 27, .46);
+  }
+
+  .sheet {
+    position: relative;
+    width: 100%;
+    max-width: 760px;
+    max-height: 92vh;
+    max-height: 92dvh;
+    overflow-y: auto;
+    padding: 8px 18px calc(24px + env(safe-area-inset-bottom));
+    border-radius: 20px 20px 0 0;
+    background: var(--card);
+    box-shadow: 0 -12px 40px rgba(38, 34, 27, .25);
+    animation: sheetIn .22s ease-out;
+    overscroll-behavior: contain;
+  }
+
+  @keyframes sheetIn {
+    from { opacity: .55; transform: translateY(18px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 4px;
+    border-bottom: 1px dashed var(--line);
+  }
+
+  .sheet-step {
+    font-size: 11px;
+    letter-spacing: .12em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .practice-head { margin-top: 14px; }
+
+  .practice-head .tags { margin-top: 7px; }
+
+  .practice-zh {
+    margin: 14px 0 18px;
+    font-family: var(--serif);
+    font-size: 21px;
+    font-weight: 600;
+    line-height: 1.9;
+    letter-spacing: .02em;
+    color: #332f27;
+    overflow-wrap: break-word;
+  }
+
+  .draft {
+    display: block;
+    width: 100%;
+    min-height: 96px;
+    margin-bottom: 14px;
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fffef9;
+    font-size: 14px;
+    line-height: 1.8;
+    resize: vertical;
+  }
+
+  .draft::placeholder { color: #b3aa9b; }
+
+  .reveal-box {
+    margin-top: 16px;
+    padding: 13px 14px;
+    border: 1px solid rgba(47, 93, 80, .18);
+    border-radius: 12px;
+    background: rgba(47, 93, 80, .045);
+  }
+
+  .reveal-box:focus-visible { outline-offset: 3px; }
+
+  .reveal-title {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--ink);
+  }
+
+  .reveal-box .en-text {
+    margin-top: 4px;
+    font-family: var(--serif);
+    font-size: 15.5px;
+    line-height: 1.9;
+    color: #2f4a43;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+
+  .reveal-box details.diff { margin-top: 11px; }
+
+  .eval-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .eval-row .btn { min-height: 46px; }
+
+  .finish {
+    padding: 30px 8px 16px;
+    text-align: center;
+  }
+
+  .finish .seal {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 15px;
+    border: 2px solid rgba(47, 93, 80, .4);
+    border-radius: 50%;
+    color: var(--ink);
+    transform: rotate(-4deg);
+  }
+
+  .finish h2 {
+    font-family: var(--serif);
+    font-size: 23px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--ink);
+  }
+
+  .finish p {
+    max-width: 280px;
+    margin: 8px auto 18px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--muted);
+  }
+
+  .toast {
+    position: fixed;
+    top: calc(14px + env(safe-area-inset-top));
+    left: 50%;
+    z-index: 80;
+    max-width: calc(100% - 40px);
+    padding: 9px 16px;
+    border-radius: 999px;
+    background: rgba(47, 93, 80, .96);
+    color: #fffdf8;
+    font-size: 12.5px;
+    line-height: 1.5;
+    text-align: center;
+    box-shadow: 0 8px 22px -12px rgba(38, 34, 27, .7);
+    opacity: 0;
+    transform: translate(-50%, -8px);
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+
+  .toast.is-on {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  @media (min-width: 700px) {
+    .masthead { padding: 30px 30px 40px; }
+    main { padding-left: 28px; padding-right: 28px; }
+    .overlay { align-items: center; padding: 24px; }
+    .sheet {
+      border-radius: 18px;
+      max-height: 86vh;
+      max-height: 86dvh;
+      padding-bottom: 24px;
+    }
+    .practice-zh { font-size: 23px; }
+  }
+
+  @media (max-width: 380px) {
+    .masthead h1 { font-size: 27px; }
+    .day-title, .panel-title { font-size: 22px; }
+    .task-topic { font-size: 20px; }
+    .sched-date { flex-basis: 80px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="masthead">
+    <span class="masthead-tape" aria-hidden="true"></span>
+    <p class="masthead-kicker">Translation Notebook</p>
+    <h1>真题翻译小手账</h1>
+    <p class="masthead-sub">48 套真题 · 2022.12—2026.6</p>
+  </header>
+
+  <main>
+    <section id="panel-today" class="panel" role="tabpanel" aria-labelledby="tab-today">
+      <div class="day-head">
+        <div>
+          <p class="eyebrow">今日 · Today</p>
+          <h2 id="day-title" class="day-title">今天</h2>
+          <p id="day-sub" class="day-sub"></p>
+        </div>
+        <div id="day-dots" class="day-dots" aria-hidden="true"></div>
+      </div>
+      <div id="today-list" class="stack"></div>
+      <section id="review-block" class="review-block" aria-labelledby="review-title">
+        <div class="section-head">
+          <h3 id="review-title">到期复习</h3>
+          <span id="review-count"></span>
+        </div>
+        <div id="review-list" class="stack"></div>
+      </section>
+    </section>
+
+    <section id="panel-sets" class="panel" role="tabpanel" aria-labelledby="tab-sets" hidden>
+      <div class="panel-head">
+        <p class="eyebrow">题库 · Library</p>
+        <h2 class="panel-title">真题题库</h2>
+        <p class="panel-sub">先自己翻一遍，再揭开参考译文。</p>
+      </div>
+      <div class="toolbar">
+        <label class="search">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.4"/><path d="M15.6 15.6 20 20"/></svg>
+          <span class="sr-only">搜索题库</span>
+          <input id="set-search" type="search" placeholder="搜题材、原文或英文…" autocomplete="off" />
+        </label>
+        <div class="filter-row">
+          <div id="level-chips" class="chips" role="group" aria-label="按等级筛选">
+            <button type="button" class="chip" data-level="all" aria-pressed="true">全部</button>
+            <button type="button" class="chip" data-level="四级" aria-pressed="false">四级</button>
+            <button type="button" class="chip" data-level="六级" aria-pressed="false">六级</button>
+          </div>
+          <label class="select-wrap">
+            <span>年份</span>
+            <select id="set-year">
+              <option value="">全部年份</option>
+              <option value="2026">2026</option>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <p id="set-count" class="result-count" aria-live="polite"></p>
+      <div id="set-list" class="list"></div>
+    </section>
+
+    <section id="panel-quotes" class="panel" role="tabpanel" aria-labelledby="tab-quotes" hidden>
+      <div class="panel-head">
+        <p class="eyebrow">金句 · Lines</p>
+        <h2 class="panel-title">翻译金句</h2>
+        <p class="panel-sub">一句一句对照着看，收藏喜欢的表达。</p>
+      </div>
+      <div class="toolbar">
+        <label class="search">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.4"/><path d="M15.6 15.6 20 20"/></svg>
+          <span class="sr-only">搜索金句</span>
+          <input id="quote-search" type="search" placeholder="搜中文或英文…" autocomplete="off" />
+        </label>
+      </div>
+      <p id="quote-count" class="result-count" aria-live="polite"></p>
+      <div id="quote-list" class="list"></div>
+    </section>
+
+    <section id="panel-plan" class="panel" role="tabpanel" aria-labelledby="tab-plan" hidden>
+      <div class="panel-head">
+        <p class="eyebrow">计划 · Plan</p>
+        <h2 class="panel-title">背记计划</h2>
+        <p class="panel-sub">把 48 套切成每天能完成的小份。</p>
+      </div>
+
+      <div class="card plan-card">
+        <h3>每日套数</h3>
+        <div id="perday-seg" class="seg" role="group" aria-label="每日套数">
+          <button type="button" data-perday="1" aria-pressed="false">1 套</button>
+          <button type="button" data-perday="2" aria-pressed="true">2 套</button>
+          <button type="button" data-perday="3" aria-pressed="false">3 套</button>
+          <button type="button" data-perday="4" aria-pressed="false">4 套</button>
+        </div>
+        <label class="field" for="start-date">
+          <span>开始日期</span>
+          <input id="start-date" type="date" />
+        </label>
+        <label class="field switch-row" for="review-toggle">
+          <span>完成后自动安排 1/3/7 天复习</span>
+          <span class="switch">
+            <input id="review-toggle" type="checkbox" />
+            <span class="track" aria-hidden="true"></span>
+          </span>
+        </label>
+      </div>
+
+      <div class="card stats">
+        <div class="stat">
+          <strong id="stat-done">0/48</strong>
+          <span>已背</span>
+        </div>
+        <div class="stat">
+          <strong id="stat-streak">0</strong>
+          <span>连续打卡</span>
+        </div>
+        <div class="stat">
+          <strong id="stat-star">0</strong>
+          <span>收藏</span>
+        </div>
+      </div>
+
+      <div class="card plan-card">
+        <h3>排期表</h3>
+        <div id="schedule-list" class="schedule" tabindex="0" role="region" aria-label="背记排期表"></div>
+        <p id="finish-line" class="finish-line"></p>
+      </div>
+
+      <div class="card plan-card">
+        <h3>进度备份</h3>
+        <div class="data-actions">
+          <button type="button" id="export-btn" class="btn btn--ghost">导出进度</button>
+          <button type="button" id="clear-btn" class="btn btn--accent">清空进度</button>
+        </div>
+        <p id="storage-note" class="storage-note" hidden>浏览器存储不可用，本次进度只保留在当前页面。</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="tabbar" role="tablist" aria-label="主导航">
+  <button type="button" class="tab" id="tab-today" role="tab" data-tab="today" aria-controls="panel-today" aria-selected="true" tabindex="0">
+    <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7"/></svg>
+    <span>今日</span>
+  </button>
+  <button type="button" class="tab" id="tab-sets" role="tab" data-tab="sets" aria-controls="panel-sets" aria-selected="false" tabindex="-1">
+    <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5c2.8-1 5.3-.7 8 1v13c-2.7-1.7-5.2-2-8-1z"/><path d="M20 5.5c-2.8-1-5.3-.7-8 1v13c2.7-1.7 5.2-2 8-1z"/></svg>
+    <span>题库</span>
+  </button>
+  <button type="button" class="tab" id="tab-quotes" role="tab" data-tab="quotes" aria-controls="panel-quotes" aria-selected="false" tabindex="-1">
+    <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.8 6.2H6.1A1.9 1.9 0 0 0 4.2 8.1v3.2c0 1 .9 1.9 1.9 1.9h2.2v.5c0 1.6-1 2.7-2.6 3.2"/><path d="M19.8 6.2h-3.7a1.9 1.9 0 0 0-1.9 1.9v3.2c0 1 .9 1.9 1.9 1.9h2.2v.5c0 1.6-1 2.7-2.6 3.2"/></svg>
+    <span>金句</span>
+  </button>
+  <button type="button" class="tab" id="tab-plan" role="tab" data-tab="plan" aria-controls="panel-plan" aria-selected="false" tabindex="-1">
+    <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3.5v4M16 3.5v4M7.5 14h3M13.5 14h3M7.5 17h3"/></svg>
+    <span>计划</span>
+  </button>
+</nav>
+
+<div id="practice-overlay" class="overlay" hidden>
+  <div class="sheet" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="practice-title">
+    <div class="sheet-head">
+      <span id="practice-step" class="sheet-step"></span>
+      <button type="button" class="icon-btn" data-action="close" aria-label="关闭练习">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div id="practice-body"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+const DATA = {"sets":[{"date":"2022.12","level":"四级","no":"一","topic":"立春","text":"立春（Start of Spring）在中国农历中表示春天的开始。立春之后，白天变得更长，天气也愈发温暖：万物开始复苏，大地充满生机。人们常说“一年之计在于春”，农民在这个时节开始播种，为全年的丰收打下基础。中国人早在三千年前就已开始在立春这一天举行庆祝活动。数百年来，迎春一直是民间的重要习俗。在春暖花开的日子里，人们常常外出游玩，欣赏春天的美景。","en":"Start of Spring marks the beginning of spring in the Chinese lunar calendar. After Start of Spring, the daytime becomes longer, the weather becomes warmer, everything starts to recover and the earth is full of vitality. It is often said that the whole year's work depends on a good start in spring. Farmers start planting seeds at this time to lay the foundation for a good harvest in this year. The Chinese have been holding celebration activities for Start of Spring since 3,000 years ago. For hundreds of years, welcoming spring has been an important folk custom. During the warm days of spring when flowers blossom, people often travel outside and enjoy the beauty of spring.","src":"新东方网（机构答案）https://cet4-6.xdf.cn/202212/12656856.html","diff":"新东方在线 12/25 汇总版译作“Start of Spring means the beginning…”“a year's plan begins in spring”，措辞与本版不同。"},{"date":"2022.12","level":"四级","no":"二","topic":"冬至","text":"冬至是全年白昼最短、黑夜最长的一天，标志着一年中最寒冷时节的开始。冬至过后，气温越来越低，人们户外活动逐渐减少，农民地里的活不多，主要忙于灌溉系统的维护和主要农作物的防冻，同时为来年春天播种做准备。中国人历年来很重视冬至，许多地方都把冬至当作一个节日，庆祝方式不尽相同，北方人有冬至吃饺子的习俗，南方人有冬至吃汤圆的传统。","en":"Winter Solstice is the day with the shortest daytime and the longest nighttime, marking the beginning of the coldest time of a year. From this moment on, the temperature drops continuously, and people gradually reduce their outdoor activities. Farmers have less work in their field, mainly engaging themselves in the maintenance of the irrigation system and the prevention of freezing harm to crops to prepare for the spring sowing in the coming year. Chinese have always been attaching so much importance to Winter Solstice that it is regarded as a festival in many places, when people celebrate it in different ways. The people in the north have the custom of eating jiaozi and those in the south the tradition of eating tangyuan.","src":"新东方网（机构答案）http://mtoutiao.xdf.cn/cet4-6/202212/12656857.html","diff":"该页中文原文误作“全年白昼最长，黑夜最短”，新东方在线 12/25 汇总版沿用此误并译作 the longest days and shortest nights；此处按同页译文及新东方在线另一版校正为“白昼最短、黑夜最长”。"},{"date":"2022.12","level":"四级","no":"三","topic":"立秋","text":"在中国农历中，立秋（Start of Autumn）意味着夏天的结束和秋天的开始，立秋带来的首先是天气的变化，气温逐渐下降。人们看到树叶开始变黄飘落时，知道秋天已经来临，这就是所谓的“一叶知秋”。但此时酷热的天气并未完全结束，高温通常还会持续一段时间，被称为“秋老虎”。立秋对农民意义重大，这时各种秋季作物迅速生长、开始成熟，收获的季节即将到来。","en":"In the Chinese lunar calendar, the Start of Autumn marks the end of summer and the beginning of autumn. The first sign of the Start of Autumn is the changes in the weather, with the temperature gradually dropping. When people see the leaves begin to turn yellow and fall, they know that autumn has come, hence the idiom “the falling of one leaf heralds the arrival of autumn”. But the hot weather is not completely over at this point, and the high temperature usually lasts for a while, which is called the “autumn tiger”. The Start of Autumn is of great significance to farmers. At this time, various autumn crops grow rapidly and begin to ripen, and the harvest season is approaching.","src":"新东方网（机构答案）http://mtoutiao.xdf.cn/cet4-6/202212/12656860.html","diff":"该页英文有 OCR 缺字（erops、fipening、缺句点），已按语义补正；新东方在线 12/25 汇总版译作“Start of Autumn signifies…”，并把“一叶知秋”译为 knowing the autumn has arrived through the falling of one leaf。"},{"date":"2022.12","level":"六级","no":"一","topic":"黄土高原","text":"黄土高原（the Loess Plateau）是中国第三大高原，面积约60万平方公里，平均海拔1000-2000米，绝大部分覆盖着50-80米厚的黄土，是世界上黄土分布最集中、覆盖厚度最大的区域。这是大自然创造的一个奇迹，在世界上也是绝无仅有的。黄土高原是中华民族的发祥地之一。早在5500年前，人们就已经在黄土高原上开始农耕。随着农耕业的持续发展，黄土高原人口不断增加，在秦汉时期就成为中国的政治和经济中心。如今，随着西部大开发战略的实施，黄土高原地区的经济得到了迅速发展。","en":"The Loess Plateau, the third largest plateau in China, covers an area of 600,000 square kilometres and rises 1,000-2,000 metres above the sea level on average. As the majority of the plateau is covered with 50-80 metre thick layer of loess, it is the most concentrated area in loess distribution in the world. Therefore, it is well recognized as a miracle created by the nature and the unique one on this planet. The Loess Plateau is one of the cradles of the Chinese nation where Chinese began farming 5,500 years ago. With the continuous development of agriculture, the population kept increasing on the plateau, which became the political and economic centre of China in the Han Dynasty. Today, with the Western Development strategy implemented, the economy of the Loess Plateau area is developing rapidly.","src":"新东方网（机构答案）http://mtoutiao.xdf.cn/cet4-6/202212/12657359.html","diff":"该页中英文均有 OCR 缺字（“随看”应为“随着”、se level、1,00-2,00），已按语义补正；译文将“秦汉时期”只译作 the Han Dynasty。"},{"date":"2022.12","level":"六级","no":"二","topic":"云贵高原","text":"云贵高原（the Yunnan-Guizhou plateau）大部分位于云南、贵州省境内，总面积约50万平方公里，平均海拔2000-4000米，是中国第四大高原。云贵高原西高东低，河流众多，形成了许多又深又陡的峡谷（canyon）。峡谷中许多地方土壤肥沃，非常有利于多种农作物生长。云贵高原独特的自然环境造就了生物和文化的多样性。它是中国森林和矿产资源类型十分丰富的地区，也是古人类起源的重要地区。云贵高原是中国少数民族数量最多的地区，各民族都保留了自己丰富多彩的文化传统。","en":"The Yunnan-Guizhou Plateau, located mostly in Yunnan Province and Guizhou Province, is the fourth largest plateau in China which covers a total area of 0.5 million square kilometres and rises 2,000-4,000 metres above the sea level on average. The plateau slopes from the west to the east with many rivers flowing through, gradually forming a lot of steep canyons where there are fertile lands which benefit the growth of many crops. The unique natural environment of the plateau contributes to great biological and cultural diversity. It is well recognized as both an area rich in forest and mineral resources and an important human cradle. It is also the region with the most minority peoples in China, where their colourful cultural traditions are well preserved.","src":"新东方网（机构答案）http://mtoutiao.xdf.cn/cet4-6/202212/12657359.html","diff":"该页英文有 OCR 拼写缺字（Yunan、Prov-ince、kilome-tres），已按语义补正；新东方 2026 年重译版把“西高东低”译为 slopes from the northwest to the southeast，方向表述不同。"},{"date":"2022.12","level":"六级","no":"三","topic":"青藏高原","text":"青藏高原（the Qinghai-Tibet Plateau）位于中国西南部，面积约230万平方公里，平均海拔4000米以上，被称为“世界屋脊”。青藏高原自然资源丰富，风景秀丽，拥有多种珍稀野生动物。青藏高原气温很低，形成了大面积高山冰川。这里是亚洲许多著名河流的源头，是中国和东南亚的主要淡水供应源。青藏高原对全球生态系统至关重要。由于气候变化的影响，青藏高原的冰川正在加速融化。中国一直在努力保护青藏高原的生态系统，草地覆盖率不断增加，许多濒危物种得到了有效的保护。","en":"The Qinghai-Tibet Plateau, located in southwest China, covers an area of 2.3 million square kilometres and rises over 4,000 metres above the sea level, thus enjoying the reputation as “the world roof”. The plateau boasts abundant natural resources, many rare wild animals and picturesque views. The plateau features a large area of high mountains and glaciers due to the low temperature and the origin of many well-known Asian rivers which are well recognized as the major providers of fresh water for China and southeast Asian countries. Therefore, the plateau plays a key role in the global eco-system. Owing to the impact of climate change, the glaciers here are melting more quickly. The Chinese government has been endeavouring to conserve the eco-system here, gradually increasing the fraction of green coverage and effectively protecting many endangered species.","src":"新东方网（机构答案）http://mtoutiao.xdf.cn/cet4-6/202212/12657359.html","diff":"该页英文有 OCR 分行连字符与缺字（gla-ciers、Chi-nese），已按语义补正；新东方 2026 年重译版原文作“青藏高原气候温和……发源地”，并把“世界屋脊”译为 the “Roof of the World”。"},{"date":"2023.6","level":"四级","no":"一","topic":"高等教育","text":"改革开放40多年以来，中国政府对高等教育越来越重视，高等教育已经进入稳步发展阶段。高校学生总数已接近4700万人，位居世界第一。随着我国经济的快速发展，人民生活水平不断提高，越来越多的人渴望接受高等教育。我国高校的数量和学科专业持续增加，招生人数逐年上升，教学质量也在不断改进，为更多年轻人创造了接受高等教育的机会。","en":"For over 40 years after the reform and opening-up, the Chinese government has placed increasing emphasis on higher education, which has stepped into a stage of stable development with 47 million college students, topping the world in terms of number. With the rapid development of China's economy and the ever-increasing living standard of the Chinese people, more and more citizens long for higher education. The number of colleges and universities and the professionalism of disciplines and majors are continuously raised, the enrolments gradually increased, and the teaching quality constantly improved, creating more opportunities of higher education for young men.","src":"新东方网《2023年6月英语四级翻译考试题目》（机构答案）https://mtoutiao.xdf.cn/cet4-6/202306/13359966.html","diff":"新东方该页为图片转文字，个别字有识别错误（「人民生活水平」作「冰平」、「招生人数」作「招人数」、专业列举后多一冒号），此处按语句校正；英文为网页原样（仅去除排版断词连字符）。"},{"date":"2023.6","level":"四级","no":"二","topic":"终身教育","text":"中国政府越来越重视终身教育，发展继续教育是构建终身教育的有效途径，高校作为人才培养的基地，拥有先进理念，丰富教学资源，理应成为继续教育的培养主体。近年来，许多高校努力适应社会需求，与用人单位沟通，探索出一条适应中国国情的继续教育新路，以使继续教育在国家战略中发挥更重大的作用。","en":"The Chinese government attaches progressively more importance to life-long education. Developing continuing education is an effective way to build life-long education. With advanced ideas and abundant teaching resources, high technology as the basis of talent cultivation should be regarded as main body of adult education. In recent years, many colleges and universities have found a new developmental way of continuing education that is suitable to China's national conditions by meeting social needs and communicating with employers, so as to ensure continuing education a greater role in the national strategy.","src":"新东方网《2023年6月英语四级翻译考试题目》（机构答案）https://mtoutiao.xdf.cn/cet4-6/202306/13359966.html","diff":"无（机构译文将「高校」误作 high technology，系原文如此，照录未改）。"},{"date":"2023.6","level":"四级","no":"三","topic":"义务教育","text":"中国政府一直重视义务教育，使每个儿童都有受教育的机会，自1986年《义务教育法》生效以来，经过不懈努力，实现全民义务教育的目标。如今，在中国，儿童从6岁开始上小学，从小学到初中接受九年义务教育，自2008年秋季开始，义务教育阶段无需缴纳学费，随着一系列教育改革的实施，中国义务教育质量显著提高。","en":"The Chinese government has been emphasizing compulsory education all the time, making it available to each and every child. Since \"Law of Compulsory Education\" came into force in 1986, the authorities have made relentless efforts to achieve the goal of compulsory education for all. Nowadays, the Chinese children start school at 6 and receive 9-year compulsory education from the primary school to the junior middle school. In the autumn of 2008, free compulsory education took effect. With the implementation of a series of educational reforms, the quality of China's compulsory education has been considerably improved.","src":"新东方网《2023年6月英语四级翻译考试题目》（机构答案）https://mtoutiao.xdf.cn/cet4-6/202306/13359966.html","diff":"无"},{"date":"2023.6","level":"六级","no":"一","topic":"城市发展","text":"近年来，中国城市加快发展，城市人居住环境得到显著改善。许多城市努力探索中国特色的城市高质量发展之路，城市功能不断完善，治理水平明显提高。中国持续开展城市生态修复和功能修补，全面实施城镇老旧小区改造，大力推进城市园林绿化，消除污染；同时大力推进城市基础设施体系化建设，开展房屋建筑和市政设施普查以及安全隐患排查整治，努力为市民创造高品质的生活环境，让城市更美丽、更安全、更宜居。","en":"In recent years, the Chinese cities have accelerated their development, considerably improving the living environment of their citizens. Many cities explore with great efforts the path to high-quality development with Chinese characteristics, with urban functions continuously improved and management levels conspicuously raised. China ceaselessly conducts urban ecological restoration and functional repair, fully implements the renovation of old residential communities, vigorously promotes urban landscaping, reduces pollution, forcefully advances the systematic construction of urban infrastructure, and carries out the general survey of houses and public facilities as well as the investigation and prevention of potential safety hazard so as to create a high-quality dwelling environment for citizens and make the city prettier, safer and more suitable for living.","src":"新东方网《2023年6月英语六级翻译试题及答案解析第1套（网络版）》（机构答案）http://mtoutiao.xdf.cn/cet4-6/202306/13360549.html","diff":"无"},{"date":"2023.6","level":"六级","no":"二","topic":"文化走出去","text":"近年来，越来越多的中国文化产品的走向全球市场，日益受到海外消费者的青睐。随着中国对外文化贸易的快速发展，中国文化产品出口额已持续多年位居世界前列，形成了一批具有国际影响力的文化企业产品的和品牌。数据显示，中国的出版物、影视作品、网络文学与动漫产品等在国外的销售量连年攀升。中国政府出台了一系列政策鼓励和支持更多具有中国元素的优秀文化产品的走出国门，扩大海外市场份额，进一步提升中国文化的世界影响力。","en":"In recent years, more and more Chinese culture products have appeared on the global market and gradually gained the favour of overseas consumers. With the rapid development of foreign culture trade, the export volume of Chinese culture products has been ranking high in the world for many years in a row, contributing to the establishment of a series of Chinese culture products and brands with international influence. Statistics show that the sales volume of the Chinese publications, films and TV programmes, internet literature and cartoon products has been on the rise for years. The Chinese government has introduced a series of policies to support and encourage more outstanding culture products with Chinese elements to go abroad and expand the oversea market shares to further raise the global influence of Chinese cultures.","src":"新东方网《2023年6月英语六级翻译试题及答案解析第2套（网络版）》（机构答案）http://mtoutiao.xdf.cn/cet4-6/202306/13360551.html","diff":"新东方网页原文作「中国文化产品的走向全球市场」「文化企业产品的和品牌」，多一「的」字，疑为录入衍字，此处照录未删。"},{"date":"2023.6","level":"六级","no":"三","topic":"公共设施","text":"随着中国经济的快速发展和人们生活水平的稳步提高，城市居民对环境和生活品质的要求越来越高。中国地方政府更加注重公共设施的建设和改进，以更好地满足人们的需求。通过兴建新的广场、公园和公共绿地或对原有公共场地重新加以规划改造，许多城市为市民提供了更多休闲和社交的场所。如今，政府出资购置的健身器械和铺设的健身步道在不少城市随处可见，既明显改善了市民户外活动的条件，又使城市更加美丽。","en":"With the rapid development of China's economy and the steady improvement of people's living standards, urban residents have higher and higher requirements for the environment and quality of life. Chinese local governments pay more attention to the construction and improvement of public facilities to better meet people's needs. By building new squares, parks, and public green spaces or redesigning existing public spaces, many cities have provided more places for citizens to relax and socialize. Nowadays, government-funded purchases of fitness equipment and paved fitness trails can be seen everywhere in many cities, which not only significantly improve the conditions for citizens' outdoor activities, but also make the city more beautiful.","src":"网络整理版（非署名机构，经希赛网转录，非新东方）https://www.educity.cn/cet/5114853.html ；原文另见新东方《真题详解：2023年6月“公共设施”考点与翻译思路》http://mtoutiao.xdf.cn/cet4-6/202601/15085696.html","diff":"新东方仅发布原文与考点讲解、无完整译文；网络整理版原文「满足人们的需」缺字，此处从新东方版作「满足人们的需求」。"},{"date":"2023.12","level":"四级","no":"一","topic":"饮食变化","text":"改革开放以来，中国人的饮食发生了显著变化。过去由于经济落后，食品种类有限、数量不足，人们仅仅满足于吃得饱。如今中国经济快速发展，食品不仅更加丰富多样，质量也大幅提高。随着生活水平不断提升，人们对饮食的要求越来越高，更加注重吃得营养健康。因此，目前市场上推出的低脂、低糖、有机食品受到人们的普遍欢迎。","en":"Since the reform and opening-up, Chinese diet has undergone significant changes. In the past when the economy was backward, food was so short in both kinds and amount that people were only concerned about whether they had enough to eat. Today, as the Chinese economy develops rapidly, food is not only more diverse but also much better in quality. With the improvement of living conditions, people have higher demand for food, paying more attention to food nutrition. Therefore, low-fat, low-sugar and organic foods that are launched into the market enjoy great popularity among people.","src":"新东方（机构答案）+ https://mtoutiao.xdf.cn/cet4-6/202312/13552894.html","diff":"考试当天版作「食品不仅更多丰富多样」「更加注重吃的营养」，2026年新东方精校版作「更加丰富多样」「吃得营养健康」，此处取精校版。"},{"date":"2023.12","level":"四级","no":"二","topic":"健康饮食","text":"中国政府十分重视人民的健康饮食。通过大力提倡健康饮食，人们对合理营养增进健康的重要性有了更加深刻的认识。\"吃的安全，吃的营养，吃得健康\"是人民对美好生活的基本需求，是提升人民幸福感的必然要求，也为食品产业的发展提供了新机遇。目前，各级政府都在采取多种措施，推进健康中国的建设。","en":"The Chinese Government attaches great importance to a healthy diet for its people. With its vigorous advocation, the Chinese people have gained a deeper understanding of the important role of proper nutrition in health improvement. \"Eating safely, nutritiously and healthily\" is the people's basic demand for a good life, an inevitable requirement in enhancing people's sense of well-being, and also creation of new opportunities for the development of the food industry. At present, governments at all levels are taking various measures to promote the construction of a healthy China.","src":"新东方（机构答案）+ https://mtoutiao.xdf.cn/cet4-6/202312/13552870.html","diff":"新东方精校版作「基本需要」「各级政府都在采取多种举措确保人民饮食健康」，与此处考试当天版「基本需求」「多种措施」措辞不同，译文与考试当天版对应。"},{"date":"2023.12","level":"四级","no":"三","topic":"饮食结构","text":"改革开放以来，中国人民生活水平不断提高，这在人们的饮食（diet）变化上得到充分体现。如今，人们不再满足于吃得饱，而是追求吃得更加安全、更加营养、更加健康，食物也愈来愈丰富多样，不再限于本地的农产品。物流业（logistics industry）的发展使人们很容易品尝到全国各地的特产。毫无疑问，食品质量与饮食结构的改善为增进人们健康提供了有力的保障。","en":"Since the reform and opening-up, the living standard of the Chinese people has been on continuous improvement, which is fully reflected in the change of people's diet. Today, people are no longer satisfied with whether they have enough to eat, but seek to eat more safely, more nutritiously and more healthily. What's more, food becomes more diverse and is not limited to local produce. The development of the logistics industry makes it easy for people to taste local specialties from all over the country. Doubtlessly, the improvement of food quality and diet structure provides a strong guarantee for the promotion of people's health.","src":"新东方（机构答案）+ https://mtoutiao.xdf.cn/cet4-6/202312/13552872.html","diff":"新东方考试当天版此处误录为「学食品质量与饮食结构的改善」，武汉新东方真题版作「食品质量与饮食结构」，此处取后者。"},{"date":"2023.12","level":"六级","no":"一","topic":"人口老龄化","text":"随着经济与社会的发展，中国人口结构发生了显著变化，逐渐步入老龄化社会。中国老年人口将继续增加，人口老龄化趋势将更加明显。为了应对人口老龄化带来的种种挑战，国家正积极采取措施，加大对养老的支持。通过改革社会保障制度，政府不断增加社会保障经费，逐步扩大社会保障覆盖范围，使更多老年人受益。政府还鼓励各种社会团体为老年人提供服务。在政府和社会团体的共同努力下，老年人将生活得更加幸福。","en":"With the development of economy and society, there has been a significant change in the population structure in China, gradually transitioning into an aging society. It is expected that China's elderly population will continue to increase, and the trend of population aging will become more obvious. To cope with various challenges brought about by population aging, the country is actively taking measures to strengthen support for elderly care. Through the reform of the social security system, the government has continuously increased social security funds and gradually expanded the coverage of social security in order to benefit more elderly people. Furthermore, the government encourages various social organizations to provide services for the elderly. Through the collaborative efforts of the government and social organizations, the elderly will live a happier life.","src":"新东方（机构答案）+ https://mtoutiao.xdf.cn/cet4-6/202312/13552916.html","diff":"无；网页译文有 gradualty、encoureges、populationstructure in china 等录入错误，此处仅校正拼写与断词，措辞未改。"},{"date":"2023.12","level":"六级","no":"二","topic":"养老模式","text":"在中国，随着老龄化社会的到来，养老受到普遍关注。人们谈论最多的是应当采取什么样的养老模式。多数人认为，养老模式需要多元化。可以通过政府引导和社会参与，建立更多更好的养老服务机构，改进社区服务中心，鼓励居家自助养老，还可以推行家庭养老与社会养老相结合的模式。随着政府和社会对养老服务事业投入的持续增加，养老设施将不断升级，服务质量逐步改进，老年人的生活将会更加方便舒适、健康快乐。","en":"As China is facing an ageing society, there is a widespread concern over the issue of elderly care. What kind of care model for the elderly should be adopted is the most debated topic. The majority of people believe that the care model for the elderly should be diversified. More and better elderly service institutions can be established, community service centres can be improved, and self-care for the elderly at home can be encouraged through government guidance and social participation. It is also possible to promote a model of the elderly that combines family and social care. The continuous increase in government and social investment in services for the elderly will bring further improvements in care facilities, gradual enhancements in the quality of services and a more convenient and comfortable life with health and happiness for the elderly.","src":"新东方（机构答案）+ https://mtoutiao.xdf.cn/cet4-6/202312/13552918.html","diff":"新东方网页误录为「社会参吾与」，此处按「社会参与」录；网页译文有 witlbring、The majorityof?people 等录入错误，此处仅校正拼写与断词。"},{"date":"2023.12","level":"六级","no":"三","topic":"养老服务","text":"近年来，中国老龄人口持续增长。中国政府正采取各种措施，推进养老服务体系建设，使老年人晚年生活健康幸福。全国兴建了各类养老服务机构。为了提升养老机构的服务质量，政府颁布了一系列标准，加强对养老机构的监管。许多城市为方便老年人用餐，开设了社区食堂，为他们提供价格实惠的饭菜。行动不便的老年人还能享受上门送餐服务。同时，中国还在积极探索居家和社区养老等其他养老模式，以确保所有老年人老有所养。","en":"In recent years, China's elderly population has continued to grow. The Chinese government is taking various measures to promote the construction of a service system for the elderly, so that the elderly can live a healthy and happy life in their later years. Various service institutions for the elderly have been built across the country. In order to improve the service quality of elderly care institutions, the government has issued a series of standards to strengthen the supervision of elderly care institutions. In order to make it easier for the elderly to eat, many cities have opened community canteens to provide them with affordable meals. Meals on wheels are also available for the elderly with limited mobility. At the same time, China is also actively exploring other old-age care models, such as home-based and community old-age care, to ensure that all elderly people have adequate old-age support.","src":"新东方（机构答案）+ https://mtoutiao.xdf.cn/cet4-6/202312/13552920.html","diff":"无；网页译文有 ola-age、suchias 等录入错误，此处仅校正拼写，措辞未改。"},{"date":"2024.6","level":"四级","no":"一","topic":"农历","text":"农历（the lunar calendar）起源于数千年前的中国，根据太阳和月亮的运行规律制定。长期以来，农历在农业生产和人们日常生活中发挥着重要作用。古人依据农历记录日期、安排农活，以便最有效地利用自然资源和气候条件，提高农作物的产量和质量。中国的春节、中秋节等传统节日的日期都基于农历。农历是中国传统文化的重要组成部分，当今依然广为使用。","en":"The lunar calendar, which originated in China thousands of years ago, was formulated based on the movements of the sun and the moon. For a long time, the lunar calendar has played an important role in agricultural production and people's daily lives. Ancient people recorded dates and arranged farm work according to the lunar calendar in order to make the most efficient use of natural resources and climatic conditions to improve the yield and quality of crops. The Chinese Spring Festival, Mid-Autumn Festival and other traditional festivals are based on the lunar calendar. It is an important component of traditional Chinese culture and is still widely used today.","src":"新东方在线（机构答案）https://m.koolearn.com/cet4/20250416/919606.html","diff":"同社 2024-06-15 当日稿原文此处作「提者农作物」（应为「提高」，录入之误），译文亦为另一版本（\"which originated from China thousands of years ago, was set by the moving law of the sun and the moon…\"）；本表取精校页。"},{"date":"2024.6","level":"四级","no":"二","topic":"四合院","text":"四合院（siheyuan）是中国一种传统的住宅建筑，其特点是房屋建造在一个院子的四周，将院子合围在中间。四合院通常冬暖夏凉，环境舒适，尤其适合大家庭居住。四合院在中国各地有多种类型，其中以北京的四合院最为典型。如今，随着现代城市的发展，传统的四合院已逐渐减少，但因其独特的建筑风格，四合院对中国文化的传承和中国历史的研究具有重要意义。","en":"Siheyuan is a kind of traditional Chinese residential building, which is characterized by houses built around a courtyard, enclosing the courtyard in the middle. Siheyuan is usually warm in winter and cool in summer, offering a comfortable environment, especially suitable for large families to live in. There are many types of Siheyuan in different parts of China, of which the most typical one is in Beijing. Nowadays, with the development of modern cities, the number of traditional Siheyuan has gradually decreased, but because of its unique architectural style, Siheyuan is of great significance to the inheritance of Chinese culture and the study of Chinese history.","src":"新东方在线（机构答案）https://m.koolearn.com/cet4/20250416/919583.html","diff":"原文各版一致；译文另有 2024-06-15 当日稿版本（\"\\\"Siheyuan\\\" is a traditional residential building in China, characterized by houses built around a courtyard, enclosing the courtyard in the middle…\"），本表取精校页。"},{"date":"2024.6","level":"四级","no":"三","topic":"福字","text":"汉语中的「福」字（the character fu）表示幸福和好运，是中国传统文化中最常用的吉祥（auspicious）符号之一。人们通常将一个大大的福字写在红纸上，寓意期盼家庭幸福、社会安定、国家昌盛。春节贴福字是民间由来已久的习俗。为了欢庆春节，家家户户都会将福字贴在门上或墙上，表达对幸福生活的向往、对美好未来的期待。人们有时还将福字倒过来贴，表示幸福已到、好运已到。","en":"The Chinese character \"fu\", signifying happiness and good luck, is one of the most commonly used auspicious symbols in traditional Chinese culture. People usually write a big character of fu on red paper, which means that they look forward to family happiness, social stability and national prosperity. Posting the character of fu during the Spring Festival is a long-standing folk custom. In order to celebrate the Spring Festival, every family will put the character of fu on the doors or walls to express the yearning for a happy life and the expectation for a better future. People sometimes put the character of fu upside down, indicating that happiness and good luck have arrived.","src":"新东方在线（机构答案）https://m.koolearn.com/cet4/20250416/919629.html","diff":"2024-06-15 当日稿题干无「（the character fu）」「（auspicious）」两处提示，且作「表达对幸福生活的期待」「表示幸福已到」，无「向往、对美好未来」「好运已到」；本表取精校页（含题干提示词）。"},{"date":"2024.6","level":"六级","no":"一","topic":"扇子","text":"扇子自古以来就深受中国人喜爱，但现在已不只是消暑纳凉的工具，而更多地作为艺术品供人欣赏。许多扇子造型优美、做工精良，并绘有山水、花鸟、人物等精美图案，具有很高的艺术价值。中国许多著名画家和书法家喜欢在扇子上作诗绘画，展示其艺术品味。扇子常作为礼物赠予他人，表达美好的祝福和真挚的情感。如今，扇子的实用功能已大为减弱，但作为一种文化符号和艺术形式，扇子仍然在中国传统文化中扮演着重要角色。","en":"Fans have been cherished by the Chinese people since ancient times, yet now they are no longer merely tools for relieving summer heat; instead, they are increasingly admired as works of art. Many fans feature elegant shapes, fine craftsmanship, and are painted with intricate designs of landscapes, flowers, birds, and figures, holding high artistic value. Many renowned Chinese painters and calligraphers delight in inscribing poems and painting pictures on fans, showing their artistic taste. Fans are frequently presented as gifts, conveying delightful blessings and heartfelt emotions. Today, the practical utility of fans has significantly diminished, yet as a cultural icon and a form of art, they continue to play an important role in traditional Chinese culture.","src":"新东方在线（机构答案）https://m.koolearn.com/cet6/20250417/898906.html","diff":"环球网校版原文作「但现在已是消暑纳凉的工具」，脱「不只」二字；本表取新东方版。"},{"date":"2024.6","level":"六级","no":"二","topic":"竹子","text":"中国盛产竹子，是最早开发利用竹资源的国家。竹子在中国分布广泛，品种丰富。竹子实用性强，用于生产和生活的许多方面，如筷子、桌椅的制作和桥梁、房屋的建造。中国人爱竹，自古以来就有无数文人以竹为主题，创作了绚丽多彩的文学和绘画作品。竹子主干（stem）笔直，象征正直的品格。竹子具有强大的生命力和适应能力，无论环境多么恶劣，都能够顽强生存，因而寓意坚韧不拔的精神。几千年来，竹子一直被视为中华民族品格的象征。","en":"China is rich in bamboo and is the first country to exploit and utilize bamboo resources. Bamboo is extensively distributed and diverse in variety within China. Bamboo is highly versatile and is used in various aspects of production and daily life, such as the making of chopsticks, tables, and chairs, as well as the construction of bridges and houses. The Chinese have a deep affection for bamboo, and since ancient times, numerous scholars have created colorful literature and paintings on the theme of bamboo. The stem of bamboo is straight, symbolizing integrity. Bamboo exhibits remarkable vitality and adaptability, able to survive toughly no matter how harsh the environment is, thus embodying the spirit of unwavering perseverance. For thousands of years, bamboo has been esteemed as a representation of the character of the Chinese nation.","src":"新东方在线（机构答案）https://m.koolearn.com/cet6/20250417/898883.html","diff":"部分转载页（环球网校、九八高考）作「国人爱竹」「民族品格的象征」，脱「中」「中华」；本表取新东方版。"},{"date":"2024.6","level":"六级","no":"三","topic":"中式婚礼","text":"中国的传统婚礼习俗历史悠久，从周朝开始就逐渐形成了一套完整的婚礼仪式，有些一直沿用至今。如今的中式婚礼习俗已有很大变化，但婚礼庆典仍然十分隆重。婚礼场地经过精心装饰，以象征喜庆（jubilance）的红色为主色调，摆放着许多祝愿新人幸福的物件。在婚礼上，新人要拜天地（bow to Heaven and Earth），拜父母和相互对拜，然后设宴招待宾客，并向宾客敬酒致谢。今天，许多年轻人依然钟情于传统的中式婚礼，体验独特而美好的中国式浪漫。","en":"Traditional wedding customs in China have a long history, and since the Zhou Dynasty a complete set of wedding rituals has gradually developed, some of which are still in use today. Nowadays, Chinese wedding customs have changed a lot, but the ceremony is still very grand. The wedding venue is carefully decorated, with the main color of red, a symbol of jubilance, and many objects are placed to wish the couple happiness. At the wedding, the couple will bow to Heaven and Earth, to their parents and to each other, and then hold a banquet to entertain the guests and toast the guests to express their gratitude. Today, many young people still prefer the traditional Chinese wedding, to experience the unique and beautiful Chinese romance.","src":"新东方在线（机构答案）https://m.koolearn.com/cet6/20250417/898860.html","diff":"原文各版一致（个别转载页「独特而美好」误作「屋火」）；译文另有 2024-06-15 当日稿版本（\"Traditional Chinese wedding customs have a long history. A complete set of wedding ceremonies were gradually formed in the Zhou Dynasty…\"），本表取精校页。"},{"date":"2024.12","level":"四级","no":"一","topic":"新能源汽车","text":"近年来，中国新能源汽车(NEV)产业发展迅速。目前，中国新能源汽车年产量已接近1000万辆，占全球市场份额的60%以上，出口量也在不断创下新高。中国政府通过增加资金投入和提供政策引导，鼓励新能源汽车企业开展技术创新，不断提升其产品在市场上的竞争力。中国新能源汽车产业的发展不仅有力地推动了国内经济增长，还为全球新能源利用和环境保护做出了积极贡献。","en":"In recent years, China's new energy vehicle (NEV) industry has developed rapidly. Currently, China's annual production of NEVs has reached nearly ten million units, accounting for over 60% of the global market share, with exports continuously setting new highs. The Chinese government has encouraged NEV enterprises to engage in technological innovation by increasing capital investment and providing policy guidance, continuously enhancing their products' competitiveness in the market. The development of China's NEV industry has not only vigorously promoted domestic economic growth but also made positive contributions to global new energy utilization and environmental protection.","src":"新东方在线（机构答案）https://cet4.koolearn.com/20241214/914230.html","diff":"无"},{"date":"2024.12","level":"四级","no":"二","topic":"敦煌莫高窟","text":"敦煌莫高窟数字展示中心于2014年开放，是莫高窟保护利用工程的重要组成部分。展示中心采用数字技术和多媒体展示方式，让游客在进入洞窟参观前了解莫高窟文化，欣赏其艺术经典，从而限制洞窟的开放数量，缩短游客在洞窟内的停留时间，减少对莫高窟的影响，确保这一世界文化遗产得到妥善保护和长期利用。","en":"The Digital Exhibition Center of Dunhuang Mogao Grottos, which opened in 2014, plays a vital role in the conservation and utilization project of the Mogao Grottos. Utilizing digital technology and multimedia exhibition methods, the center enables visitors to gain an understanding of the cultural significance of the Mogao Grottos and appreciate its classic arts before they enter the actual caves. This approach not only limits the number of caves open to the public but also reduces the duration of visitors' stay inside, thereby minimizing the impact on the Mogao Grottos. This ensures the proper preservation and long-term utilization of this world cultural heritage site.","src":"新东方（机构答案）http://mtoutiao.xdf.cn/cet4-6/202412/13998976.html","diff":"另见新东方网 2025.12 解析文将首句写作「坐落于莫高窟景区入口处……高精度数字化采集与还原」，与 2024 年考场版原文不同，属后续改写，不采用。"},{"date":"2024.12","level":"四级","no":"三","topic":"生态环保","text":"中国政府高度重视生态环境保护。近年来，中国在减少空气、水和土壤污染方面取得了显著成效。为了不断改善人们的生活环境，中国采取了一系列有效措施，包括大力发展清洁能源、改善公共交通、推广共享单车和实施垃圾分类。通过这些措施，中国的城市和农村正在变得更加绿色和美丽。中国还积极参与国际合作，为全球生态环境保护作出了重要贡献。","en":"The Chinese government places great importance on ecological and environmental protection. In recent years, China has made significant progress in reducing air, water, and soil pollution. To continuously improve people's living environment, China has adopted a series of effective measures, including vigorously developing clean energy, improving public transportation, promoting bike-sharing, and implementing waste sorting. Through these measures, China's cities and rural areas are becoming greener and more beautiful. China is also actively participating in international cooperation, making important contributions to global ecological and environmental protection.","src":"新东方（机构答案）http://mtoutiao.xdf.cn/cet4-6/202412/13998978.html","diff":"新东方网 2026.05 解析文将原文压缩为三句（删去「减少污染」「国际合作」等内容），与新东方 2024 考后版不一致，以考后版为准。"},{"date":"2024.12","level":"六级","no":"一","topic":"北斗导航","text":"北斗卫星导航系统的成功研制，是中国自从改革开放以来一项重大的技术进步。研发人员经过不懈努力，攻克了一系列技术难题，成功地实现了全球覆盖和高精度定位，使中国成为少数几个独立拥有卫星定位导航系统的国家之一。北斗系统已经广泛地运用于公共交通，灾害救援，天气预测、公共安全等诸多领域。北斗系统在世界上受到了广泛关注，开始为越来越多的国家和地区提供优质服务。","en":"The successful development of the BeiDou Satellite Navigation System is a significant technological advancement for China since the reform and opening-up. The research and development team, through relentless efforts, overcame a series of technical challenges, successfully achieving global coverage and high-precision positioning, making China one of the few countries with an independent satellite positioning and navigation system. The BeiDou system has been widely applied in public transportation, disaster rescue, weather forecasting, public safety, and many other fields. The BeiDou system has attracted worldwide attention and has begun to provide high-quality services to an increasing number of countries and regions.","src":"新东方（机构答案）http://mtoutiao.xdf.cn/cet4-6/202412/13999025.html","diff":"无（新东方在线同一套未标套号；两站正文与译文一致）。"},{"date":"2024.12","level":"六级","no":"二","topic":"中国航天","text":"遨游太空历来是中华民族的梦想。2003年，“神舟五号”发射成功，杨利伟成为了第一个飞入太空的中国宇航员；2008年，神舟七号升空，翟志刚成为了中国首位进行太空行走的宇航员。近年来，中国的航天事业进入了科技发展的“快车道”，中国航天基础设施建设全面推进，2022年中国空间站全面建设。中国航天事业的迅速发展为中华民族历史写下了辉煌的一页，也为推进人类文明做出了巨大贡献。未来，中国探索太空的脚步将迈得更稳，更快。","en":"Space exploration has always been a dream of the Chinese nation. In 2003, the successful launch of \"Shenzhou V\" made Yang Liwei the first Chinese astronaut to travel into space. In 2008, \"Shenzhou VII\" was launched, and Zhai Zhigang became the first Chinese astronaut to conduct a spacewalk. In recent years, China's space industry has entered the \"fast lane\" of technological development. China's space infrastructure construction has been fully promoted, with the complete construction of the Chinese space station in 2022. The rapid development of China's space industry has written a glorious chapter in the history of the Chinese nation and made a significant contribution to the advancement of human civilization. In the future, China's steps in exploring space will be more stable and faster.","src":"新东方（机构答案）http://mtoutiao.xdf.cn/cet4-6/202412/13999027.html","diff":"无（新东方在线同套文本一致，仅标点为「;」而非「；」）。"},{"date":"2024.12","level":"六级","no":"三","topic":"洋山港","text":"洋山港，是上海航运中心的重要组成部分，是中国第一个深水港，也是世界上规模最大的深水港之一。经过近20年的建设，洋山港已实现高度自动化，数字技术和人工智能的使用大大减少了用工成本和碳排放，自主研发的码头管理系统能够在百公里外对大型设备进行远程操控。洋山港看起来一片繁忙，但现场却看不到人工操作，并能24小时不间断运作。洋山港将继续发展，为将上海建设成为一个全球航运中心做出更大贡献。","en":"Yangshan Port is an important part of the Shanghai shipping center, China's first deep-water port, and one of the largest deep-water ports in the world. After nearly 20 years of construction, Yangshan Port has achieved a high degree of automation, with the use of digital technology and artificial intelligence greatly reducing labor costs and carbon emissions. The independently developed terminal management system can remotely control large equipment from more than 100 kilometers away. Yangshan Port appears to be bustling, yet there is no manual operation visible on site, and it can operate continuously 24/7. Yangshan Port will continue to develop, making even greater contributions to building Shanghai into a global shipping center.","src":"新东方在线（机构答案）https://m.koolearn.com/cet6/20241214/893892.html","diff":"套号有出入——新东方在线标「第一套」，新东方网（北斗标第一套、航天标第二套）体系下本套应为第三套；正文与译文一致。"},{"date":"2025.6","level":"四级","no":"一","topic":"杂交水稻","text":"被誉为“杂交水稻之父”的袁隆平和他的科研团队克服重重困难，研发出了一种超级杂交水稻。这项技术获得了举世公认的巨大成功。通过这项技术的应用，水稻抗旱抗病能力更强，能适应不同的气候和土壤条件，产量可提高20%-30%。超级杂交水稻营养丰富，口感更佳。目前，这项技术已经在许多国家得到广泛应用，为全球粮食安全做出了重大贡献。","en":"Yuan Longping, known as the \"Father of Hybrid Rice,\" and his research team overcame numerous difficulties to develop a super hybrid rice. This technology has achieved globally recognized great success. Through the application of this technology, rice has stronger drought and disease resistance, can adapt to different climatic and soil conditions, and its yield can be increased by 20%-30%. Super hybrid rice is rich in nutrition and has a better taste. At present, this technology has been widely applied in many countries, making significant contributions to global food security.","src":"新东方（机构答案）https://www.xdf.cn/681/202506/14533771.html","diff":"环球青藤版原文与译文均为另一版本（“袁隆平是中国农业发展史上最杰出的科学家……稻香纪念日”），与新东方版不一致，此处取新东方版。"},{"date":"2025.6","level":"四级","no":"二","topic":"哈尔滨冰雪大世界（冰雪经济）","text":"近年来，中国东北地区正在大力发展冰雪资源，例如哈尔滨利用丰富的冰雪资源，打造了独具特色的冰雪大世界，让游客在欣赏冰雪之美的同时也能体验当地独特的民俗文化。如今，曾经令人畏惧的冰天雪地正吸引着四面八方的游客，成为了深受欢迎的旅游胜地，冰雪资源也为当地的经济发展做出越来越大的贡献。","en":"In recent years, northeast China has been vigorously developing ice-snow resources. For example, Harbin has built the unique Ice and Snow World by using its rich ice-snow resources, allowing tourists to appreciate the beauty of ice and snow while experiencing the local unique folk culture. Nowadays, the once daunting ice and snow are attracting tourists from all directions, becoming a popular tourist destination. Ice-snow resources are also making greater contributions to the local economic development.","src":"新东方（机构答案）https://www.xdf.cn/681/202506/14533771.html","diff":"无。"},{"date":"2025.6","level":"四级","no":"三","topic":"15分钟便民生活圈","text":"近年来，中国越来越多的城市致力打造“15分钟便民生活圈”。生活在便民生活圈里的居民可以在15分钟步行范围内获得公共服务。便民生活圈配备便利店、公园、健身设施、图书馆、学校、社区食堂和诊所等。建立这样的生活圈有助于为居民提供更便捷、舒适、友好和宜人的生活环境，更好地满足多样化的城市居民需求，提高居民生活质量和幸福感。","en":"In recent years, more and more cities in China have been committed to building \"15-minute convenient living circles\". Residents living in these circles can access public services within a 15-minute walking distance. Such living circles are equipped with convenience stores, parks, fitness facilities, libraries, schools, community canteens, clinics and so on. Establishing these circles helps provide residents with a more convenient, comfortable, friendly and pleasant living environment, better meet the diverse needs of urban residents, and improve their quality of life and happiness.","src":"新东方（机构答案）https://www.xdf.cn/681/202506/14533771.html","diff":"部分网络版本将话题名写作“便民交流圈”，原文内容一致。"},{"date":"2025.6","level":"六级","no":"一","topic":"天宫空间站","text":"天宫空间站是中国首个太空实验室，拥有110多立方米使用空间，可驻留三名宇航员，在距地球表面400-450公里的轨道上运行。天宫空间站已实施180多个科学研究与应用项目，涉及空间生命科学、太空医学、空间材料科学等领域。天宫空间站的研究成果在我国得到了广泛应用，产生了显著的经济效益。例如太空育种创造的直接经济效益高达数千亿元。这不仅标志中国在航天技术上取得了巨大进步，也表明中国为全球的太空研究和应用做出了重大贡献。","en":"The Tiangong Space Station, China's first space laboratory, boasts over 110 cubic meters of usable space, accommodating three astronauts as it orbits 400 to 450 kilometers above Earth's surface. The station has implemented more than 180 scientific research and application projects, spanning disciplines like space life science, space medicine, and space materials science. Tiangong's research outcomes have found extensive application in China, yielding remarkable economic benefits. For instance, space breeding technologies enabled by the station have generated direct economic value exceeding hundreds of billions of yuan. This not only signifies China's substantial advancements in aerospace technology but also highlights its significant contributions to global space research and applications.","src":"新东方（机构答案）https://mtoutiao.xdf.cn/cet4-6/202605/15203273.html","diff":"新东方 2025-12 版原文作「中国首个太空实验室」，2026-05 版作「中国太空实验室」；两版译文均为 China's first space laboratory，故取「首个」版。"},{"date":"2025.6","level":"六级","no":"二","topic":"南水北调工程","text":"自古以来，中国的水资源北缺南丰，分布极不均衡。为了有效解决北方严重缺水问题，中国政府实施了南水北调工程。这是一项跨区域配置水资源的宏大水利工程。历经数十年的规划与筹备，工程于2002年开工建设，分为东、中、西三条线路，总长4350公里，惠及人口将超过4亿。自2014年通水以来，工程向北方调水累计已超500亿立方米，为北方地区的人民提供了可靠的水资源，同时也极大地改善了这一地区的生态环境，促进了经济的可持续健康发展。","en":"Since ancient times, China has had a significant imbalance in its water resources, with a scarcity in the north and abundance in the south. To effectively address the severe water shortage problem in the north, the Chinese government implemented the South-to-North Water Diversion Project. This is a grand water resource allocation project across regions. After decades of planning and preparation, the project began construction in 2002 and is divided into three routes: east, middle, and west. The total length is 4,350 kilometers, benefiting over 400 million people. Since the water was put into use in 2014, the project has transferred more than 50 billion cubic meters of water to the north, providing reliable water resources for the people in the northern region and significantly improving the ecological environment of this area, promoting the sustainable and healthy development of the economy.","src":"新东方（机构答案）https://mtoutiao.xdf.cn/cet4-6/202606/15227829.html","diff":"无；个别新东方页面译文将「4,350 公里」误录为「4.350 kilometers」、逗号误作句点，此处取无讹误版。"},{"date":"2025.6","level":"六级","no":"三","topic":"粤港澳大湾区","text":"粤港澳大湾区具有得天独厚的地理位置，拥有完善的交通基础设施和丰富的产业资源。大湾区是中国开放程度最高、经济活力最强的区域之一，在国家经济发展中具有重要的战略地位。大湾区不仅将建成充满活力的世界级城市群和具有全球影响力的国际科技创新中心，还将打造成适合工作、购物、旅游的优质生活圈。随着改革开放的不断深入，大湾区的建设将进一步推动区域经济发展。到2035年，大湾区将实现成为国际一流湾区的目标。","en":"The Guangdong-Hong Kong-Macao Greater Bay Area (GBA) boasts a superior geographical location, comprehensive transportation infrastructure, and abundant industrial resources. As one of China's most open and economically vibrant regions, it holds significant strategic importance in the nation's economic development. The GBA aims to become not only a dynamic world-class urban cluster and an internationally influential hub for science and technology innovation, but also a high-quality living circle ideal for working, shopping and tourism. With the deepening of reform and opening-up, the development of the GBA will further drive regional economic growth. By 2035, the GBA is set to achieve its goal of becoming an internationally first-class bay area.","src":"新东方（机构答案）https://mtoutiao.xdf.cn/cet4-6/202605/15203277.html","diff":"新东方 2026-05 版原文脱「最强」二字（作「经济活力的区域之一」），而译文作 most open and economically vibrant，此处按新东方 2025-12 版补回「经济活力最强的区域之一」。"},{"date":"2025.12","level":"四级","no":"一","topic":"城市漫步","text":"近年来，\"城市漫步（citywalk）\"在中国的年轻人中悄然兴起，已成为一种旅游新潮流。与传统旅游不同，城市漫步不追求在短时间内游览尽可能多的景点，而是随意行走或按照主题路线漫步在城市的大街小巷。漫步者品尝地道小吃，欣赏特色建筑，了解当地生活方式。他们还用相机或手机记录城市的风景和人物。这种旅游方式能让城市漫步者更深入了解城市的历史与文化。","en":"In recent years, \"city walks\" have quietly gained popularity among young people in China, emerging as a new trend in tourism. Unlike traditional sightseeing, city walks don't aim to cram in as many attractions as possible in a short time. Instead, they involve wandering freely or following themed routes through the city's streets and alleys. Walkers savor authentic street food, admire distinctive architecture, and gain insights into local lifestyles. They also capture the city's scenery and people through cameras or smartphones. This approach allows urban explorers to delve deeper into a city's history and culture.","src":"新东方（机构答案）https://mtoutiao.xdf.cn/cet4-6/202512/15047573.html","diff":"新东方网页（含三套全版 15047562）将\"大街小巷\"误录为\"天街小巷\"，其译文对 streets and alleys，此处按\"大街小巷\"录；各版本内容一致。"},{"date":"2025.12","level":"四级","no":"二","topic":"民营经济","text":"近年来，中国政府高度重视民营经济（private economy）的发展，出台了一系列政策支持民营企业。截至2025年3月底，全国民营企业数量超过5700万家，占企业总量的92.3%。民营企业不仅数量稳步增长，质量和结构也在不断提升。民营企业的研发投入不断增加，在新一代信息技术、人工智能等领域发展迅速。民营企业核心竞争力的增强为中国经济的高质量发展提供了有力支撑。","en":"In recent years, the Chinese government has placed high importance on the development of the private economy, introducing a series of policies to support private enterprises. By the end of March 2025, the number of private enterprises nationwide exceeded 57 million, accounting for 92.3% of all enterprises. Private enterprises have not only seen steady growth in quantity but also continuous improvement in quality and structure. Their R&D investments have steadily increased, enabling rapid development in fields such as next-generation information technology and artificial intelligence. The enhanced core competitiveness of private enterprises has provided strong support for China's high-quality economic development.","src":"新东方（机构答案）https://mtoutiao.xdf.cn/cet4-6/202512/15047562.html","diff":"无。"},{"date":"2025.12","level":"四级","no":"三","topic":"绿色经济","text":"中国政府十分重视绿色经济的发展。通过加强森林资源保护、加大污染治理力度等一系列措施，许多地区的生态环境得到了显著改善。绿水青山（lucid waters and lush mountains）促进了当地的旅游、健康等产业的发展，创造了可观的经济效益。如今，生态环境与人类社会和谐共存的观念在中国已深入人心。绿色经济的推进不仅能为中国可持续发展做出贡献，也为全球环境保护提供了宝贵经验。","en":"The Chinese government places great emphasis on the development of a green economy. Through a series of measures, including strengthening forest conservation and intensifying pollution control efforts, the ecological environment in many regions has seen significant improvement. Lucid waters and lush mountains have spurred the growth of local industries such as tourism and wellness, generating substantial economic benefits. Today, the concept of harmonious coexistence between the ecological environment and human society has taken root in China. Advancing the green economy not only contributes to China's sustainable development but also offers valuable experience for global environmental protection.","src":"新东方（机构答案）https://mtoutiao.xdf.cn/cet4-6/202512/15047562.html","diff":"新东方在线移动版（m.koolearn.com/cet4/20251213/930095.html）将\"促进\"误录为\"保进\"，此处取\"促进\"。"},{"date":"2025.12","level":"六级","no":"一","topic":"尊老","text":"尊老是中华民族的传统美德，深深植根于中国人的思想和行为中，是人们普遍遵守的行为规范和社会准则。在当今的中国，这种美德得到广泛传承。社会各界积极营造敬老助老的社会氛围。为老年人提供便利服务已成为社会共识，例如社区专门开设长者食堂，公共场所配置优先座位。政府还出台了一系列政策，为老年人的权益提供有力保障。尊老是社会和谐与发展的重要基石，有助于培育良好的社会氛围，推动整个社会文明进步。","en":"Respecting the elderly is a traditional virtue of the Chinese nation, deeply rooted in the thoughts and actions of its people. It is a widely followed code of conduct and social norm. In China today, this virtue continues to be widely practiced. All sectors of society are actively building a culture of respect and care for the elderly. Providing convenient services for older people has become a common practice in society. For example, many communities have set up senior canteens, and priority seating is available in public places. The government has also introduced a series of policies to strongly protect the rights and interests of the elderly. Respecting the elderly serves as an important foundation for social harmony and development. It helps create a positive social atmosphere and promotes progress for the whole society.","src":"新东方（机构答案）https://mtoutiao.xdf.cn/cet4-6/202512/15047629.html","diff":"新东方网页作\"营造老助老的社会氛围\"（脱\"敬\"字）、\"有力保障\"后脱句号，此处补为\"敬老助老\"并断句，译文对应 respect and care for the elderly。"},{"date":"2025.12","level":"六级","no":"二","topic":"节俭","text":"节俭是中华民族的传统美德。在古代中国，生产率低，我们的祖先深知劳动成果艰难，因此遵循节俭的理念。在物质极其丰富的今天，中国人仍然坚持节俭的生活方式，这体现了理性消费和尊重劳动的哲学。近年来，中国政府不断加大节约型社会建设力度，倡导\"清盘运动\"减少食物浪费，倡导简单低碳的生活方式，推进资源循环利用，反对过度消费。发展一个以保护为导向的社会，已切实推动了中国经济的高质量发展。","en":"Frugality is a traditional virtue of the Chinese nation. In ancient China, productivity was low, and our ancestors knew well how hard it was to gain labor achievements, so they embraced the concept of thrift. In today's era of abundant material wealth, Chinese people still stick to a frugal lifestyle, which embodies the philosophy of rational consumption and respect for labor. In recent years, the Chinese government has been stepping up efforts to build a resource-conserving society: it advocates the 'Clean Plate Campaign' to cut food waste, promotes a simple and low-carbon lifestyle, advances resource recycling, and opposes over-consumption. The development of such a conservation-oriented society has effectively driven the high-quality growth of China's economy.","src":"新东方（机构答案）https://mtoutiao.xdf.cn/cet4-6/202512/15047629.html","diff":"新东方版作\"清盘运动\"，四季读书网等网络整理版作\"光盘运动\"，末句亦作\"节约型社会的建设有力地推动了…\"，按新东方版取\"清盘运动\"及原句。"},{"date":"2025.12","level":"六级","no":"三","topic":"自立更生","text":"自立更生的精神深深植根于中国文化之中，这一精神已成为国家生存与发展的关键。多年来，中国在自我强身和自力更生的道路上持续加大对科研领域的投入，并在信息技术等领域取得了新的突破。全国范围内的5G网络覆盖、远程医疗的发展以及嫦娥探月工程都展示了航天领域取得的显著进展。自强自立这股强大的推动力激励着中国人民实现民族复兴而奋斗，我钦佩这种不屈不挠的精神。","en":"The spirit of self-reliance is deeply rooted in Chinese culture and has been crucial to the nation's survival and development. Over the years, on the path of self-reliance and independent development, China has continuously increased investment in scientific research and has made new breakthroughs in fields such as information technology. The nationwide coverage of 5G networks, advances in telemedicine, and the Chang'e lunar exploration program all demonstrate remarkable progress in aerospace and technology. This powerful driving force of self-reliance inspires the Chinese people to strive for national rejuvenation, and I admire this indomitable spirit.","src":"新东方（机构答案）https://mtoutiao.xdf.cn/cet4-6/202512/15047630.html","diff":"按新东方 2025-12-13 版，开头作\"自立更生\"；另有以\"自强自立\"开头的版本，此处从新东方。该网页将\"航天领域\"\"自强自立\"误录为\"航领领域\"\"自强白军\"，已按语义校正。"},{"date":"2026.6","level":"四级","no":"一","topic":"尊师重道","text":"中国有句老话：“一日为师，终身为父”。在中国人的观念里，老师不仅传授知识，更教给学生做人的道理。在古代，学生初次见老师时要举行隆重的仪式，足见老师地位之高。为弘扬尊师的优良传统，中国从 1985 年开始将每年的 9 月 10 日定为教师节。在这一天，学生以各种方式表达对老师的敬意。尊师是中华民族的传统美德，在当今社会得到了发扬光大。","en":"There is an old Chinese saying: \"One day as a teacher, a lifetime as a father.\" In the minds of the Chinese people, teachers not only impart knowledge but also teach students the principles of life. In ancient times, students would hold grand ceremonies when meeting their teachers for the first time, which showed the high status of teachers. To carry forward the fine tradition of respecting teachers, China has designated September 10th as Teachers' Day since 1985. On this day, students express their respect for teachers in various ways. Respecting teachers is a traditional virtue of the Chinese nation, which has been widely carried forward in today's society.","src":"新东方（机构答案）http://mtoutiao.xdf.cn/cet4-6/202606/15231802.html","diff":"新东方汇总版（15233004）原文作「更教导学生为人处世的道理……足以体现教师崇高的社会地位」，译文亦不同；此处取单篇版。"},{"date":"2026.6","level":"四级","no":"二","topic":"餐桌礼仪","text":"餐桌礼仪是中华传统文化的重要组成部分，蕴含着热情有礼的待客之道。主人会根据客人的口味喜好准备丰盛菜肴，并妥善安排就餐座位。传统礼仪十分讲究座次：主人一般坐在正对大门的位置，主人身旁落座的便是地位最高的贵客。就餐期间，主人会时常为客人添酒夹菜。这种独具特色的餐桌礼仪，对促成和谐友好的人际交往起到了至关重要的作用。","en":"Table manners are an important part of traditional Chinese culture. They show the Chinese way of treating guests warmly and politely. The host usually prepares a variety of dishes according to the guests' tastes and preferences, and the seating arrangement is also carefully considered. The host usually sits facing the door, and the most important guest is seated beside the host. During the meal, the host often adds wine and food for the guests from time to time. This unique table etiquette plays an important role in promoting harmonious interpersonal communication.","src":"新东方（机构答案）http://mtoutiao.xdf.cn/cet4-6/202606/15233004.html","diff":"同为新东方，15233006 版原文作「折射出中国人礼貌待客的交往智慧……主宾则安排在主人近侧」，15231803 单篇版亦为另一措辞；环球青藤版多「已延续了数千年」一句。此处取 15233004 汇总版。"},{"date":"2026.6","level":"四级","no":"三","topic":"礼尚往来","text":"在中国传统文化中，亲朋好友之间互赠礼物是人际交往的一种重要礼节（etiquette）。赠送礼物不仅是物质的馈赠，更是情感的表达，是维系人际关系的重要纽带。一份精心挑选、符合接受者喜好的礼物，往往能加深彼此的感情。中国人遵循“礼尚往来”（mutually exchanging courtesies）的传统，接受礼物时会表达谢意，并适时回赠礼物，以增进彼此的融洽关系。","en":"In traditional Chinese culture, exchanging gifts among relatives and friends is an important etiquette in social communication. Giving gifts is not only a material act, but also an expression of feelings. It is an important bond that helps maintain interpersonal relationships. A carefully chosen gift that suits the receiver's tastes can often deepen the relationship between the two sides. Chinese people follow the tradition of \"mutually exchanging courtesies\". When receiving a gift, they usually express their thanks and give a gift in return at a proper time, so as to improve their harmonious relationship.","src":"新东方（机构答案）http://mtoutiao.xdf.cn/cet4-6/202606/15231801.html","diff":"无（仅套题名各站叫法不同，或题作「送礼习俗」「人情往来」）。"},{"date":"2026.6","level":"六级","no":"一","topic":"无人机","text":"近年来，中国无人机产业迅猛发展，出口量位居全球首位。中国无人机凭借其出色的稳定性、高清成像能力和便捷的操作性，深受全球消费者的青睐，在民用领域得到了广泛应用。作为国家战略性新兴产业，无人机正逐步演变为智能助手，满足多样化场景的需求。在农村地区，无人机能够精准识别农作物病虫害，并高效喷洒农药。在城市，它们能够快速配送新鲜农产品。在不久的将来，无人机将在更多领域释放独特价值，为经济和社会进步注入新的动力。","en":"In recent years, China's drone industry has enjoyed rapid development, with its export volume ranking first across the globe. Boasting outstanding stability, high-definition imaging capability and user-friendly operation, Chinese drones are well received by consumers worldwide and have been widely applied in civil fields. As a national strategic emerging industry, drones are gradually evolving into smart assistants to meet the demands of diverse scenarios. In rural areas, drones can accurately detect crop diseases and pests and spray pesticides efficiently. In cities, they are capable of delivering fresh agricultural products swiftly. In the near future, drones will unlock their unique value in more fields and inject new impetus into economic and social progress.","src":"新东方（机构答案）http://mtoutiao.xdf.cn/cet4-6/202606/15233008.html","diff":"无。"},{"date":"2026.6","level":"六级","no":"二","topic":"电子商务","text":"电子商务的蓬勃发展正在深刻改变中国农村的面貌。随着互联网和物流网络迅速向农村地区延伸，越来越多的农村居民通过电子商务平台直接向城市消费者销售农产品。近年来，直播带货让城市消费者能够与卖家实时互动，成为推动农村发展的新途径。电子商务打破了城乡之间的信息壁垒，拓宽了农产品的销售渠道，帮助农村居民增加收入，改善生活。数字经济与乡村振兴的深度融合，为中国农村的发展注入了前所未有的活力。","en":"The rapid development of e-commerce is profoundly changing the appearance of China's rural areas. As the internet and logistics networks quickly expand into the countryside, a growing number of rural residents are selling agricultural products directly to urban consumers through e-commerce platforms. In recent years, live-streaming e-commerce has enabled city consumers to interact with sellers in real time, becoming a new way to promote rural development. E-commerce has broken down the information barrier between urban and rural areas, expanded the sales channels of agricultural products, and helped rural residents increase their incomes and improve their lives. The deep integration of the digital economy with rural revitalization has injected unprecedented vitality into the development of China's rural arears.","src":"新东方（机构答案）http://mtoutiao.xdf.cn/cet4-6/202606/15233008.html","diff":"网页译文末词将 areas 误排为 arears，此处照录；网络整理版（哔哩哔哩）译文措辞略有出入。"},{"date":"2026.6","level":"六级","no":"三","topic":"远程医疗","text":"科学技术的进步推动了我国医疗行业的快速发展。近年来，远程医疗技术使得优质医疗资源得以惠及更多患者。医疗专家可通过视频通话方式向偏远地区的患者提供咨询服务，并指导当地医生制定并实施治疗方案。人工智能辅助诊断系统帮助医生识别患者的早期症状，并提高诊断的准确性。电子健康记录的广泛采用使医生能够快速获取患者的病史信息，从而避免不必要的检查。在线医疗咨询平台极大地简化了患者的就医过程。技术与医疗的深度融合更好地满足了人们对健康的需求。","en":"The advancement of science and technology has driven the rapid development of China's healthcare industry. In recent years, telemedicine technology has made it possible for high-quality medical resources to benefit more patients. Medical experts can provide consulting services to patients in remote areas via video calls and guide local doctors in developing and implementing treatment plans. Artificial intelligence-assisted diagnostic systems help doctors identify early symptoms in patients and improve the accuracy of diagnosis. The widespread adoption of electronic health records enables doctors to quickly access patients' medical histories, thus avoiding unnecessary tests. Online medical consultation platforms have greatly simplified the process of seeking medical care. The deep integration of technology and healthcare better meets people's needs for health.","src":"新东方（机构答案）http://mtoutiao.xdf.cn/cet4-6/202606/15233008.html","diff":"另有新东方真题分析稿（https://cet4-6.xdf.cn/202611/15474900.html）将「科技医疗」列为第一套、无人机列为第三套，套次编号与本篇相反；网络整理版（哔哩哔哩）译文作 healthcare sector。"}],"sentences":[{"zh":"一日为师，终身为父。","en":"A teacher for a day is a father for a lifetime. / He who is a teacher for a day is a father for a lifetime.","note":"2026.6 四级参考答案（第一套）；谚语宜适度直译，保留伦理意味"},{"zh":"老师不仅传授知识，更教给学生做人的道理。","en":"Teachers not only impart knowledge but also teach students the principles of conduct.","note":"2026.6 四级参考答案（第一套）；not only...but also 结构，译\"做人\"用 principles of conduct"},{"zh":"学生初次见老师时要举行隆重的仪式。","en":"Students hold a grand ceremony when they meet their teachers for the first time.","note":"2026.6 四级参考答案（第一套）；hold a grand ceremony 为固定搭配"},{"zh":"中国从1985年开始将每年的9月10日定为教师节。","en":"China has designated September 10 as Teachers' Day every year since 1985.","note":"2026.6 四级参考答案（第一套）；designate...as 搭配，since 1985 要求现在完成时"},{"zh":"尊师是中华民族的传统美德，在当今社会得到了发扬光大。","en":"Respecting teachers is a traditional virtue of the Chinese nation and has been carried forward in modern society.","note":"2026.6 四级参考答案（第一套）；carry forward 用被动，\"发扬光大\"不可逐字译"},{"zh":"每年9月10日，全国各地都会举行庆祝教师节的活动。","en":"Celebrations for Teachers' Day are held across the country on September 10 every year.","note":"2026.6 四级参考答案（第一套）；具体日期用 on，被动语态更贴切"},{"zh":"尊师重道在当今社会依然具有重要意义。","en":"Respecting teachers and valuing education remains significant in today's society.","note":"2026.6 四级参考答案（第一套）；四字词须拆成两个动名词短语"},{"zh":"礼尚往来是中国人处理人际关系的重要准则。","en":"The mutual exchange of courtesies is an important principle in how Chinese people handle interpersonal relations. / Reciprocity in social exchanges is an important principle for Chinese people.","note":"2026.6 四级参考答案（第二套）；礼≠gift，courtesies 用复数表客套"},{"zh":"礼物承载的是情感，而不是物质交换。","en":"Gifts carry emotional meaning rather than material exchange.","note":"2026.6 四级参考答案（第二套）；rather than 前后须同类成分，\"承载\"勿用 load"},{"zh":"收到礼物后，人们通常会在适当的时候回赠。","en":"After receiving a gift, people usually give one in return at an appropriate time.","note":"2026.6 四级参考答案（第二套）；\"回赠\"用 give in return，勿重复 gift 名词"},{"zh":"礼尚往来体现的是相互尊重，而非彼此攀比。","en":"The mutual exchange of courtesies reflects mutual respect rather than comparison with others.","note":"2026.6 四级参考答案（第二套）；\"攀比\"意译为 comparison，避免直译"},{"zh":"礼尚往来并不意味着礼物的价格越高越好。","en":"Reciprocity in social exchanges does not mean that the more expensive a gift is, the better.","note":"2026.6 四级参考答案（第二套）；the more...the better 比较结构易写错"},{"zh":"中国人送礼时常常考虑对方的实际需要。","en":"When giving gifts, Chinese people often consider the actual needs of the recipient.","note":"2026.6 四级参考答案（第二套）；\"对方\"用 recipient 更准确，状语从句可省略主语"},{"zh":"中国的餐桌礼仪有着悠久的历史。","en":"Chinese dining etiquette has a long history.","note":"2026.6 四级参考答案（第三套）；dining etiquette 为固定术语"},{"zh":"宴席上的座次安排非常讲究。","en":"The seating arrangement at a banquet is very meticulous. / Much attention is paid to the seating arrangement at a banquet.","note":"2026.6 四级参考答案（第三套）；\"讲究\"转译为 meticulous 或 pay attention to"},{"zh":"主人不时为客人添酒加菜。","en":"The host serves more food and wine to guests from time to time.","note":"2026.6 四级参考答案（第三套）；勿译成劝酒，添酒加菜用 serve more"},{"zh":"长辈先动筷，晚辈才开始用餐。","en":"Elders pick up their chopsticks first, and only then do the younger ones start eating.","note":"2026.6 四级参考答案（第三套）；only then 置句首要部分倒装"},{"zh":"用餐时不宜用筷子敲击碗碟。","en":"It is improper to tap bowls and plates with chopsticks during a meal.","note":"2026.6 四级参考答案（第三套）；\"不宜\"用 it is improper to，勿用 mustn't"},{"zh":"在正式宴会上，主人通常坐在主位。","en":"At a formal banquet, the host usually takes the seat of honor.","note":"2026.6 四级参考答案（第三套）；\"主位\"为 seat of honor，不用 main seat"},{"zh":"尊老是中华民族的传统美德。","en":"Respecting the elderly is a traditional virtue of the Chinese nation.","note":"2025.12 六级参考答案（第一套）；the elderly 表群体，主语用动名词"},{"zh":"这种观念深深植根于中国文化之中。","en":"This idea is deeply rooted in Chinese culture.","note":"2025.12 六级参考答案（第一套）；be rooted in 为被动结构，deeply 放动词前"},{"zh":"尊老爱幼是广泛遵循的行为准则。","en":"Respecting the elderly and caring for the young is a widely followed code of conduct.","note":"2025.12 六级参考答案（第一套）；code of conduct 固定搭配"},{"zh":"许多社区开设了老年食堂，方便老人就餐。","en":"Many communities have opened senior canteens to make it easier for the elderly to have meals.","note":"2025.12 六级参考答案（第一套）；senior canteens 为官方措辞"},{"zh":"公共场所设有老年人优先座位。","en":"Priority seating is provided for the elderly in public places.","note":"2025.12 六级参考答案（第一套）；priority seating 名词化，避免逐字译"},{"zh":"法律保护老年人的合法权益。","en":"The law protects the rights and interests of the elderly.","note":"2025.12 六级参考答案（第一套）；rights and interests 为固定并列表述"},{"zh":"老年人乘坐公共交通时可以享受优惠。","en":"Senior citizens can enjoy preferential treatment when taking public transport.","note":"2025.12 六级·同题材扩写；preferential treatment 固定搭配"},{"zh":"社区志愿者经常上门看望独居老人。","en":"Community volunteers often visit elderly people who live alone.","note":"2025.12 六级·同题材扩写；\"独居\"用定语从句，勿用 lonely"},{"zh":"节俭是中华民族的传统美德。","en":"Frugality is a traditional virtue of the Chinese nation.","note":"2025.12 六级参考答案（第二套）；frugality 不可数，勿用 economy"},{"zh":"节约资源有助于建设资源节约型社会。","en":"Saving resources helps build a resource-conserving society.","note":"2025.12 六级·同题材扩写；resource-conserving 复合定语须连字符"},{"zh":"\"光盘行动\"倡导人们不浪费食物。","en":"The \"Clean Plate Campaign\" encourages people not to waste food.","note":"2025.12 六级参考答案（第二套）；专名加引号且首字母大写"},{"zh":"垃圾分类和资源回收在城市中日益普及。","en":"Waste sorting and resource recycling are becoming increasingly common in cities.","note":"2025.12 六级·同题材扩写；并列主语用复数谓语，recycling 名词化"},{"zh":"过度消费会造成资源浪费和环境污染。","en":"Over-consumption leads to a waste of resources and environmental pollution.","note":"2025.12 六级参考答案（第二套）；over-consumption 连字符，lead to 中 to 为介词"},{"zh":"节俭为高质量增长奠定了基础。","en":"Frugality lays the foundation for high-quality growth.","note":"2025.12 六级·同题材扩写；lay the foundation for，high-quality 连字符"},{"zh":"节俭的传统在现代生活中仍然值得提倡。","en":"The tradition of frugality is still worth promoting in modern life.","note":"2025.12 六级·同题材扩写；be worth doing 后接动名词"},{"zh":"自力更生是中华民族精神的重要组成部分。","en":"The spirit of self-reliance is an important part of the Chinese national spirit.","note":"2025.12 六级·同题材扩写；self-reliance 连字符，抽象名词作主语"},{"zh":"中国坚持自力更生与自主发展。","en":"China adheres to self-reliance and independent development.","note":"2025.12 六级参考答案（第三套）；adhere to 中 to 为介词，两名词并列"},{"zh":"自力更生精神助力民族复兴。","en":"The spirit of self-reliance contributes to national rejuvenation.","note":"2025.12 六级·同题材扩写；contribute to 后接名词，rejuvenation 易拼错"},{"zh":"面对困难，中国人民展现出不屈不挠的精神。","en":"In the face of difficulties, the Chinese people have shown an indomitable spirit.","note":"2025.12 六级参考答案（第三套）；in the face of 固定，indomitable 拼写难"},{"zh":"中国北方拥有丰富的冰雪资源。","en":"Northern China is rich in ice and snow resources.","note":"2025.6 四级参考答案；be rich in 搭配，resources 用复数"},{"zh":"哈尔滨冰雪大世界吸引了大批游客。","en":"The Ice and Snow World in Harbin has attracted a large number of tourists.","note":"2025.6 四级参考答案；专名首字母大写，句首 the 也大写"},{"zh":"冰天雪地的景观令游客惊叹不已。","en":"The icy and snowy landscapes amazed tourists.","note":"2025.6 四级参考答案；icy and snowy 形容词并列，landscapes 用复数"},{"zh":"对南方游客来说，严寒的天气令人望而生畏。","en":"For tourists from the south, the freezing weather is daunting.","note":"2025.6 四级参考答案；daunting 易误拼为 taunting，注意词义"},{"zh":"来自四面八方的游客汇聚于此。","en":"Tourists from all directions gather here.","note":"2025.6 四级参考答案；from all directions 为固定搭配"},{"zh":"冰雪旅游为当地经济发展作出了贡献。","en":"Ice and snow tourism has made contributions to the local economy.","note":"2025.6 四级参考答案；make contributions to，现在完成时更贴切"},{"zh":"中国文化强调天人合一。","en":"Chinese culture emphasizes harmony between humanity and nature.","note":"教研练习句·非 2025.12 真题；勿直译成 heaven and man"},{"zh":"中华文明源远流长。","en":"The Chinese civilization has a long history.","note":"教研练习句·非 2025.12 真题；\"源远流长\"意译，勿逐字对译"},{"zh":"数字丝绸之路促进了沿线国家的合作。","en":"The Digital Silk Road has promoted cooperation among countries along the routes.","note":"教研练习句·非 2025.12 真题；专名首字母大写，along the routes 固定"},{"zh":"共建\"一带一路\"倡议造福各国人民。","en":"The Belt and Road Initiative benefits people of all countries.","note":"教研练习句·非 2025.12 真题；Initiative 大写，\"共建\"可省译"}]};
+(function () {
+  'use strict';
+
+  var KEY = 'transHandbook.v1';
+  var INTERVALS = [1, 3, 7];
+  var WEEK = ['日', '一', '二', '三', '四', '五', '六'];
+  var sets = DATA && Array.isArray(DATA.sets) ? DATA.sets.slice() : [];
+  var sentences = DATA && Array.isArray(DATA.sentences) ? DATA.sentences.slice() : [];
+
+  var ICON_CHECK = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 6.8"/></svg>';
+  var ICON_STAR = '<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.6l2.5 5.1 5.6.8-4.1 4 1 5.6-5-2.7-5 2.7 1-5.6-4.1-4 5.6-.8z"/></svg>';
+  var ICON_CHEVRON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10l5 5 5-5"/></svg>';
+
+  function str(v) { return v == null ? '' : String(v); }
+
+  function esc(v) {
+    return str(v).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function fmtYmd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function todayStr() { return fmtYmd(new Date()); }
+
+  function parseYmd(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(str(s));
+    if (!m) return null;
+    var d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  function startOfDay(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function addDays(d, n) {
+    var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    x.setDate(x.getDate() + n);
+    return x;
+  }
+  function fmtCn(d) { return (d.getMonth() + 1) + '月' + d.getDate() + '日'; }
+  function weekday(d) { return '星期' + WEEK[d.getDay()]; }
+  function shortWeekday(d) { return '周' + WEEK[d.getDay()]; }
+
+  function setKey(s) {
+    return str(s.date) + ' ' + str(s.level) + ' 第' + str(s.no) + '套｜' + str(s.topic);
+  }
+  function sentenceKey(s) { return '句｜' + str(s.zh); }
+
+  var setMap = new Map();
+  sets.forEach(function (s) { setMap.set(setKey(s), s); });
+
+  var learningKeys = new Set(sentences.map(sentenceKey));
+
+  function defaultState() {
+    return { plan: { perDay: 2, startAt: todayStr(), review: true }, done: {}, starred: [] };
+  }
+
+  var storageOk = true;
+  var storageNoticed = false;
+
+  function loadState() {
+    var raw = null;
+    try {
+      raw = localStorage.getItem(KEY);
+    } catch (e) {
+      storageOk = false;
+    }
+    if (!raw) return defaultState();
+    var p = null;
+    try { p = JSON.parse(raw); } catch (e) { return defaultState(); }
+    if (!p || typeof p !== 'object') return defaultState();
+
+    var next = defaultState();
+    var plan = p.plan && typeof p.plan === 'object' ? p.plan : {};
+    var per = Number(plan.perDay);
+    if (per >= 1 && per <= 4 && per % 1 === 0) next.plan.perDay = per;
+    if (parseYmd(plan.startAt)) next.plan.startAt = str(plan.startAt);
+    if (typeof plan.review === 'boolean') next.plan.review = plan.review;
+
+    if (p.done && typeof p.done === 'object') {
+      Object.keys(p.done).forEach(function (k) {
+        if (!setMap.has(k)) return;
+        var r = p.done[k];
+        if (!r || typeof r !== 'object') return;
+        var rec = {
+          at: Number(r.at) || Date.now(),
+          result: r.result === 'bad' ? 'bad' : 'ok'
+        };
+        if (r.reviewAt) rec.reviewAt = Number(r.reviewAt) || 0;
+        if (r.reviewResult === 'ok' || r.reviewResult === 'bad') rec.reviewResult = r.reviewResult;
+        next.done[k] = rec;
+      });
+    }
+
+    if (Array.isArray(p.starred)) {
+      var seen = new Set();
+      p.starred.forEach(function (k) {
+        if (typeof k !== 'string' || !k) return;
+        if (!setMap.has(k) && !learningKeys.has(k)) return;
+        if (seen.has(k)) return;
+        seen.add(k);
+        next.starred.push(k);
+      });
+    }
+    return next;
+  }
+
+  var state = loadState();
+
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(state));
+    } catch (e) {
+      storageOk = false;
+      showStorageNote();
+    }
+  }
+
+  function showStorageNote() {
+    if (storageNoticed) return;
+    storageNoticed = true;
+    var note = document.getElementById('storage-note');
+    if (note) note.hidden = false;
+    toast('浏览器存储不可用，进度仅在本页有效');
+  }
+
+  function isRecorded(k) { return !!state.done[k]; }
+  function isLearned(k) { return !!state.done[k] && state.done[k].result === 'ok'; }
+  function learnedCount() {
+    return Object.keys(state.done).filter(function (k) { return state.done[k].result === 'ok'; }).length;
+  }
+  function isStarred(k) { return state.starred.indexOf(k) >= 0; }
+
+  function excerpt(text, n) {
+    var arr = Array.from(str(text).replace(/\s+/g, ' ').trim());
+    return arr.length > n ? arr.slice(0, n).join('') + '…' : arr.join('');
+  }
+
+  function shortUrl(url) {
+    var plain = url.replace(/^https?:\/\//, '');
+    return plain.length > 38 ? plain.slice(0, 30) + '…' + plain.slice(-6) : plain;
+  }
+
+  function splitSrc(src) {
+    var raw = str(src).trim();
+    if (!raw) return { name: '', url: '', raw: '' };
+    var m = raw.match(/https?:\/\/[^\s）)]+/);
+    var url = '';
+    var name = raw;
+    if (m) {
+      url = m[0];
+      name = raw.slice(0, m.index).trim();
+    }
+    name = name.replace(/[（(][^（）()]*[）)]\s*$/, '').trim();
+    if (!name && url) name = '原文链接';
+    return { name: name, url: url, raw: raw };
+  }
+
+  function sourceHtml(src) {
+    var p = splitSrc(src);
+    if (!p.raw) return '<span>来源未注明</span>';
+    if (!p.url) return '<span>' + esc(p.raw) + '</span>';
+    return '<a href="' + esc(p.url) + '" target="_blank" rel="noreferrer" title="' + esc(p.raw) + '">' + esc(p.name) + '</a>' +
+      '<span class="src-url" title="' + esc(p.url) + '">' + esc(shortUrl(p.url)) + '</span>';
+  }
+
+  function emptyBox(title, msgHtml) {
+    return '<div class="empty"><strong>' + esc(title) + '</strong><span>' + msgHtml + '</span></div>';
+  }
+
+  function schedule() {
+    var start = parseYmd(state.plan.startAt) || startOfDay(new Date());
+    var per = state.plan.perDay;
+    return sets.map(function (s, i) {
+      var dayIndex = Math.floor(i / per);
+      return { s: s, key: setKey(s), date: addDays(start, dayIndex), dayIndex: dayIndex };
+    });
+  }
+
+  function getTodayTasks() {
+    var t = todayStr();
+    return schedule().filter(function (e) { return fmtYmd(e.date) === t; });
+  }
+
+  function nextBatchInfo() {
+    var t = todayStr();
+    var future = schedule().filter(function (e) { return fmtYmd(e.date) > t; });
+    if (!future.length) return null;
+    var day = fmtYmd(future[0].date);
+    return {
+      date: future[0].date,
+      items: future.filter(function (e) { return fmtYmd(e.date) === day; })
+    };
+  }
+
+  function getDue() {
+    if (!state.plan.review) return [];
+    var today = startOfDay(new Date());
+    var out = [];
+    Object.keys(state.done).forEach(function (k) {
+      var s = setMap.get(k);
+      if (!s) return;
+      var rec = state.done[k];
+      var at = startOfDay(new Date(rec.at || Date.now()));
+      var reviewed = rec.reviewAt ? startOfDay(new Date(rec.reviewAt)) : null;
+      var due = null;
+      var days = 0;
+      INTERVALS.forEach(function (n) {
+        var d = addDays(at, n);
+        if (d.getTime() > today.getTime()) return;
+        if (reviewed && reviewed.getTime() >= d.getTime()) return;
+        if (!due || d.getTime() > due.getTime()) {
+          due = d;
+          days = n;
+        }
+      });
+      if (due) out.push({ key: k, set: s, days: days, due: due });
+    });
+    out.sort(function (a, b) {
+      return a.due.getTime() - b.due.getTime() || str(a.set.date).localeCompare(str(b.set.date));
+    });
+    return out;
+  }
+
+  function streakDays() {
+    var days = new Set();
+    Object.keys(state.done).forEach(function (k) {
+      var r = state.done[k];
+      if (r.at) days.add(fmtYmd(new Date(r.at)));
+      if (r.reviewAt) days.add(fmtYmd(new Date(r.reviewAt)));
+    });
+    var d = startOfDay(new Date());
+    if (!days.has(fmtYmd(d))) d = addDays(d, -1);
+    var n = 0;
+    while (days.has(fmtYmd(d))) {
+      n += 1;
+      d = addDays(d, -1);
+    }
+    return n;
+  }
+
+  var els = {
+    dayTitle: document.getElementById('day-title'),
+    daySub: document.getElementById('day-sub'),
+    dayDots: document.getElementById('day-dots'),
+    todayList: document.getElementById('today-list'),
+    panelToday: document.getElementById('panel-today'),
+    reviewBlock: document.getElementById('review-block'),
+    reviewCount: document.getElementById('review-count'),
+    reviewList: document.getElementById('review-list'),
+    setSearch: document.getElementById('set-search'),
+    levelChips: document.getElementById('level-chips'),
+    setYear: document.getElementById('set-year'),
+    setCount: document.getElementById('set-count'),
+    setList: document.getElementById('set-list'),
+    quoteSearch: document.getElementById('quote-search'),
+    quoteCount: document.getElementById('quote-count'),
+    quoteList: document.getElementById('quote-list'),
+    perdaySeg: document.getElementById('perday-seg'),
+    startDate: document.getElementById('start-date'),
+    reviewToggle: document.getElementById('review-toggle'),
+    statDone: document.getElementById('stat-done'),
+    statStreak: document.getElementById('stat-streak'),
+    statStar: document.getElementById('stat-star'),
+    scheduleList: document.getElementById('schedule-list'),
+    finishLine: document.getElementById('finish-line'),
+    exportBtn: document.getElementById('export-btn'),
+    clearBtn: document.getElementById('clear-btn'),
+    overlay: document.getElementById('practice-overlay'),
+    practiceStep: document.getElementById('practice-step'),
+    practiceBody: document.getElementById('practice-body'),
+    toast: document.getElementById('toast'),
+    tabbar: document.querySelector('.tabbar')
+  };
+
+  var tabButtons = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  var panels = {
+    today: document.getElementById('panel-today'),
+    sets: document.getElementById('panel-sets'),
+    quotes: document.getElementById('panel-quotes'),
+    plan: document.getElementById('panel-plan')
+  };
+  var activeTab = 'today';
+
+  var setQuery = '';
+  var setLevel = 'all';
+  var setYear = '';
+  var setExpanded = new Set();
+  var setRevealed = new Set();
+
+  var quoteQuery = '';
+  var quoteShown = new Set();
+
+  var setTimer = null;
+  var quoteTimer = null;
+  var toastTimer = null;
+  var lastFocus = null;
+  var lastFocusKey = '';
+  var lastFocusAction = '';
+  var practice = null;
+
+  function toast(msg) {
+    if (!els.toast) return;
+    els.toast.textContent = msg;
+    els.toast.classList.add('is-on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      els.toast.classList.remove('is-on');
+    }, 2200);
+  }
+
+  /* ---------- 今日 ---------- */
+
+  function taskCardHtml(entry) {
+    var s = entry.s;
+    var k = entry.key;
+    var rec = state.done[k];
+    var ok = rec && rec.result === 'ok';
+    var tags = '<span class="tag">' + esc(s.level) + '</span>' +
+      '<span class="tag">' + esc(s.date) + '</span>' +
+      '<span class="tag">第' + esc(s.no) + '套</span>';
+    if (ok) tags += '<span class="tag tag--done">已背</span>';
+    if (rec && !ok) tags += '<span class="tag tag--bad">没译好</span>';
+
+    return '<article class="card task-card' + (rec ? ' is-done' : '') + '">' +
+      '<div class="task-top">' +
+        '<div class="task-info">' +
+          '<h3 class="task-topic">' + esc(s.topic) + '</h3>' +
+          '<div class="tags">' + tags + '</div>' +
+        '</div>' +
+        (rec ? '<span class="stamp' + (ok ? '' : ' stamp--bad') + '">' + ICON_CHECK + (ok ? '已背' : '已练') + '</span>' : '') +
+      '</div>' +
+      '<p class="task-excerpt">' + esc(excerpt(s.text, 46)) + '</p>' +
+      '<div class="task-foot">' +
+        '<span class="task-state">' + (rec ? (ok ? '已记录为「译出来了」' : '已记录为「没译好」，到期会提醒复习') : '还没开始') + '</span>' +
+        '<button type="button" class="btn btn--sm ' + (rec ? 'btn--ghost' : 'btn--primary') + '" data-action="practice" data-key="' + esc(k) + '" aria-label="' + (rec ? '再练一次' : '开始翻译') + '：' + esc(s.topic) + '">' + (rec ? '再练一次' : '开始翻译') + '</button>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function renderToday() {
+    var now = new Date();
+    var tasks = getTodayTasks();
+    var recorded = tasks.filter(function (e) { return isRecorded(e.key); }).length;
+
+    els.dayTitle.textContent = fmtCn(now) + ' · ' + weekday(now);
+    els.daySub.textContent = tasks.length ? ('今日 ' + tasks.length + ' 套 · 已练 ' + recorded + ' 套') : '按计划留白的一天';
+    els.dayDots.innerHTML = tasks.map(function (e) {
+      return '<span class="dot' + (isRecorded(e.key) ? ' is-done' : '') + '"></span>';
+    }).join('');
+    els.dayDots.hidden = tasks.length === 0;
+
+    var next = nextBatchInfo();
+    var html = '';
+
+    if (tasks.length && recorded === tasks.length) {
+      html += '<div class="card today-done">' +
+        '<span class="seal-sm">' + ICON_CHECK + '</span>' +
+        '<div><strong>今日已完成</strong><p>' + tasks.length + ' 套都练过了' + (next ? ('，下一批 ' + fmtCn(next.date) + '。') : '。') + '</p></div>' +
+      '</div>';
+    }
+
+    if (!tasks.length) {
+      if (!sets.length) {
+        html = emptyBox('题库还没有内容', '数据注入后，这里会自动生成每日任务。');
+      } else if (learnedCount() === sets.length) {
+        html = emptyBox(sets.length + ' 套真题已全部背完', '可以去「题库」再翻翻，或继续复习到期条目。');
+      } else if (next) {
+        html = emptyBox('今天没有新任务', '下一批：' + fmtCn(next.date) + ' · ' + next.items.length + ' 套<br>' +
+          next.items.map(function (e) { return esc(e.s.topic); }).join(' · '));
+      } else {
+        html = emptyBox('今天没有新任务', '排期已经结束，未完成的可以到「题库」继续练。');
+      }
+    } else {
+      html += tasks.map(taskCardHtml).join('');
+    }
+
+    els.todayList.innerHTML = html;
+    renderReview();
+  }
+
+  function renderReview() {
+    els.reviewBlock.hidden = !state.plan.review;
+    if (!state.plan.review) return;
+
+    var due = getDue();
+    els.reviewCount.textContent = due.length ? due.length + ' 条' : '';
+    if (!due.length) {
+      els.reviewList.innerHTML = '<div class="empty empty--sm">暂无到期复习</div>';
+      return;
+    }
+    els.reviewList.innerHTML = due.map(function (d) {
+      var s = d.set;
+      return '<div class="card review-item">' +
+        '<div class="review-main">' +
+          '<p class="review-title">' + esc(s.topic) + '</p>' +
+          '<div class="tags">' +
+            '<span class="tag tag--accent">第 ' + d.days + ' 天复习</span>' +
+            '<span class="tag">' + esc(s.level) + '</span>' +
+            '<span class="tag">' + esc(s.date) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<button type="button" class="btn btn--ghost btn--sm" data-action="review" data-key="' + esc(d.key) + '" aria-label="再练一次：' + esc(s.topic) + '">再练一次</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  /* ---------- 练习 ---------- */
+
+  function startDaily(key) {
+    var tasks = getTodayTasks();
+    var i = -1;
+    tasks.forEach(function (t, idx) { if (t.key === key) i = idx; });
+    if (i < 0) return;
+    var queue = [key];
+    for (var j = i + 1; j < tasks.length; j++) {
+      if (!isRecorded(tasks[j].key)) queue.push(tasks[j].key);
+    }
+    openPractice('daily', queue);
+  }
+
+  function startReview(key) {
+    var due = getDue();
+    var i = -1;
+    due.forEach(function (d, idx) { if (d.key === key) i = idx; });
+    if (i < 0) return;
+    var queue = due.slice(i).map(function (d) { return d.key; });
+    openPractice('review', queue);
+  }
+
+  function openPractice(mode, queue) {
+    if (!queue.length) return;
+    lastFocus = document.activeElement;
+    lastFocusKey = queue[0] || '';
+    lastFocusAction = mode === 'review' ? 'review' : 'practice';
+    practice = { mode: mode, queue: queue, idx: 0, revealed: false, draft: '', finished: false };
+    els.overlay.hidden = false;
+    document.body.classList.add('no-scroll');
+    renderPractice();
+    requestAnimationFrame(function () {
+      var sheet = els.overlay.querySelector('.sheet');
+      if (sheet) sheet.focus();
+    });
+  }
+
+  function closePractice() {
+    els.overlay.hidden = true;
+    document.body.classList.remove('no-scroll');
+    practice = null;
+    if (activeTab === 'today') renderToday();
+    var restored = false;
+    if (lastFocusAction && lastFocusKey) {
+      var nodes = els.panelToday.querySelectorAll('[data-action]');
+      for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].dataset.action === lastFocusAction && nodes[i].dataset.key === lastFocusKey) {
+          nodes[i].focus();
+          restored = true;
+          break;
+        }
+      }
+    }
+    if (!restored) {
+      var target = lastFocus;
+      if (target && document.contains(target)) {
+        target.focus();
+      } else {
+        var tab = document.getElementById('tab-' + activeTab);
+        if (tab) tab.focus();
+      }
+    }
+    lastFocus = null;
+    lastFocusKey = '';
+    lastFocusAction = '';
+  }
+
+  function focusIn(selector) {
+    requestAnimationFrame(function () {
+      var el = els.overlay.querySelector(selector);
+      if (el) el.focus();
+    });
+  }
+
+  function renderPractice() {
+    if (!practice) return;
+    els.practiceStep.textContent = (practice.mode === 'review' ? '到期复习' : '今日练习') +
+      ' · ' + (practice.finished ? practice.queue.length : practice.idx + 1) + ' / ' + practice.queue.length;
+
+    if (practice.finished) {
+      var isReview = practice.mode === 'review';
+      var next = nextBatchInfo();
+      var msg = isReview
+        ? '本轮 ' + practice.queue.length + ' 条到期复习已完成。'
+        : '本次共 ' + practice.queue.length + ' 套已记录' + (next ? ('，下一批 ' + fmtCn(next.date) + '。') : '，排期已经全部完成。');
+      els.practiceBody.innerHTML = '<div class="finish">' +
+        '<div class="seal" aria-hidden="true">' + ICON_CHECK + '</div>' +
+        '<h2 id="practice-title" tabindex="-1">' + (isReview ? '本轮复习完成' : '今日完成') + '</h2>' +
+        '<p>' + esc(msg) + '</p>' +
+        '<button type="button" class="btn btn--primary" data-action="close">回到今日</button>' +
+      '</div>';
+      return;
+    }
+
+    var key = practice.queue[practice.idx];
+    var s = setMap.get(key);
+    if (!s) {
+      practice.idx += 1;
+      if (practice.idx >= practice.queue.length) {
+        practice.finished = true;
+        renderPractice();
+      } else {
+        renderPractice();
+      }
+      return;
+    }
+
+    var rec = state.done[key];
+    var ok = rec && rec.result === 'ok';
+    var extraTag = ok
+      ? '<span class="tag tag--done">已背</span>'
+      : (rec ? '<span class="tag tag--bad">曾记录：没译好</span>' : '');
+
+    var revealPart = practice.revealed
+      ? '<div class="reveal-box" tabindex="-1">' +
+          '<div class="block-head"><h3 class="reveal-title">英文译文</h3><span class="tag">参考</span></div>' +
+          '<p class="en-text">' + esc(s.en) + '</p>' +
+          '<div class="source"><span class="meta-label">来源</span>' + sourceHtml(s.src) + '</div>' +
+          '<details class="diff"><summary>差异说明</summary><p>' + esc(s.diff || '暂无差异说明') + '</p></details>' +
+        '</div>' +
+        '<div class="eval-row">' +
+          '<button type="button" class="btn btn--primary" data-action="rate" data-result="ok">译出来了</button>' +
+          '<button type="button" class="btn btn--accent" data-action="rate" data-result="bad">没译好</button>' +
+        '</div>'
+      : '<button type="button" class="btn btn--primary btn--block" data-action="reveal">看译文</button>';
+
+    els.practiceBody.innerHTML =
+      '<div class="practice-head">' +
+        '<p class="eyebrow">' + esc(s.date) + ' · ' + esc(s.level) + ' · 第' + esc(s.no) + '套</p>' +
+        '<div class="tags"><span class="tag">' + esc(s.topic) + '</span>' + extraTag + '</div>' +
+      '</div>' +
+      '<h2 class="practice-zh" id="practice-title">' + esc(s.text) + '</h2>' +
+      '<label class="sr-only" for="draft-input">先自己写一版（不会写就跳过）</label>' +
+      '<textarea id="draft-input" class="draft" rows="4" placeholder="先自己写一版（不会写就跳过）" aria-label="先自己写一版（不会写就跳过）">' + esc(practice.draft) + '</textarea>' +
+      revealPart;
+  }
+
+  function ratePractice(result) {
+    if (!practice) return;
+    var key = practice.queue[practice.idx];
+    var now = Date.now();
+
+    if (practice.mode === 'review') {
+      var rev = state.done[key] || { at: now, result: 'ok' };
+      rev.reviewAt = now;
+      rev.reviewResult = result;
+      state.done[key] = rev;
+    } else {
+      var rec = state.done[key] || {};
+      rec.at = now;
+      rec.result = result;
+      state.done[key] = rec;
+    }
+    save();
+    renderToday();
+
+    if (practice.idx + 1 < practice.queue.length) {
+      practice.idx += 1;
+      practice.revealed = false;
+      practice.draft = '';
+      renderPractice();
+      focusIn('#draft-input');
+    } else {
+      practice.finished = true;
+      renderPractice();
+      focusIn('#practice-title');
+    }
+  }
+
+  /* ---------- 题库 ---------- */
+
+  function setCardHtml(s) {
+    var k = setKey(s);
+    var ok = isLearned(k);
+    var starred = isStarred(k);
+    var open = setExpanded.has(k);
+    var revealed = setRevealed.has(k);
+
+    var head = '<button type="button" class="card-toggle" data-action="toggle-set" data-key="' + esc(k) + '" aria-expanded="' + (open ? 'true' : 'false') + '">' +
+      '<span class="set-title-row">' +
+        '<span class="set-topic">' + esc(s.topic) + '</span>' +
+        (ok ? '<span class="tag tag--done">已背</span>' : '') +
+      '</span>' +
+      '<span class="tags">' +
+        '<span class="tag">' + esc(s.level) + '</span>' +
+        '<span class="tag">' + esc(s.date) + '</span>' +
+        '<span class="tag">第' + esc(s.no) + '套</span>' +
+        (starred ? '<span class="tag tag--star">收藏</span>' : '') +
+      '</span>' +
+      '<span class="set-excerpt">' + esc(excerpt(s.text, 30)) + '</span>' +
+      '<span class="set-caret" aria-hidden="true">' + ICON_CHEVRON + '</span>' +
+    '</button>';
+
+    var detail = '<div class="set-detail"' + (open ? '' : ' hidden') + '>' +
+      '<div class="text-block"><h4>中文原文</h4><p>' + esc(s.text) + '</p></div>' +
+      '<div class="text-block en-block' + (revealed ? '' : ' is-blurred') + '">' +
+        '<div class="block-head"><h4>英文译文</h4>' +
+          '<button type="button" class="text-btn" data-action="reveal" data-key="' + esc(k) + '" aria-label="' + (revealed ? '遮住译文' : '揭开译文') + '">' + (revealed ? '遮住译文' : '揭开译文') + '</button>' +
+        '</div>' +
+        '<p class="en-text">' + esc(s.en) + '</p>' +
+      '</div>' +
+      '<details class="diff"><summary>差异说明</summary><p>' + esc(s.diff || '暂无差异说明') + '</p></details>' +
+      '<div class="source"><span class="meta-label">来源</span>' + sourceHtml(s.src) + '</div>' +
+    '</div>';
+
+    var foot = '<div class="card-foot">' +
+      '<button type="button" class="btn btn--sm ' + (ok ? 'btn--ghost' : 'btn--primary') + '" data-action="toggle-done" data-key="' + esc(k) + '" aria-pressed="' + (ok ? 'true' : 'false') + '">' + (ok ? '取消已背' : '标记已背') + '</button>' +
+      '<button type="button" class="icon-btn star" data-action="toggle-star-set" data-key="' + esc(k) + '" aria-pressed="' + (starred ? 'true' : 'false') + '" aria-label="' + (starred ? '取消收藏' : '收藏') + '：' + esc(s.topic) + '">' + ICON_STAR + '</button>' +
+    '</div>';
+
+    return '<article class="card set-card' + (open ? ' is-open' : '') + '">' + head + detail + foot + '</article>';
+  }
+
+  function renderSets() {
+    var q = setQuery.trim().toLowerCase();
+    var list = sets.filter(function (s) {
+      if (setLevel !== 'all' && str(s.level).trim() !== setLevel) return false;
+      if (setYear && str(s.date).trim().indexOf(setYear + '.') !== 0) return false;
+      if (!q) return true;
+      return [str(s.topic), str(s.text), str(s.en)].some(function (v) {
+        return v.toLowerCase().indexOf(q) >= 0;
+      });
+    });
+
+    els.setCount.textContent = '共 ' + list.length + ' 套';
+    if (!list.length) {
+      els.setList.innerHTML = emptyBox('没找到，换个关键词试试', '试试题材、年份，或换一个更短的关键词。');
+      return;
+    }
+    els.setList.innerHTML = list.map(setCardHtml).join('');
+  }
+
+  function renderSetsAndFocus(action, key) {
+    renderSets();
+    if (!action) return;
+    requestAnimationFrame(function () {
+      var nodes = els.setList.querySelectorAll('[data-action]');
+      for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].dataset.action === action && nodes[i].dataset.key === key) {
+          nodes[i].focus();
+          break;
+        }
+      }
+    });
+  }
+
+  function toggleSetStar(key) {
+    var i = state.starred.indexOf(key);
+    if (i >= 0) state.starred.splice(i, 1);
+    else state.starred.push(key);
+    save();
+    renderSetsAndFocus('toggle-star-set', key);
+    renderPlan();
+  }
+
+  function toggleSetDone(key) {
+    if (isLearned(key)) {
+      delete state.done[key];
+      toast('已取消「已背」');
+    } else {
+      var rec = state.done[key] || {};
+      rec.at = Date.now();
+      rec.result = 'ok';
+      state.done[key] = rec;
+      toast('已标记为「已背」');
+    }
+    save();
+    renderSetsAndFocus('toggle-done', key);
+    renderToday();
+    renderPlan();
+  }
+
+  /* ---------- 金句 ---------- */
+
+  function quoteCardHtml(s) {
+    var k = sentenceKey(s);
+    var starred = isStarred(k);
+    var shown = quoteShown.has(k);
+
+    return '<article class="card quote-card">' +
+      '<div class="quote-head">' +
+        '<span class="tag ' + (starred ? 'tag--star' : 'tag--soft') + '">' + (starred ? '收藏' : '金句') + '</span>' +
+        '<button type="button" class="icon-btn star" data-action="toggle-star-quote" data-key="' + esc(k) + '" aria-pressed="' + (starred ? 'true' : 'false') + '" aria-label="' + (starred ? '取消收藏' : '收藏') + '：' + esc(excerpt(s.zh, 14)) + '">' + ICON_STAR + '</button>' +
+      '</div>' +
+      '<p class="quote-zh">' + esc(s.zh) + '</p>' +
+      '<div class="quote-foot">' +
+        '<button type="button" class="text-btn" data-action="toggle-quote" data-key="' + esc(k) + '" aria-expanded="' + (shown ? 'true' : 'false') + '">' + (shown ? '收起译文' : '显示译文') + '</button>' +
+      '</div>' +
+      '<p class="quote-en"' + (shown ? '' : ' hidden') + '>' + esc(s.en) + '</p>' +
+      (s.note ? '<p class="quote-note">' + esc(s.note) + '</p>' : '') +
+    '</article>';
+  }
+
+  function renderQuotes() {
+    var q = quoteQuery.trim().toLowerCase();
+    var list = sentences.filter(function (s) {
+      if (!q) return true;
+      return (str(s.zh) + '\n' + str(s.en)).toLowerCase().indexOf(q) >= 0;
+    });
+    var starred = [];
+    var rest = [];
+    list.forEach(function (s) {
+      if (isStarred(sentenceKey(s))) starred.push(s);
+      else rest.push(s);
+    });
+    var ordered = starred.concat(rest);
+
+    els.quoteCount.textContent = '共 ' + ordered.length + ' 条';
+    if (!ordered.length) {
+      els.quoteList.innerHTML = emptyBox('没找到，换个关键词试试', '试试换一句中文或英文关键词。');
+      return;
+    }
+    els.quoteList.innerHTML = ordered.map(quoteCardHtml).join('');
+  }
+
+  function renderQuotesAndFocus(action, key) {
+    renderQuotes();
+    requestAnimationFrame(function () {
+      var nodes = els.quoteList.querySelectorAll('[data-action]');
+      for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].dataset.action === action && nodes[i].dataset.key === key) {
+          nodes[i].focus();
+          break;
+        }
+      }
+    });
+  }
+
+  function toggleQuoteStar(key) {
+    var i = state.starred.indexOf(key);
+    if (i >= 0) state.starred.splice(i, 1);
+    else state.starred.push(key);
+    save();
+    renderQuotesAndFocus('toggle-star-quote', key);
+    renderPlan();
+  }
+
+  /* ---------- 计划 ---------- */
+
+  function groupSchedule(entries) {
+    var groups = [];
+    var cur = null;
+    entries.forEach(function (e) {
+      var ymd = fmtYmd(e.date);
+      if (!cur || cur.ymd !== ymd) {
+        cur = { ymd: ymd, date: e.date, items: [] };
+        groups.push(cur);
+      }
+      cur.items.push(e);
+    });
+    return groups;
+  }
+
+  function renderPlan() {
+    var perButtons = els.perdaySeg.querySelectorAll('button[data-perday]');
+    Array.prototype.forEach.call(perButtons, function (b) {
+      b.setAttribute('aria-pressed', String(Number(b.dataset.perday) === state.plan.perDay));
+    });
+    els.startDate.value = state.plan.startAt;
+    els.reviewToggle.checked = state.plan.review;
+
+    els.statDone.textContent = learnedCount() + '/' + sets.length;
+    els.statStreak.textContent = String(streakDays());
+    els.statStar.textContent = String(state.starred.length);
+
+    var entries = schedule();
+    if (!entries.length) {
+      els.scheduleList.innerHTML = '<div class="empty empty--sm">暂无排期</div>';
+      els.finishLine.textContent = '';
+      return;
+    }
+
+    var groups = groupSchedule(entries);
+    var todayKey = todayStr();
+    els.scheduleList.innerHTML = groups.map(function (g) {
+      var isToday = g.ymd === todayKey;
+      return '<div class="schedule-row' + (isToday ? ' is-today' : '') + '">' +
+        '<span class="sched-date">' + (g.date.getMonth() + 1) + '/' + g.date.getDate() + ' ' + shortWeekday(g.date) + '</span>' +
+        '<span class="sched-topics">' + g.items.map(function (i) { return esc(i.s.topic); }).join(' · ') + '</span>' +
+        (isToday ? '<span class="today-mark" aria-hidden="true">今</span>' : '') +
+      '</div>';
+    }).join('');
+
+    var last = groups[groups.length - 1].date;
+    els.finishLine.textContent = '预计 ' + (last.getMonth() + 1) + ' 月 ' + last.getDate() + ' 日背完';
+  }
+
+  function exportProgress() {
+    var payload = {
+      app: 'transHandbook',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      plan: state.plan,
+      done: state.done,
+      starred: state.starred
+    };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'transHandbook-' + todayStr() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    toast('进度已导出');
+  }
+
+  function clearProgress() {
+    if (!confirm('确定清空所有进度吗？已背记录、收藏和复习记录都会被清除，计划设置保留。')) return;
+    state.done = {};
+    state.starred = [];
+    save();
+    renderPlan();
+    toast('进度已清空');
+  }
+
+  /* ---------- tab 切换 ---------- */
+
+  function renderTab(name) {
+    if (name === 'today') renderToday();
+    else if (name === 'sets') renderSets();
+    else if (name === 'quotes') renderQuotes();
+    else if (name === 'plan') renderPlan();
+  }
+
+  function switchTab(name) {
+    if (!panels[name]) return;
+    activeTab = name;
+    tabButtons.forEach(function (btn) {
+      var on = btn.dataset.tab === name;
+      btn.setAttribute('aria-selected', on ? 'true' : 'false');
+      btn.tabIndex = on ? 0 : -1;
+    });
+    Object.keys(panels).forEach(function (key) {
+      panels[key].hidden = key !== name;
+    });
+    renderTab(name);
+    var reduce = false;
+    try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    try { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+  }
+
+  tabButtons.forEach(function (btn) {
+    btn.addEventListener('click', function () { switchTab(btn.dataset.tab); });
+  });
+
+  els.tabbar.addEventListener('keydown', function (e) {
+    var keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
+    if (keys.indexOf(e.key) < 0) return;
+    var i = tabButtons.indexOf(document.activeElement);
+    if (i < 0) return;
+    var next = 0;
+    if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = tabButtons.length - 1;
+    else next = (i + (e.key === 'ArrowRight' ? 1 : -1) + tabButtons.length) % tabButtons.length;
+    e.preventDefault();
+    tabButtons[next].focus();
+    switchTab(tabButtons[next].dataset.tab);
+  });
+
+  /* ---------- 事件绑定 ---------- */
+
+  els.panelToday.addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    var key = btn.dataset.key;
+    if (btn.dataset.action === 'practice') startDaily(key);
+    else if (btn.dataset.action === 'review') startReview(key);
+  });
+
+  els.overlay.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-action]');
+    if (btn) {
+      var action = btn.dataset.action;
+      if (action === 'close') closePractice();
+      else if (action === 'reveal') {
+        if (!practice) return;
+        practice.revealed = true;
+        renderPractice();
+        focusIn('.reveal-box');
+      } else if (action === 'rate') {
+        ratePractice(btn.dataset.result);
+      }
+      return;
+    }
+    if (e.target === els.overlay) closePractice();
+  });
+
+  els.practiceBody.addEventListener('input', function (e) {
+    if (practice && e.target && e.target.id === 'draft-input') {
+      practice.draft = e.target.value;
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (els.overlay.hidden) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closePractice();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    var nodes = Array.prototype.filter.call(
+      els.overlay.querySelectorAll('button:not([disabled]), textarea, a[href], summary, [tabindex]:not([tabindex="-1"])'),
+      function (el) { return el.offsetParent !== null; }
+    );
+    if (!nodes.length) return;
+    var first = nodes[0];
+    var last = nodes[nodes.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+
+  els.setSearch.addEventListener('input', function () {
+    setQuery = els.setSearch.value;
+    clearTimeout(setTimer);
+    setTimer = setTimeout(renderSets, 120);
+  });
+
+  els.levelChips.addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-level]');
+    if (!btn) return;
+    setLevel = btn.dataset.level;
+    Array.prototype.forEach.call(els.levelChips.querySelectorAll('button'), function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.level === setLevel));
+    });
+    renderSets();
+  });
+
+  els.setYear.addEventListener('change', function () {
+    setYear = els.setYear.value;
+    renderSets();
+  });
+
+  els.setList.addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    var action = btn.dataset.action;
+    var key = btn.dataset.key;
+
+    if (action === 'toggle-set') {
+      if (setExpanded.has(key)) setExpanded.delete(key);
+      else setExpanded.add(key);
+      renderSetsAndFocus('toggle-set', key);
+    } else if (action === 'reveal') {
+      if (setRevealed.has(key)) setRevealed.delete(key);
+      else setRevealed.add(key);
+      renderSetsAndFocus('reveal', key);
+    } else if (action === 'toggle-done') {
+      toggleSetDone(key);
+    } else if (action === 'toggle-star-set') {
+      toggleSetStar(key);
+    }
+  });
+
+  els.quoteSearch.addEventListener('input', function () {
+    quoteQuery = els.quoteSearch.value;
+    clearTimeout(quoteTimer);
+    quoteTimer = setTimeout(renderQuotes, 120);
+  });
+
+  els.quoteList.addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    var key = btn.dataset.key;
+    if (btn.dataset.action === 'toggle-quote') {
+      if (quoteShown.has(key)) quoteShown.delete(key);
+      else quoteShown.add(key);
+      renderQuotesAndFocus('toggle-quote', key);
+    } else if (btn.dataset.action === 'toggle-star-quote') {
+      toggleQuoteStar(key);
+    }
+  });
+
+  els.perdaySeg.addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-perday]');
+    if (!btn) return;
+    var per = Number(btn.dataset.perday);
+    if (per === state.plan.perDay) return;
+    state.plan.perDay = per;
+    save();
+    renderPlan();
+    toast('每天 ' + per + ' 套，排期已更新');
+  });
+
+  els.startDate.addEventListener('change', function () {
+    var v = els.startDate.value;
+    if (!parseYmd(v)) {
+      els.startDate.value = state.plan.startAt;
+      toast('请选择有效的开始日期');
+      return;
+    }
+    state.plan.startAt = v;
+    save();
+    renderPlan();
+    toast('已从 ' + v + ' 重新排期');
+  });
+
+  els.reviewToggle.addEventListener('change', function () {
+    state.plan.review = els.reviewToggle.checked;
+    save();
+    renderPlan();
+    toast(state.plan.review ? '已开启 1/3/7 天复习' : '已关闭到期复习');
+  });
+
+  els.exportBtn.addEventListener('click', exportProgress);
+  els.clearBtn.addEventListener('click', clearProgress);
+
+  /* ---------- 启动 ---------- */
+
+  if (!storageOk) showStorageNote();
+  renderToday();
+  renderSets();
+  renderQuotes();
+  renderPlan();
+})();
+</script>
+</body>
+</html>

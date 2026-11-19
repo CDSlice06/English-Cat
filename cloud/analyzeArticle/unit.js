@@ -54,19 +54,6 @@ function toGrammarPoint(rule, sentence, index) {
       hint: `先认出「${rule.label}」，再按中文语序重组，不要逐词硬译。`
     })
   }
-  if (rule.zh2en) {
-    drills.push({
-      id: `${id}d2`,
-      kind: 'grammar',
-      mode: 'zh2en',
-      modeLabel: '汉译英',
-      pattern: rule.label,
-      prompt: rule.zh2en.prompt,
-      reference: rule.zh2en.reference,
-      keywords: rule.zh2en.keywords || [],
-      hint: `用「${rule.label}」的结构写，把主语、谓语和结构成分都按顺序写全。`
-    })
-  }
   return {
     id,
     key: rule.key,
@@ -105,7 +92,8 @@ function buildGrammarPoints(sentences, maxPoints = 16, skipKeys) {
     .map((sentence) => String(sentence).trim())
     .filter((sentence) => sentence)
     .map((sentence) => ({ sentence, words: tokenCount(sentence), clauses: clauseCount(sentence) }))
-    .filter((item) => item.words >= 10)
+    // 太短的句子不该算长难句：至少 14 个词才进入语法点候选
+    .filter((item) => item.words >= 14)
     .sort((a, b) => b.words - a.words)
 
   const pushPoint = (rule, sentence) => {
@@ -134,7 +122,8 @@ function buildGrammarPoints(sentences, maxPoints = 16, skipKeys) {
     if (!NESTED || skippedNested) break
     if (points.length >= maxPoints) break
     if (covered.has(item.sentence)) continue
-    if (item.clauses < 2 || item.words < 16) continue
+    // 嵌套至少要有三层从句线索，只出现一两个引导词的长句不算「多层嵌套」
+    if (item.clauses < 3 || item.words < 20) continue
     if ((ruleUses.get(NESTED.key) || 0) >= MAX_PER_RULE) break
     pushPoint(NESTED, item.sentence)
   }
@@ -156,7 +145,9 @@ function buildPhrases(text, limit = 60, skipKeys) {
     .map((item, index) => ({
       id: `ph${index + 1}`,
       phrase: item.canonical,
-      matched: item.phrase,
+      // 关联连词的匹配会横跨半句，只在超过 10 个词时丢掉原文片段，
+      // 避免阅读页按 matched 标注时把整句涂色
+      matched: tokenCount(item.phrase) > 10 ? '' : item.phrase,
       pos: 'phr.',
       type: item.type || '',
       meaning: item.meaning,

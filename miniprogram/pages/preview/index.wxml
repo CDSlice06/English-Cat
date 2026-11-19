@@ -52,7 +52,7 @@
     <view class="paper-card enter d3">
       <view class="card-head">
         <text class="card-title">这篇的学习目标</text>
-        <text class="card-hint">{{mode === 'article' ? '确认后按这个清单学' : '导入后按这个清单学'}}</text>
+        <text class="card-hint">{{readingMode ? '读的时候随时开关译文与标注，累计读满 15 分钟算学完' : (mode === 'article' ? '确认后按这个清单学' : '导入后按这个清单学')}}</text>
       </view>
 
       <view class="goal-row">

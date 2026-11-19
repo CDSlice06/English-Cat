@@ -7,10 +7,50 @@ let pending = null
 // 不用每次进首页都盯着「正在加载」看一秒
 const SNAPSHOT_KEY = 'studySnapshot'
 const SNAPSHOT_TTL = 24 * 60 * 60 * 1000
+// 首屏可以先用的旧快照上限：过了 24 小时不再当「新数据」，但仍可以拿来垫首屏
+const STALE_TTL = 30 * 24 * 60 * 60 * 1000
 // 断点续接：记录每篇文章最后一次停在哪一站、哪一个条目
 const RESUME_PREFIX = 'resume_'
 const STATION_LABELS = { 1: '第 1 站 · 词汇', 2: '第 2 站 · 词组', 3: '第 3 站 · 语法', 4: '第 4 站 · 输出练习' }
-const STATION_URLS = { 1: '/pages/vocabulary/index', 2: '/pages/phrases/index', 3: '/pages/analysis/index', 4: '/pages/practice/index' }
+const STATION_URLS = { 1: '/pkgWords/pages/vocabulary/index', 2: '/pages/phrases/index', 3: '/pages/analysis/index', 4: '/pages/practice/index' }
+
+// 外刊按「阅读优先」学习：不拆成四站，累计活跃阅读满 15 分钟算学完
+const READING_TARGET_SECONDS = 15 * 60
+const READING_TIME_PREFIX = 'readingTime_'
+
+// 单篇预计阅读时长：按「边读边查」约 100 wpm 估，最少 5 分钟。
+// 只用于列表上给个预期；每日计划的完成门槛固定是累计读满 15 分钟
+function readingMinutesOf(words) {
+  const count = Math.max(0, Number(words) || 0)
+  if (!count) return 5
+  return Math.max(5, Math.round(count * 0.6 / 60))
+}
+
+// 只有外刊走阅读模式；用户导入的文章（含真题）仍按四站式精读推进
+function isReadingArticle(article) {
+  if (!article) return false
+  const origin = article.origin || ''
+  return origin === 'journal'
+}
+
+// 计时先落本地，中途退出也不丢；云端进度回来时两边取较大值
+function readReadingSeconds(articleId, unit) {
+  const cloud = Math.max(0, Number(unit && unit.readingSeconds) || 0)
+  if (!articleId) return cloud
+  try {
+    const local = Math.max(0, Number(wx.getStorageSync(READING_TIME_PREFIX + articleId)) || 0)
+    return Math.max(cloud, local)
+  } catch (error) {
+    return cloud
+  }
+}
+
+function storeReadingSeconds(articleId, seconds) {
+  if (!articleId) return
+  try {
+    wx.setStorageSync(READING_TIME_PREFIX + articleId, Math.max(0, Math.floor(seconds) || 0))
+  } catch (error) {}
+}
 
 function callFunction(name, data) {
   return new Promise((resolve, reject) => {
@@ -127,12 +167,15 @@ function remember(data) {
   return data
 }
 
-// 同步读取，页面 onShow 里可以直接拿来渲染首屏
-function readStudySnapshot() {
+// 同步读取，页面 onShow 里可以直接拿来渲染首屏。
+// allowStale：首屏渲染允许用过期的旧快照先铺画面，云端回来再静默替换，
+// 这样跨天打开也不会先白屏等云函数冷启动
+function readStudySnapshot(allowStale) {
   try {
     const saved = wx.getStorageSync(SNAPSHOT_KEY)
     if (!saved || !saved.at || !saved.data) return null
-    if (Date.now() - saved.at > SNAPSHOT_TTL) return null
+    const maxAge = allowStale ? STALE_TTL : SNAPSHOT_TTL
+    if (Date.now() - saved.at > maxAge) return null
     return normalizeStudy(saved.data)
   } catch (error) {
     return null
@@ -187,6 +230,16 @@ function updateStudy(changes) {
     // 推进任何一站的学习进度，都算今天学过
     checkin.mark('study')
     return cache
+  })
+}
+
+// 外刊阅读秒数按文章 id 回传：不写当前文章缓存，也不切换当前文章
+function updateReading(articleId, version, changes) {
+  return callFunction('study', {
+    action: 'update',
+    articleId,
+    version,
+    changes
   })
 }
 
@@ -289,7 +342,12 @@ function openArticle(articleId) {
   })
 }
 
-// 客户端解析完成后回传学习单元，由云端落库并切成本文为当前文章
+// 阅读页按 id 取外刊：只读，不切换当前文章
+function readReadingArticle(articleId) {
+  return callFunction('study', { action: 'read', articleId })
+}
+
+// 客户端解析完成后回传学习单元，由云端落库
 function saveUnit(articleId, unitData) {
   return callFunction('study', { action: 'saveUnit', articleId, unitData }).then((data) => {
     cache = normalizeStudy(data)
@@ -337,7 +395,7 @@ function savePractice(questionId, answer, attempt) {
       const record = data.record
       // 判定成功但进度没写进库（云函数侧两次重试都失败）：标出来让页面提示一下
       if (record && data.saved === false) record.saved = false
-      // 双向翻译通过，是今天实打实的输出练习
+      // 英译汉通过，是今天实打实的输出练习
       if (record && record.result === 'pass') checkin.mark('drill')
       // 判题期间切了文章：记录照常返回，但不写入当前缓存
       if (cache && cache.article && cache.article._id === articleId) {
@@ -368,8 +426,9 @@ function getProgress(unit, unitData) {
   const seenDrills = new Set()
   grammarPoints.forEach((point) => {
     (point.drills || []).forEach((drill) => {
-      // 与练习页保持同一口径：同方向同题干只算一道
-      const key = `${drill.mode || ''}|${String(drill.prompt || '').trim().toLowerCase()}`
+      // 与练习页保持同一口径：只算英译汉
+      if (drill.mode !== 'en2zh') return
+      const key = String(drill.prompt || '').trim().toLowerCase()
       if (!drill.id || seenDrills.has(key)) return
       seenDrills.add(key)
       drills.push(drill)
@@ -414,14 +473,22 @@ function getProgress(unit, unitData) {
   }
 }
 
-// AI 精讲增强：保存成功后由客户端在后台触发，不阻塞页面跳转、失败了也不影响规则结果
-function triggerEnhance(articleId) {
+// AI 精讲增强：保存成功后由客户端在后台触发，不阻塞页面跳转、失败了也不影响规则结果。
+// 传 timeoutMs 时到点先放行，请求仍在云端继续跑，避免冷启动那篇把页面卡住
+function triggerEnhance(articleId, timeoutMs) {
   if (!articleId) return Promise.resolve()
   return new Promise((resolve) => {
+    let done = false
+    const finish = () => {
+      if (done) return
+      done = true
+      resolve()
+    }
+    if (timeoutMs > 0) setTimeout(finish, timeoutMs)
     wx.cloud.callFunction({
       name: 'analyzeArticle',
       data: { action: 'enhance', articleId },
-      complete: () => resolve()
+      complete: finish
     })
   })
 }
@@ -448,4 +515,4 @@ function loadFullTranslation(articleId) {
   })
 }
 
-module.exports = { loadStudy, updateStudy, resetStudy, savePractice, saveArticle, importArticle, translateText, analyzeText, listArticles, loadRemembered, previewArticle, openArticle, saveUnit, deleteArticle, setArticleYear, getProgress, vocabStats, loadOverview, backfillPracticeRules, triggerEnhance, loadFullTranslation, readStudySnapshot, saveResume, resumeInfo }
+module.exports = { loadStudy, updateStudy, updateReading, resetStudy, savePractice, saveArticle, importArticle, translateText, analyzeText, listArticles, loadRemembered, previewArticle, openArticle, readReadingArticle, saveUnit, deleteArticle, setArticleYear, getProgress, vocabStats, loadOverview, backfillPracticeRules, triggerEnhance, loadFullTranslation, readStudySnapshot, saveResume, resumeInfo, isReadingArticle, readReadingSeconds, storeReadingSeconds, readingMinutesOf, READING_TARGET_SECONDS }

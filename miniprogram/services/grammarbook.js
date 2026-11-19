@@ -15,13 +15,35 @@ function callFunction(data) {
 
 let cache = null
 
+// 首屏快照：语法本和个人中心先用本地缓存铺满，云端结果回来再替换
+const SNAPSHOT_KEY = 'grammarSnapshot'
+const SNAPSHOT_TTL = 24 * 60 * 60 * 1000
+
+function readGrammarSnapshot() {
+  try {
+    const saved = wx.getStorageSync(SNAPSHOT_KEY)
+    if (!saved || !saved.at || !saved.data) return null
+    if (Date.now() - saved.at > SNAPSHOT_TTL) return null
+    return saved.data
+  } catch (error) {
+    return null
+  }
+}
+
+function remember(data) {
+  try {
+    wx.setStorageSync(SNAPSHOT_KEY, { at: Date.now(), data })
+  } catch (error) {}
+  return data
+}
+
 function list(force = false) {
   if (cache && !force) return Promise.resolve(cache)
   return callFunction({ action: 'list' }).then((data) => {
-    cache = {
+    cache = remember({
       items: Array.isArray(data.items) ? data.items : [],
       counts: data.counts || { total: (data.items || []).length }
-    }
+    })
     return cache
   })
 }
@@ -46,4 +68,4 @@ function removePoint(id) {
   })
 }
 
-module.exports = { list, addPoint, removePoint }
+module.exports = { list, addPoint, removePoint, readGrammarSnapshot }

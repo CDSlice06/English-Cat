@@ -1,0 +1,57 @@
+<view class="page about-page">
+  <view class="about-hero enter">
+    <view class="paper-tape about-tape"></view>
+    <view class="paper-star about-star"></view>
+    <text class="about-kicker en">ABOUT · PRIVACY</text>
+    <text class="about-title">关于与隐私</text>
+    <view class="about-meta">
+      <text class="about-version en">v{{version}}</text>
+      <text class="about-date">更新于 {{updatedAt}}</text>
+    </view>
+    <text class="about-sub">英语精读喵把一篇外刊拆成词汇、词组、语法和输出四步，陪你走完一整个学习闭环。</text>
+  </view>
+
+  <view class="about-card enter d1">
+    <text class="about-h">你的数据存在哪里</text>
+    <text class="about-p">生词、词组、语法收藏、四站进度、复习排期和每日打卡，全部保存在你自己的微信云开发环境里。它们不经过我们的服务器，也不会发给第三方；换设备登录同一个微信，记录会自动接上。</text>
+  </view>
+
+  <view class="about-card enter d1">
+    <text class="about-h">我们读取哪些信息</text>
+    <view class="about-item">
+      <view class="about-dot"></view>
+      <text class="about-item-text">微信 openid：只用来区分账号，不读取昵称、头像和手机号。</text>
+    </view>
+    <view class="about-item">
+      <view class="about-dot"></view>
+      <text class="about-item-text">学习记录：生词、词组、语法收藏、四站进度与每日打卡。</text>
+    </view>
+    <view class="about-item">
+      <view class="about-dot"></view>
+      <text class="about-item-text">提醒授权状态：只记录你预约了几次学习提醒。</text>
+    </view>
+  </view>
+
+  <view class="about-card enter d2">
+    <text class="about-h">你上传的文件</text>
+    <text class="about-p">导入的 Word / PDF 和拍下的作文照片只用于当次文字识别，识别结束后云端副本会立即删除，不长期保留。识别出的正文留在你自己的云数据库里，方便下次接着学。</text>
+  </view>
+
+  <view class="about-card enter d2">
+    <text class="about-h">广告与第三方</text>
+    <text class="about-p">当前版本不含任何广告，不接入第三方统计 SDK，不索取通讯录、位置、麦克风权限，也不做用户画像。如果以后靠广告维持运营，会先更新这一页再上线：广告只用微信官方的广告组件，只出现在非学习流程里，不会把你的生词、文章和学习记录交给广告主。</text>
+  </view>
+
+  <view class="about-card enter d3">
+    <text class="about-h">内容来源</text>
+    <text class="about-p">真题原文来自公开的四六级真题；译文主要采用新东方（新东方四六级网／新东方在线）的机构答案，另有少量公开整理版。四六级官方从不公布标准答案，所以这些是参考译文，不是官方答案。语法讲解参考张道真《实用英语语法》与剑桥《English Grammar in Use》，例句为教研自编。</text>
+  </view>
+
+  <view class="about-card enter d3">
+    <text class="about-h">删除你的数据</text>
+    <text class="about-p">设置里的「清除本篇学习记录」只清空当前这篇文章的解析与练习进度。如果想彻底删除全部学习数据，点下面的反馈入口告诉我们，核对账号后处理。</text>
+    <button class="about-feedback" open-type="feedback">意见反馈</button>
+  </view>
+
+  <text class="about-footer">英语精读喵 v{{version}} · 每一次精读都有回响</text>
+</view>

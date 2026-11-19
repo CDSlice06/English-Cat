@@ -1,0 +1,869 @@
+/* ---------- 概览 ---------- */
+.overview {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: var(--card-pad-y);
+  border: 2rpx solid rgba(116, 72, 40, 0.42);
+  border-radius: var(--r-lg);
+  background: linear-gradient(150deg, #fff9e8 0%, #ffedbd 55%, #ffdc8b 100%);
+  box-shadow: var(--shadow-caramel);
+}
+
+.overview-glow {
+  position: absolute;
+  top: -90rpx;
+  right: -60rpx;
+  width: 250rpx;
+  height: 250rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.overview-tape {
+  top: 2rpx;
+  left: 28rpx;
+  width: 112rpx;
+  transform: rotate(-8deg);
+}
+
+.overview-star {
+  right: 24rpx;
+  bottom: 20rpx;
+  width: 18rpx;
+  height: 18rpx;
+  background: rgba(199, 121, 63, 0.32);
+}
+
+/* 猫猫贴成一张小拍立得，和首页同一套语言 */
+.overview-photo {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  padding: 7rpx 7rpx 3rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.28);
+  border-radius: var(--r-md);
+  background: #fffdf8;
+  box-shadow: 4rpx 5rpx 0 rgba(116, 72, 40, 0.14);
+  transform: rotate(-4deg);
+}
+
+.overview-cat {
+  width: 132rpx !important;
+  height: 132rpx !important;
+  flex-shrink: 0;
+}
+
+.overview-copy {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+.overview-kicker {
+  display: block;
+  color: #8a5a0d;
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 18rpx;
+  font-weight: 700;
+  letter-spacing: 2.5rpx;
+}
+
+.overview-number-row {
+  display: flex;
+  align-items: baseline;
+  margin-top: 6rpx;
+}
+
+.overview-number {
+  color: #33280f;
+  font-size: 60rpx;
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.overview-unit {
+  margin-left: 6rpx;
+  color: #7a5713;
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.overview-text {
+  display: block;
+  margin-top: 4rpx;
+  color: #7a5713;
+  font-size: var(--fs-note);
+}
+
+.overview-track {
+  height: 20rpx;
+  margin-top: 14rpx;
+  overflow: hidden;
+  border: 2rpx solid rgba(116, 72, 40, 0.22);
+  border-radius: var(--r-pill);
+  background-color: #f4ead6;
+  background-image: repeating-linear-gradient(90deg, rgba(116, 72, 40, 0) 0 20rpx, rgba(116, 72, 40, 0.07) 20rpx 22rpx);
+  box-shadow: inset 0 2rpx 5rpx rgba(116, 72, 40, 0.12);
+}
+
+.overview-fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+  border-right: 2rpx solid rgba(116, 72, 40, 0.34);
+  background: linear-gradient(90deg, #ffd25c 0%, #f9bd3f 55%, #e99a35 100%);
+  box-shadow: 0 2rpx 6rpx rgba(199, 121, 63, 0.24);
+  transition: width 0.5s cubic-bezier(0.22, 0.8, 0.28, 1);
+}
+
+/* ---------- 分类筛选 ---------- */
+/* 筛选改成横向滚动：小屏也不挤，右缘渐隐提示还能滑 */
+.filters {
+  position: relative;
+  width: 100%;
+  margin: 24rpx 0 18rpx;
+}
+
+.filter-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.filter-inner {
+  display: inline-flex;
+  gap: 10rpx;
+  padding-right: 46rpx;
+}
+
+.filter {
+  flex: none;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  height: 88rpx;
+  padding: 0 24rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.22);
+  border-radius: var(--r-md);
+  background: rgba(255, 253, 249, 0.94);
+  box-shadow: 2rpx 3rpx 0 rgba(103, 73, 40, 0.08);
+  color: var(--muted);
+  font-size: var(--fs-note);
+  white-space: nowrap;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.filter-on {
+  background: linear-gradient(135deg, #ffdf82 0%, #f8bc4b 100%);
+  border-color: rgba(116, 72, 40, 0.48);
+  color: #3a2a09;
+  font-weight: 700;
+  box-shadow: 3rpx 4rpx 0 rgba(116, 72, 40, 0.18);
+}
+
+.filter-count {
+  min-width: 34rpx;
+  padding: 2rpx 9rpx;
+  border-radius: var(--r-pill);
+  background: rgba(255, 253, 249, 0.72);
+  color: inherit;
+  font-size: 20rpx;
+  text-align: center;
+}
+
+.filter-fade {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 46rpx;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(253, 247, 234, 0), #fdf7ea 78%);
+}
+
+.result-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+  padding: 0 4rpx;
+}
+
+.result-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.result-stamp {
+  align-self: flex-start;
+  padding: 2rpx 10rpx;
+  border: 2rpx solid rgba(168, 106, 17, 0.34);
+  border-radius: 6rpx 8rpx 5rpx 7rpx;
+  color: var(--amber);
+  font-size: 16rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  line-height: 1.4;
+  transform: rotate(-3deg);
+}
+
+.result-label {
+  font-size: 27rpx;
+  font-weight: 700;
+}
+
+.result-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2rpx;
+}
+
+.result-count {
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+/* 词频说明入口：热区撑到 88rpx，视觉上只是一枚小问号 */
+.freq-help {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  min-height: 88rpx;
+  padding-left: 12rpx;
+  color: var(--muted);
+  font-size: 22rpx;
+}
+
+.freq-help-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28rpx;
+  height: 28rpx;
+  border: 2rpx solid rgba(168, 106, 17, 0.45);
+  border-radius: 50%;
+  color: var(--amber);
+  font-size: 20rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ---------- 星级标尺 ---------- */
+/* 四级 / 六级两套星级：切换控件放在筛选栏下方，切换只换显示，不重新请求 */
+.cet-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin: 0 0 8rpx;
+  padding: 0 4rpx;
+}
+
+.cet-bar-label {
+  color: var(--muted);
+  font-size: 22rpx;
+}
+
+.cet-seg {
+  display: flex;
+  align-items: center;
+  padding: 4rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.22);
+  border-radius: var(--r-pill);
+  background: rgba(255, 253, 249, 0.94);
+  box-shadow: 2rpx 3rpx 0 rgba(103, 73, 40, 0.08);
+}
+
+/* 热区按 88rpx 给足，视觉上是一枚小胶囊 */
+.cet-seg-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 104rpx;
+  min-height: 88rpx;
+  padding: 0 22rpx;
+  border-radius: var(--r-pill);
+  color: var(--muted);
+  font-size: var(--fs-note);
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.cet-seg-on {
+  background: linear-gradient(135deg, #ffdf82 0%, #f8bc4b 100%);
+  color: #3a2a09;
+  font-weight: 700;
+  box-shadow: 2rpx 3rpx 0 rgba(116, 72, 40, 0.18);
+}
+
+/* ---------- 单词卡 ---------- */
+.word-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+}
+
+.word-card {
+  position: relative;
+  padding: var(--card-pad-y);
+  overflow: hidden;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  background: linear-gradient(155deg, #fffef9 0%, #fffaf0 100%);
+  box-shadow: var(--shadow-paper);
+}
+
+.word-accent {
+  position: absolute;
+  left: 0;
+  top: 22rpx;
+  bottom: 22rpx;
+  width: 8rpx;
+  border-radius: 0 8rpx 8rpx 0;
+  background: #e4d6bb;
+}
+
+.tone-sun .word-accent { background: linear-gradient(180deg, #ffd25c, #f3ab27); }
+.tone-mint .word-accent { background: linear-gradient(180deg, #7cc79a, #4f9a71); }
+.tone-sky .word-accent { background: linear-gradient(180deg, #7fb0e0, #4d7fb5); }
+.tone-coral .word-accent { background: linear-gradient(180deg, #ffa184, #e26f52); }
+.tone-violet .word-accent { background: linear-gradient(180deg, #a99ae0, #7b68bc); }
+
+.word-mastered {
+  background: linear-gradient(160deg, #fbfdf7 0%, #f2f8ec 100%);
+  border-color: rgba(95, 168, 124, 0.22);
+}
+
+.word-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+  padding-left: 8rpx;
+}
+
+.word-main { flex: 1; min-width: 0; }
+
+.word-line {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  min-width: 0;
+}
+
+/* 单词外层：承接荧光笔高亮 */
+.word-mark {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.word {
+  display: block;
+  color: var(--ink);
+  font-size: 44rpx;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.5rpx;
+  /* 超长单词（解析异常或专有名词）必须换行，不能顶到右侧的发音和掌握按钮上 */
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+/* 已认识标记：生词本收过 / 别的文章里点过掌握，解析时不再重复解释 */
+.known-chip {
+  flex: none;
+  padding: 2rpx 12rpx;
+  border: 2rpx solid var(--muted);
+  border-radius: 999rpx;
+  color: var(--muted);
+  font-size: 20rpx;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.phonetic {
+  display: block;
+  margin-top: 4rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+}
+
+/* 词频星级：星星用 clip-path 画，避免不同设备字体渲染差异 */
+.word-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10rpx;
+  margin-top: 8rpx;
+}
+
+.freq-stars {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.freq-star {
+  width: 22rpx;
+  height: 22rpx;
+  background: #ded0b4;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.freq-star-on { background: #e0a12a; }
+
+.freq-word {
+  margin-left: 4rpx;
+  color: #8a6a2c;
+  font-size: 20rpx;
+  letter-spacing: 1rpx;
+}
+
+.freq-none {
+  color: var(--faint);
+  font-size: 20rpx;
+}
+
+.pending-meaning {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-top: 12rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+.pending-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 999rpx;
+  background: var(--faint);
+}
+
+/* 热区撑到 88rpx，圆圈本身不变大 */
+.master-button {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  min-height: 88rpx;
+  padding: 0 24rpx;
+  border-radius: var(--r-pill);
+  background: #f7f1e4;
+  color: var(--muted);
+  font-size: var(--fs-note);
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.master-mark {
+  position: relative;
+  width: 28rpx;
+  height: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2rpx solid rgba(125, 115, 101, 0.35);
+}
+
+/* 描边勾：不再依赖 ✓ 字符 */
+.mastered-button .master-mark::after {
+  content: '';
+  width: 12rpx;
+  height: 20rpx;
+  margin-top: -4rpx;
+  border-right: 3rpx solid #fff;
+  border-bottom: 3rpx solid #fff;
+  border-radius: 0 0 3rpx 0;
+  transform: rotate(42deg);
+}
+
+.mastered-button {
+  background: #e2f2e6;
+  color: #3f755a;
+  font-weight: 700;
+}
+
+.mastered-button .master-mark {
+  background: #5fa87c;
+  border-color: transparent;
+}
+
+.button-saving { opacity: 0.55; }
+
+/* ---------- 展开更多：默认折叠，减少单卡高度 ---------- */
+.word-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  min-height: 88rpx;
+  margin-top: 8rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+.more-arrow {
+  width: 14rpx;
+  height: 14rpx;
+  margin-top: -6rpx;
+  border-right: 2rpx solid var(--muted);
+  border-bottom: 2rpx solid var(--muted);
+  transform: rotate(45deg);
+  transition: transform 0.18s ease;
+}
+
+.more-arrow-on {
+  margin-top: 4rpx;
+  transform: rotate(-135deg);
+}
+
+/* ---------- 变形 / 派生 ---------- */
+.word-family {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 14rpx;
+  padding-left: 8rpx;
+}
+
+.family-label {
+  flex: none;
+  width: 60rpx;
+  margin-right: 8rpx;
+  padding-top: 4rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+  letter-spacing: 1rpx;
+}
+
+.family-items {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+.family-item {
+  padding: 5rpx 14rpx;
+  border-radius: var(--r-sm);
+  background: #f7f0e2;
+  color: #5e5445;
+  font-size: var(--fs-note);
+}
+
+/* 句型后面的中文释义，弱化一档，不抢英文搭配本身 */
+.family-item-gloss {
+  margin-left: 8rpx;
+  color: #8d7a5c;
+  font-size: 20rpx;
+}
+
+.family-pos {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* 派生词：词 + 词性 + 中文释义，逐条竖排，避免长释义挤成一行 */
+.der-list {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.der-row {
+  min-width: 0;
+  padding: 8rpx 14rpx;
+  border-radius: var(--r-sm);
+  background: #f7f0e2;
+}
+
+.der-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10rpx;
+}
+
+.der-word {
+  color: var(--ink);
+  font-size: 25rpx;
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+.der-pos {
+  color: var(--muted);
+  font-size: 22rpx;
+  font-style: italic;
+}
+
+.der-def {
+  display: block;
+  margin-top: 2rpx;
+  color: var(--muted);
+  font-size: 22rpx;
+  line-height: 1.55;
+}
+
+/* ---------- 词根 ---------- */
+.root-body {
+  flex: 1;
+  min-width: 0;
+  padding: 8rpx 14rpx;
+  border-radius: var(--r-sm);
+  background: #f2f5ee;
+}
+
+.root-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.root-form {
+  color: var(--ink);
+  font-size: 25rpx;
+}
+
+.root-meaning {
+  color: #4e6142;
+  font-size: 22rpx;
+}
+
+.root-origin {
+  display: block;
+  margin-top: 2rpx;
+  color: var(--muted);
+  font-size: 20rpx;
+}
+
+.root-build,
+.root-core {
+  display: block;
+  margin-top: 6rpx;
+  color: #5e5445;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.root-family {
+  margin-top: 10rpx;
+}
+
+.root-family-label {
+  color: var(--muted);
+  font-size: 20rpx;
+}
+
+.root-family-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 6rpx;
+}
+
+/* ---------- 易混辨析 ---------- */
+.word-confuse .der-row {
+  background: #faf4e6;
+}
+
+.confuse-note {
+  display: block;
+  margin-top: 4rpx;
+  color: #6b5a44;
+  font-size: 21rpx;
+  line-height: 1.6;
+}
+
+/* ---------- 例句 ---------- */
+.sentence {
+  position: relative;
+  margin-top: 20rpx;
+  padding: 18rpx 20rpx 18rpx 32rpx;
+  border: 2rpx dashed rgba(116, 72, 40, 0.22);
+  border-radius: var(--r-md);
+  background-color: #fffdf6;
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0,
+    transparent 39rpx,
+    rgba(116, 72, 40, 0.08) 39rpx,
+    rgba(116, 72, 40, 0.08) 40rpx
+  );
+}
+
+.sentence-mark {
+  position: absolute;
+  left: 8rpx;
+  top: 2rpx;
+  color: #e3c48b;
+  font-size: 46rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.sentence-text {
+  color: var(--ink-2);
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 26rpx;
+  line-height: 1.7;
+}
+
+/* 搭配下面的用法示范句 */
+.pattern-example {
+  display: block;
+  margin-top: 10rpx;
+  color: var(--muted);
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+/* ---------- 加入生词本 ---------- */
+.word-book-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 18rpx;
+}
+
+.book-chip {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  min-height: 88rpx;
+  padding: 0 24rpx;
+  border-radius: var(--r-pill);
+  border: 2rpx dashed rgba(168, 106, 17, 0.38);
+  background: rgba(255, 243, 212, 0.6);
+  color: #8a5a0d;
+  font-size: var(--fs-note);
+  font-weight: 700;
+  transition: background 0.18s ease, transform 0.16s ease;
+}
+
+.book-chip:active { transform: scale(0.96); }
+
+/* 加号与勾都用描边拼，不用字符图标 */
+.book-chip-mark {
+  position: relative;
+  width: 26rpx;
+  height: 26rpx;
+  border-radius: 50%;
+  background: rgba(168, 106, 17, 0.10);
+}
+
+.book-chip-mark::before,
+.book-chip-mark::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+.book-chip-mark::before { width: 13rpx; height: 2rpx; }
+.book-chip-mark::after { width: 2rpx; height: 13rpx; }
+
+.book-chip-on {
+  border-style: solid;
+  border-color: rgba(95, 168, 124, 0.32);
+  background: rgba(226, 242, 230, 0.8);
+  color: #3f7d57;
+}
+
+.book-chip-on .book-chip-mark {
+  background: rgba(95, 168, 124, 0.18);
+}
+
+.book-chip-on .book-chip-mark::before {
+  width: 12rpx;
+  height: 20rpx;
+  margin-top: -2rpx;
+  border-right: 3rpx solid currentColor;
+  border-bottom: 3rpx solid currentColor;
+  border-radius: 0 0 3rpx 0;
+  background: transparent;
+  transform: translate(-50%, -50%) rotate(42deg);
+}
+
+.book-chip-on .book-chip-mark::after { display: none; }
+
+.book-hint {
+  flex: 1;
+  min-width: 0;
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+.empty-words {
+  padding: 50rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filter, .overview-fill, .master-button { transition: none; }
+}
+
+/* ---------- 左滑快捷操作 ---------- */
+.swipe-hint {
+  display: block;
+  margin: 0 0 14rpx 4rpx;
+  font-size: 22rpx;
+  color: var(--faint);
+}
+
+.swipe-row {
+  position: relative;
+  border-radius: var(--r-lg);
+}
+
+.swipe-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+}
+
+.swipe-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100rpx;
+  min-height: 100%;
+  font-size: 25rpx;
+  font-weight: 700;
+  color: #4b4034;
+  border-left: 2rpx solid rgba(75, 64, 52, 0.18);
+}
+
+.swipe-know { background: #f7dfa4; }
+
+.swipe-book { background: #cfe3d2; }
+
+.swipe-btn-off { opacity: 0.5; }
+
+.word-card {
+  transition: transform 0.16s ease;
+  will-change: transform;
+}

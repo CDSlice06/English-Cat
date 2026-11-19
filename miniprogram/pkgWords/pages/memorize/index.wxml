@@ -1,0 +1,290 @@
+<view class="page memorize">
+  <view wx:if="{{loading}}" class="mem-state">
+    <cat-image name="sleepy-nap" size="large" />
+    <text>猫正在翻生词本…</text>
+  </view>
+
+  <view wx:elif="{{error}}" class="mem-state">
+    <cat-image name="not-found" size="large" />
+    <text>{{error}}</text>
+    <view class="mem-state-btn" bindtap="load">重新加载</view>
+  </view>
+
+  <view wx:elif="{{empty}}" class="mem-state">
+    <cat-image name="not-found" size="large" />
+    <text>{{emptyText}}</text>
+    <view class="mem-state-actions">
+      <view class="mem-state-btn" bindtap="goWordbook">去生词本</view>
+      <view class="mem-state-btn" bindtap="goReview">去今日复习</view>
+    </view>
+  </view>
+
+  <block wx:elif="{{done}}">
+    <view class="mem-done">
+      <view class="paper-tape mem-done-tape"></view>
+      <cat-image name="reading-highlight" size="large" />
+      <text class="mem-done-title">这一组练完了</text>
+      <text class="mem-done-text">共 {{stats.words}} 个{{tab === 'phrase' ? '词组' : '词'}}，四个环节都走完并通过的已标为「记得」，之后由今日复习按半年回访。</text>
+      <view class="mem-done-stats">
+        <view class="mem-stat">
+          <text class="mem-stat-num en">{{stats.firstTry}}</text>
+          <text class="mem-stat-label">一次全对</text>
+        </view>
+        <view class="mem-stat">
+          <text class="mem-stat-num en">{{stats.retried}}</text>
+          <text class="mem-stat-label">重练过</text>
+        </view>
+        <view class="mem-stat">
+          <text class="mem-stat-num en">{{todayWords}}</text>
+          <text class="mem-stat-label">今日累计</text>
+        </view>
+      </view>
+      <text wx:if="{{knownCount}}" class="mem-done-note">{{knownCount}} 个词已进入「记得」，之后由今日复习按半年回访。</text>
+      <view class="mem-done-actions">
+        <view class="mem-done-btn" bindtap="again">再练一组</view>
+        <view class="mem-done-btn mem-done-btn-ghost" bindtap="goWordbook">回生词本</view>
+      </view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <section-title eyebrow="DAILY RECITE" title="今日背诵" description="四个环节依次进行：看词选义、听音选义、语境填词、看义拼写。每个环节都把整组词过一遍，答错的词留到这个环节最后再考一次，全过了才进下一个环节。" />
+
+    <view class="mem-tabs">
+      <view
+        wx:for="{{tabs}}"
+        wx:key="key"
+        class="mem-tab {{tab === item.key ? 'mem-tab-on' : ''}}"
+        data-tab="{{item.key}}"
+        bindtap="switchTab"
+      >
+        <text class="mem-tab-label">{{item.label}}</text>
+        <text class="mem-tab-count en">{{tabCounts[item.key]}}</text>
+      </view>
+    </view>
+
+    <view class="mem-scope">
+      <text class="mem-scope-label">{{tab === 'phrase' ? '词组本' : '生词本'}}「不记得」{{unknownCount}} 个 · 能出题 {{poolSize}} 个 · 本轮 {{total}} 个 · 已过关 {{passedCount}} 个</text>
+      <text wx:if="{{skipped}}" class="mem-scope-note">{{skipped}} 个缺释义，暂时出不了题</text>
+    </view>
+
+    <view class="mem-size-row">
+      <text class="mem-size-label">每组</text>
+      <view class="mem-stepper">
+        <view class="mem-step-btn {{roundSize === 5 ? 'mem-step-off' : ''}}" data-step="-5" bindtap="stepSize">−</view>
+        <input
+          class="mem-size-input en"
+          type="number"
+          value="{{roundSize}}"
+          bindblur="setSize"
+          bindconfirm="setSize"
+        />
+        <view class="mem-step-btn {{roundSize >= 100 ? 'mem-step-off' : ''}}" data-step="5" bindtap="stepSize">+</view>
+      </view>
+      <text class="mem-size-unit">个 · 最多 100 个，现有 {{poolSize}} 个</text>
+    </view>
+
+    <view wx:if="{{!total}}" class="mem-tab-empty">
+      <cat-image name="not-found" size="large" />
+      <text class="mem-tab-empty-text">{{tabEmpty}}</text>
+      <view class="mem-state-btn" bindtap="load">重新加载</view>
+    </view>
+
+    <block wx:else>
+      <view class="mem-progress">
+        <view class="mem-progress-row">
+          <text class="mem-progress-label">今日已背<text class="mem-progress-value en">{{todayWords}}</text></text>
+          <text class="mem-progress-group">{{stageLabel}} {{stageDone}} / {{stageTotal}}</text>
+        </view>
+        <view class="mem-progress-bar"><view class="mem-progress-fill" style="width: {{percent}}%"></view></view>
+      </view>
+
+      <view class="mem-card">
+        <view class="paper-tape mem-tape"></view>
+
+        <view class="mem-stages">
+          <view
+            wx:for="{{stages}}"
+            wx:key="key"
+            class="mem-stage {{item.done ? 'mem-stage-done' : ''}} {{item.key === stageKey ? 'mem-stage-on' : ''}}"
+          >
+            <text wx:if="{{item.done}}" class="mem-stage-check">✓</text>
+            <text class="mem-stage-label">{{item.label}}</text>
+          </view>
+        </view>
+
+        <view wx:if="{{current && current.retry}}" class="mem-retry-flag">刚才答错了 · 这个环节最后再考一次</view>
+
+        <block wx:if="{{phase === 'choice'}}">
+          <text class="mem-step">{{stageLabel}}</text>
+
+          <block wx:if="{{mode === 'read'}}">
+            <text class="mem-word en">{{current.word}}</text>
+            <view class="mem-phonetic-row">
+              <text wx:if="{{current.phonetic}}" class="mem-phonetic en">/{{current.phonetic}}/</text>
+              <speak-btn word="{{current.word}}" />
+            </view>
+            <view wx:if="{{drawingPath}}" class="mem-drawing" bindtap="previewDrawing">
+              <image class="mem-drawing-img" src="{{drawingPath}}" mode="aspectFit" />
+              <text class="mem-drawing-tip">我画的 · 点开看大图</text>
+              <text class="mem-drawing-del" catchtap="removeDrawing">删掉这张画</text>
+            </view>
+          </block>
+
+          <block wx:else>
+            <view wx:if="{{!revealed}}" class="mem-listen">
+              <view class="mem-listen-btn">
+                <speak-btn class="mem-speak" word="{{current.word}}" />
+              </view>
+              <text class="mem-listen-tip">点喇叭听发音，再选出它的意思</text>
+              <text class="mem-reveal-link" bindtap="revealWord">听不出？看单词</text>
+            </view>
+            <block wx:else>
+              <text class="mem-word en">{{current.word}}</text>
+              <view class="mem-phonetic-row">
+                <text wx:if="{{current.phonetic}}" class="mem-phonetic en">/{{current.phonetic}}/</text>
+                <speak-btn word="{{current.word}}" />
+              </view>
+            </block>
+          </block>
+
+          <view class="mem-options">
+            <view
+              wx:for="{{options}}"
+              wx:key="key"
+              class="mem-option {{item.wrong ? 'mem-option-wrong' : ''}} {{item.right ? 'mem-option-right' : ''}}"
+              hover-class="mem-option-hover"
+              data-index="{{index}}"
+              bindtap="pickOption"
+            >
+              <text class="mem-option-badge en">{{optionLetters[index]}}</text>
+              <view class="mem-option-body">
+                <view wx:for="{{item.lines}}" wx:for-item="line" wx:key="def" class="mem-mean-line">
+                  <text wx:if="{{line.pos}}" class="mem-pos en">{{line.pos}}</text>
+                  <text class="mem-def">{{line.def}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+
+        <block wx:elif="{{phase === 'cloze'}}">
+          <text class="mem-step">{{stageLabel}}</text>
+
+          <text class="mem-cloze en">{{sentence}}</text>
+          <text wx:if="{{sentenceZh}}" class="mem-cloze-zh">{{sentenceZh}}</text>
+          <text class="mem-cloze-tip">选出空格里该填的{{tab === 'phrase' ? '词组' : '单词'}}</text>
+
+          <view class="mem-options">
+            <view
+              wx:for="{{options}}"
+              wx:key="key"
+              class="mem-option {{item.wrong ? 'mem-option-wrong' : ''}} {{item.right ? 'mem-option-right' : ''}}"
+              hover-class="mem-option-hover"
+              data-index="{{index}}"
+              bindtap="pickOption"
+            >
+              <text class="mem-option-badge en">{{optionLetters[index]}}</text>
+              <view class="mem-option-body">
+                <text class="mem-option-word en">{{item.text}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+
+        <block wx:elif="{{phase === 'spell'}}">
+          <text class="mem-step">{{stageLabel}}</text>
+
+          <view class="mem-meanings-prompt">
+            <view wx:for="{{meaningLines}}" wx:key="def" class="mem-mean-line">
+              <text wx:if="{{item.pos}}" class="mem-pos en">{{item.pos}}</text>
+              <text class="mem-def">{{item.def}}</text>
+            </view>
+          </view>
+          <text class="mem-hint">{{hint}}</text>
+
+          <view class="spell-field">
+            <view class="spell-cells {{sizeClass}}">
+              <view
+                wx:for="{{cells}}"
+                wx:key="index"
+                class="spell-cell {{item.sep ? 'spell-sep' : ''}} {{item.filled ? 'spell-filled' : ''}} {{item.active ? 'spell-active' : ''}}"
+              >
+                <text class="spell-ch en">{{item.ch}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="mem-keys">
+            <view
+              wx:for="{{letters}}"
+              wx:key="*this"
+              class="mem-key en"
+              hover-class="mem-key-hover"
+              data-key="{{item}}"
+              bindtap="tapKey"
+            >{{item}}</view>
+            <view class="mem-key mem-key-del" hover-class="mem-key-hover" bindtap="backspace">⌫</view>
+          </view>
+
+          <view class="mem-actions">
+            <view class="mem-skip" bindtap="skipSpell">先跳过</view>
+            <view class="mem-submit" bindtap="submitSpell">确认</view>
+          </view>
+        </block>
+
+        <block wx:elif="{{phase === 'detail'}}">
+          <text class="mem-step {{detailWrong ? 'mem-bad' : 'mem-ok'}}">{{detailWrong ? '没选对 · 先看一眼这个词' : '看一眼这个词'}}</text>
+          <text class="mem-word en">{{current.word}}</text>
+          <view class="mem-phonetic-row">
+            <text wx:if="{{current.phonetic}}" class="mem-phonetic en">/{{current.phonetic}}/</text>
+            <speak-btn word="{{current.word}}" />
+          </view>
+          <view class="mem-meanings-prompt">
+            <view wx:for="{{meaningLines}}" wx:key="def" class="mem-mean-line">
+              <text wx:if="{{item.pos}}" class="mem-pos en">{{item.pos}}</text>
+              <text class="mem-def">{{item.def}}</text>
+            </view>
+          </view>
+          <text wx:if="{{sentence}}" class="mem-sentence en">{{sentence}}</text>
+          <text wx:if="{{sentenceZh}}" class="mem-sentence-zh">{{sentenceZh}}</text>
+          <view wx:if="{{drawingPath}}" class="mem-drawing mem-drawing-small" bindtap="previewDrawing">
+            <image class="mem-drawing-img" src="{{drawingPath}}" mode="aspectFit" />
+            <text class="mem-drawing-tip">我画的 · 点开看大图</text>
+            <text class="mem-drawing-del" catchtap="removeDrawing">删掉这张画</text>
+          </view>
+          <view class="mem-draw-btn" bindtap="goDraw">{{drawingPath ? '重新画一张' : '画几笔记住它'}}</view>
+          <view class="mem-next" hover-class="mem-next-hover" bindtap="closeDetail">继续</view>
+        </block>
+
+        <block wx:else>
+          <text class="mem-step mem-bad">{{resultLabel}}</text>
+          <text class="mem-word en">{{current.word}}</text>
+          <view class="mem-phonetic-row">
+            <text wx:if="{{current.phonetic}}" class="mem-phonetic en">/{{current.phonetic}}/</text>
+            <speak-btn word="{{current.word}}" />
+          </view>
+          <view class="mem-meanings-prompt">
+            <view wx:for="{{meaningLines}}" wx:key="def" class="mem-mean-line">
+              <text wx:if="{{item.pos}}" class="mem-pos en">{{item.pos}}</text>
+              <text class="mem-def">{{item.def}}</text>
+            </view>
+          </view>
+          <text wx:if="{{sentence}}" class="mem-sentence en">{{sentence}}</text>
+          <text wx:if="{{sentenceZh}}" class="mem-sentence-zh">{{sentenceZh}}</text>
+          <view wx:if="{{drawingPath}}" class="mem-drawing mem-drawing-small" bindtap="previewDrawing">
+            <image class="mem-drawing-img" src="{{drawingPath}}" mode="aspectFit" />
+            <text class="mem-drawing-tip">我画的 · 点开看大图</text>
+            <text class="mem-drawing-del" catchtap="removeDrawing">删掉这张画</text>
+          </view>
+          <view class="mem-draw-btn" bindtap="goDraw">{{drawingPath ? '重新画一张' : '画几笔记住它'}}</view>
+          <text class="mem-fail-tip">记一下正确答案，等这个环节的词都过完，会再考一次。</text>
+          <view class="mem-next" hover-class="mem-next-hover" bindtap="next">继续</view>
+        </block>
+      </view>
+
+      <view wx:if="{{total}}" class="mem-note">看词选义 → 听音选义 → 语境填词 → 看义拼写，一个环节整组词都过了才进下一个；答错的词在本环节末尾补考，直到全对。四个环节都过了，这个词才算记住。</view>
+      <view class="mem-link" bindtap="goReview">去今日复习</view>
+    </block>
+  </block>
+</view>

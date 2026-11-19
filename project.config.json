@@ -1,6 +1,18 @@
 {
   "miniprogramRoot": "miniprogram/",
   "cloudfunctionRoot": "cloud/",
+  "packOptions": {
+    "ignore": [
+      {
+        "type": "folder",
+        "value": "node_modules"
+      },
+      {
+        "type": "folder",
+        "value": "miniprogram/node_modules"
+      }
+    ]
+  },
   "projectname": "english-miao",
   "description": "英语精读喵四六级文章深度学习小程序 MVP",
   "appid": "wxac4479984021870d",
@@ -11,7 +23,7 @@
     "compileHotReLoad": false,
     "postcss": false,
     "preloadBackgroundData": false,
-    "minified": false,
+    "minified": true,
     "newFeature": true,
     "autoAudits": false,
     "coverView": true,

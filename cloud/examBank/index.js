@@ -1,5 +1,6 @@
-// 内置真题库：四级/六级历年仔细阅读已随函数一起打包，
-// 小程序端只拉清单，点开哪篇再取正文，避免一次下发几百篇。
+// 内置真题库：真题原文随函数一起打包，小程序端只拉清单，
+// 点开哪篇再取正文，避免一次下发几百篇。英语外刊不走云端，
+// 内容直接打包在小程序里（miniprogram/content/journals.js）。
 const { PASSAGES } = require('./data')
 
 const SUMMARY_KEYS = ['id', 'level', 'year', 'month', 'paper', 'passage', 'title', 'words']

@@ -8,6 +8,12 @@ project.private.config.json
 # 本地私有数据：真题抓取的登录态与原文缓存，绝不进仓库
 .local/
 
+# 本地临时产物与宣传物料：体积大、非运行必需，不进仓库
+.tmp-mpt/
+journal-covers/
+橘猫_QQ宠物毛绒版/
+*.mp4
+
 # 依赖与系统文件
 node_modules/
 .DS_Store

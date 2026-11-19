@@ -32,11 +32,15 @@
           <view class="hello-line"></view>
           <text>今天，也读懂一点点</text>
         </view>
-        <text class="hero-title">读过的每一篇</text>
-        <view class="hero-strong hand-wave">
-          <text class="hero-title hero-title-strong">都要完全消化</text>
-        </view>
-        <text class="hero-sub">从一篇文档到词汇、语法与表达，让橘猫陪你走完学习闭环。</text>
+        <block wx:if="{{!hasProgress}}">
+          <text class="hero-title">读过的每一篇</text>
+          <view class="hero-strong hand-wave">
+            <text class="hero-title hero-title-strong">都要完全消化</text>
+          </view>
+          <text class="hero-sub">从一篇文档到词汇、语法与表达，让橘猫陪你走完学习闭环。</text>
+        </block>
+        <text wx:else class="hero-title hero-title-compact">读过的每一篇，都要完全消化</text>
+        <view wx:if="{{hasProgress && catBubble}}" class="cat-bubble cat-bubble-inline">{{catBubble}}</view>
       </view>
 
       <view class="hero-photo {{catTapped ? 'cat-tapped' : ''}}" bind:tap="tapCat">
@@ -45,12 +49,12 @@
           <cat-image custom-class="hero-cat-visual" name="{{catName}}" size="large" />
         </view>
         <text class="photo-caption en">today's cat · 戳一下</text>
-        <view wx:if="{{catBubble}}" class="cat-bubble">
+        <view wx:if="{{!hasProgress && catBubble}}" class="cat-bubble">
           <text>{{catBubble}}</text>
         </view>
       </view>
 
-      <view class="hero-band">
+      <view wx:if="{{!hasProgress}}" class="hero-band">
         <text class="en">WORD</text>
         <view class="band-dot"></view>
         <text class="en">PHRASE</text>
@@ -58,6 +62,46 @@
         <text class="en">GRAMMAR</text>
         <view class="band-dot"></view>
         <text class="en">OUTPUT</text>
+      </view>
+    </view>
+
+    <view wx:if="{{plan.visible}}" class="plan-card enter d2">
+      <view class="paper-tape plan-tape"></view>
+      <view class="plan-head">
+        <view class="plan-head-copy">
+          <text class="plan-kicker en">TODAY</text>
+          <text class="plan-title">今日计划</text>
+        </view>
+        <view class="plan-count">
+          <text class="plan-count-num en">{{plan.done}}</text>
+          <text class="plan-count-total">/{{plan.total}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{planExpanded}}" class="plan-list">
+        <view
+          wx:for="{{plan.tasks}}"
+          wx:key="key"
+          class="plan-row {{item.done ? 'plan-row-done' : ''}}"
+        >
+          <view class="plan-check">{{item.done ? '✓' : ''}}</view>
+          <view class="plan-copy">
+            <text class="plan-row-title">{{item.title}}</text>
+            <text class="plan-row-desc">{{item.desc}}</text>
+          </view>
+        </view>
+      </view>
+
+      <text wx:if="{{planExpanded && plan.done >= plan.total}}" class="plan-done-text">今天的计划都做完了，可以安心收工。</text>
+
+      <view class="plan-toggle" hover-class="plan-toggle-hover" bindtap="togglePlan">
+        <text class="plan-toggle-text">{{planExpanded ? '收起今日计划' : (plan.done >= plan.total ? '今天的计划都做完了 · 展开看看' : '展开今日计划')}}</text>
+        <view class="plan-toggle-arrow {{planExpanded ? 'is-open' : ''}}"></view>
+      </view>
+
+      <view wx:if="{{planExpanded}}" class="plan-guide" bindtap="goProfile">
+        <text class="plan-guide-text">复习和背诵都在「我的」页</text>
+        <text class="plan-guide-link">去我的页</text>
       </view>
     </view>
 
@@ -70,17 +114,17 @@
           <text class="progress-kicker">THIS ARTICLE</text>
           <text class="progress-title">{{title}}</text>
         </view>
-        <view class="progress-badge">{{progress.completed}}/{{progress.total}}</view>
+        <view class="progress-badge">{{readingMode ? progress.percent + '%' : progress.completed + '/' + progress.total}}</view>
       </view>
 
       <view class="stat-strip">
         <view class="stat">
-          <text class="stat-num en">{{mastered}}</text>
-          <text class="stat-label">已掌握词</text>
+          <text class="stat-num en">{{readingMode ? readingMinutes : mastered}}<text wx:if="{{readingMode}}" class="stat-small">/15</text></text>
+          <text class="stat-label">{{readingMode ? '已读分钟' : '已掌握词'}}</text>
         </view>
         <view class="stat">
-          <text class="stat-num en">{{progress.completed}}<text class="stat-small">/{{progress.total}}</text></text>
-          <text class="stat-label">学习单元</text>
+          <text class="stat-num en">{{readingMode ? pointsCount : progress.completed}}<text wx:if="{{!readingMode}}" class="stat-small">/{{progress.total}}</text></text>
+          <text class="stat-label">{{readingMode ? '可点知识点' : '学习单元'}}</text>
         </view>
         <view class="stat">
           <text class="stat-num en">{{progress.percent}}<text class="stat-small">%</text></text>
@@ -88,7 +132,6 @@
         </view>
       </view>
 
-      <progress-bar percent="{{progress.percent}}" label="四个学习单元 · 全部完成即通关" />
       <view class="step-row">
         <view wx:for="{{stations}}" wx:key="label" class="step-chip {{item.done ? 'step-on' : ''}}"><view class="step-pip"></view><text>{{item.label}}</text></view>
       </view>
@@ -99,7 +142,7 @@
       </view>
     </view>
 
-    <view wx:else class="zero-card enter d2">
+    <view wx:elif="{{!starter}}" class="zero-card enter d2">
       <view class="paper-tape zero-tape"></view>
       <view class="zero-photo">
         <cat-image custom-class="zero-cat" name="sleepy-nap" size="medium" />
@@ -117,22 +160,45 @@
       </view>
     </view>
 
-    <view
-      wx:if="{{review.visible}}"
-      class="review-card enter d3"
-      hover-class="review-hover"
-      data-url="{{review.goReview ? '/pages/review/index' : '/pages/wordbook/index'}}"
-      bindtap="go"
-    >
-      <view class="review-sticker">
-        <cat-image custom-class="review-cat" name="pass-check" size="small" />
+    <view wx:if="{{starter}}" class="starter-card enter d2">
+      <view class="paper-tape starter-tape"></view>
+      <view class="starter-head">
+        <view class="starter-head-copy">
+          <text class="starter-kicker en">FIRST WEEK</text>
+          <text class="starter-title">第一周，先做三件小事</text>
+        </view>
+        <view class="starter-count">
+          <text class="starter-count-num en">{{starter.done}}</text>
+          <text class="starter-count-total">/3</text>
+        </view>
       </view>
-      <view class="review-copy">
-        <text class="review-kicker en">TODAY'S REVIEW</text>
-        <text class="review-title">{{review.title}}</text>
-        <text class="review-desc">{{review.desc}}</text>
+
+      <view class="starter-steps">
+        <view
+          wx:for="{{starter.steps}}"
+          wx:key="key"
+          class="starter-step {{item.done ? 'starter-step-done' : ''}}"
+          hover-class="{{item.done ? 'none' : 'starter-step-hover'}}"
+          data-url="{{item.done ? '' : item.url}}"
+          bindtap="go"
+        >
+          <view class="starter-check">{{item.done ? '✓' : index + 1}}</view>
+          <view class="starter-step-copy">
+            <text class="starter-step-title">{{item.title}}</text>
+            <text class="starter-step-desc">{{item.desc}}</text>
+          </view>
+          <view wx:if="{{!item.done}}" class="starter-arrow"></view>
+        </view>
       </view>
-      <view class="review-go {{review.goReview ? '' : 'review-go-done'}}">{{review.action}}</view>
+
+      <view wx:if="{{starter.complete}}" class="starter-finish">
+        <cat-image custom-class="starter-cat" name="complete-halo" size="small" />
+        <view class="starter-finish-copy">
+          <text class="starter-finish-title">三件小事都完成了</text>
+          <text class="starter-finish-desc">接下来按自己的节奏读，猫猫继续陪着</text>
+        </view>
+        <view class="starter-dismiss" hover-class="starter-dismiss-hover" bindtap="dismissStarter">收起</view>
+      </view>
     </view>
 
     <view
@@ -168,51 +234,6 @@
         <view class="cta-hint-dot"></view>
         <text>也可以导入自己的 Word / PDF</text>
       </view>
-    </view>
-
-    <view class="section-head">
-      <view class="section-title-wrap">
-        <text class="section-stamp en">NEXT</text>
-        <text class="section-title">接着往下学</text>
-      </view>
-      <text class="section-hint">先词后句，再练输出</text>
-    </view>
-
-    <view class="feature-grid">
-      <view
-        wx:for="{{features}}"
-        wx:key="name"
-        class="feature-card tone-{{item.tone}}"
-        hover-class="feature-hover"
-        data-url="{{item.url}}"
-        bindtap="go"
-      >
-        <view class="feature-tape"></view>
-        <view class="feature-top">
-          <text class="feature-index en">0{{index + 1}}</text>
-          <text class="feature-tag">{{item.tag}}</text>
-        </view>
-        <text class="feature-name">{{item.name}}</text>
-        <text class="feature-desc">{{item.desc}}</text>
-        <view class="feature-sticker">
-          <cat-image name="{{item.cat}}" size="medium" custom-class="feature-cat" />
-        </view>
-      </view>
-    </view>
-
-    <view class="route-link" bind:tap="go" data-url="/pages/workbench/index">
-      <text>查看完整学习路线 · 四站进度</text>
-      <view class="route-arrow"></view>
-    </view>
-
-    <view class="tip-card enter d5">
-      <view class="tip-tape"></view>
-      <cat-image name="idea-bulb" size="small" />
-      <view class="tip-copy">
-        <text class="tip-title">今天的小目标</text>
-        <text class="tip-text">不用担心起点，完成比完美更重要。</text>
-      </view>
-      <view class="tip-diamond"></view>
     </view>
 
     <view class="home-rule"></view>

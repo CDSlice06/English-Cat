@@ -1,7 +1,14 @@
 const cloud = require('wx-server-sdk')
 const crypto = require('crypto')
 const { buildGrammarPoints, buildPhrases, appearsInText } = require('./unit')
-const { enhanceUnit, translateFullText, DRILL_VERSION } = require('./llm')
+const {
+  enhanceUnit,
+  translateFullText,
+  translationEntries,
+  alignTranslation,
+  DRILL_VERSION,
+  resetCircuit
+} = require('./llm')
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -14,6 +21,8 @@ const BOOK_COLLECTION = 'wordbooks'
 const GRAMMAR_COLLECTION = 'grammarbooks'
 // 共享精讲缓存：同一篇正文 + 级别 + 精讲版本只生成一次，其他用户导入同一篇时直接复用
 const ARTICLE_CACHE = 'article_cache'
+// 单篇正文长度上限：内置外刊最长约 1.23 万字符，放宽到 1.4 万仍远低于模型上下文
+const MAX_ARTICLE_CHARS = 14000
 // 抽取规则版本：规则一变，共享缓存必须跟着失效（与 study 的 EXTRACT_VERSION 对齐）
 // 12：词库补齐考研与高频外刊词，词组库补 76 条常用搭配
 // 13：语法库补时态/被动/情态/地点状语从句/关联连词/插入语；词组加类型标签并补漏 74 条；熟词生义扩到 314 条
@@ -27,7 +36,11 @@ const ARTICLE_CACHE = 'article_cache'
 //     语法补否定转移、It 句型、倍数、虚拟倒装、定语从句关系词、句首状语、分号/冒号/同位语/分词短语等；还原英式拼写和 e 结尾比较级
 // 21：词库补考研进阶词与外刊议题新词 145 条；词组补现代议题名词搭配与论证短语 165 条
 // 22：语法补 18 类句式（倒装、使役、感官动词、宾补、名词化、破折号插入语、反意疑问、间接引语等），并修正进行时/被动/名词性从句误判
-const EXTRACT_VERSION = 22
+// 23：新增 advanced.json 派生词/复合词扩展库（约 160 条），补 -ings 名词词性、
+//     英式 -ised 还原与 -aion → -ation 常见拼写纠正，popularize 可带出 popularization
+// 24：新增 base-ecdict.json（ECDICT 全量补充词库，约 2.9 万条），补上词表外正常英文词
+//     （twit / abattoir / nanostructure 等）与它们的词性、音标、词形变化
+const EXTRACT_VERSION = 24
 
 function knownDocId(openid) {
   return `kw_${openid}`
@@ -160,8 +173,12 @@ function dict() {
     const common = require('./common.json')
     const extra = require('./extra.json')
     const curated = require('./curated.json')
+    const advanced = require('./advanced.json')
+    const baseEcdict = require('./base-ecdict.json')
     const senses = require('./senses.json')
-    const merged = Object.assign({}, base)
+    // 无原型对象：constructor / toString 这类词条名会撞上 Object.prototype，
+    // 不用无原型对象会出现「词典里没有 constructor，却查到一个函数」的问题
+    const merged = Object.assign(Object.create(null), base)
     Object.keys(common).forEach((word) => {
       if (!merged[word]) merged[word] = common[word]
     })
@@ -174,6 +191,16 @@ function dict() {
     // 释义整理自 ECDICT（MIT），手工词条覆盖 AI/医疗/环保/教育等高频议题。
     Object.keys(curated).forEach((word) => {
       if (!merged[word]) merged[word] = curated[word]
+    })
+    // 派生词与复合词扩展库：-ation / un- / re- / over- / -able 等常见派生形式，
+    // 以及外刊与真题里频繁出现的复合词（spaceflight / storyline / guidebook）
+    Object.keys(advanced).forEach((word) => {
+      if (!merged[word]) merged[word] = Object.assign({ outside: true }, advanced[word])
+    })
+    // 全量补充词库：由 tools/build-word-base.js 从 ECDICT（MIT）生成，
+    // 只补前面几份词库没有的词，已有高质量词条一律不覆盖
+    Object.keys(baseEcdict).forEach((word) => {
+      if (!merged[word]) merged[word] = baseEcdict[word]
     })
     Object.keys(senses).forEach((word) => {
       merged[word] = mergeEntries(merged[word] || { ph: '', tags: 'core', frq: 0, bnc: 0, collins: 0, rank: 1500, meanings: [] }, senses[word])
@@ -204,6 +231,60 @@ function dict() {
     dictCache = {}
   }
   return dictCache
+}
+
+// 派生同族关系：由 tools/build-word-relations.js 从 WordNet 3.1 生成
+let relationsCache = null
+
+function relations() {
+  if (relationsCache) return relationsCache
+  try {
+    relationsCache = require('./relations.json')
+  } catch (error) {
+    relationsCache = {}
+  }
+  return relationsCache
+}
+
+// 近义词：由 tools/build-word-synonyms.js 从 WordNet 3.1 生成，
+// 按「同词性 + 中文释义重合」过滤过，值是单词数组
+let synonymsCache = null
+
+function synonyms() {
+  if (synonymsCache) return synonymsCache
+  try {
+    synonymsCache = require('./synonyms.json')
+  } catch (error) {
+    synonymsCache = {}
+  }
+  return synonymsCache
+}
+
+// 词根与易混辨析：由 tools/build-word-authority.js 从 roots.json / confusables.json 生成
+let authorityCache = null
+
+function authority() {
+  if (authorityCache) return authorityCache
+  try {
+    authorityCache = require('./wordAuthority.json')
+  } catch (error) {
+    authorityCache = {}
+  }
+  return authorityCache
+}
+
+function hasWord(map, word) {
+  return !!word && Object.prototype.hasOwnProperty.call(map, word)
+}
+
+function rootOf(word) {
+  const hit = hasWord(authority(), word) ? authority()[word] : null
+  return (hit && hit.root) || null
+}
+
+function confusablesOf(word) {
+  const hit = hasWord(authority(), word) ? authority()[word] : null
+  return (hit && hit.confuse) || []
 }
 
 const CATEGORY_OPTIONS = [
@@ -293,7 +374,7 @@ async function claimEnhance(articleId, openid, now) {
 // 共享精讲缓存：正文归一后取哈希，正文完全一致才命中。
 // 缓存里只有我们自己生成的分析内容，不含用户身份信息。
 function cacheIdOf(text, level) {
-  const plain = String(text || '').replace(/\s+/g, ' ').trim().slice(0, 10000)
+  const plain = String(text || '').replace(/\s+/g, ' ').trim().slice(0, MAX_ARTICLE_CHARS)
   return `ac_${crypto.createHash('sha1').update(`${level}|${EXTRACT_VERSION}|${DRILL_VERSION}|${plain}`).digest('hex')}`
 }
 
@@ -317,16 +398,24 @@ async function writeArticleCache(id, level, unitData) {
     delete next.known
     return next
   })
-  const data = { level, drillVersion: DRILL_VERSION, unitData: _.set(copy), updatedAt: db.serverDate() }
+  // 共享缓存是普通文档写入：不能用 _.set 这类更新指令包一层，否则 set 会直接失败
+  const data = { level, drillVersion: DRILL_VERSION, unitData: copy, updatedAt: db.serverDate() }
   try {
     await db.collection(ARTICLE_CACHE).doc(id).set({ data })
+    return true
   } catch (error) {
-    // 首次使用时集合可能还不存在：建一次再写，仍失败就放弃缓存
+    // 首次使用时集合可能还不存在：建一次再写，仍失败就放弃缓存并留下真实原因
     try {
       await db.createCollection(ARTICLE_CACHE)
+    } catch (exists) {
+      // 集合已存在，说明是别的原因失败，继续重试一次把真实错误暴露出来
+    }
+    try {
       await db.collection(ARTICLE_CACHE).doc(id).set({ data })
+      return true
     } catch (again) {
       console.log('[ai-analyze] cache write failed', { message: again && again.message })
+      return false
     }
   }
 }
@@ -345,6 +434,95 @@ function applyLearned(unitData, learned) {
   copy.grammarPoints = (Array.isArray(copy.grammarPoints) ? copy.grammarPoints : [])
     .filter((item) => item && !grammars.has(normGrammar(item.pattern)))
   return copy
+}
+
+// 预生成只给管理侧用：小程序里的用户调用一定带 OPENID，直接拒绝；
+// 配了 PREWARM_TOKEN 时还要求口令一致，避免函数被当成免费的精讲接口刷额度
+function prewarmAllowed(event) {
+  const context = cloud.getWXContext() || {}
+  const secret = process.env.PREWARM_TOKEN || ''
+  if (secret) {
+    const allowed = String(event.token || '') === secret
+    if (!allowed) console.log('[ai-analyze] prewarm denied', { reason: 'token' })
+    return allowed
+  }
+  const allowed = !context.OPENID
+  if (!allowed) {
+    console.log('[ai-analyze] prewarm denied', { reason: 'openid', head: String(context.OPENID).slice(0, 6) })
+  }
+  return allowed
+}
+
+// 上线前把内置文章的 AI 精讲写进共享缓存：用户打开时只读库、不调用模型。
+// 分两轮执行（精讲 / 全文对照），任何一轮都可能接近云函数 60 秒上限
+async function prewarmArticle(event) {
+  const text = typeof event.text === 'string' ? event.text.trim() : ''
+  if (!text) return failure(400, '文章正文不能为空')
+  if (text.length > MAX_ARTICLE_CHARS) return failure(400, `文章不能超过 ${MAX_ARTICLE_CHARS} 个字符`)
+  if (!isEnglishText(text)) return failure(400, '仅支持英文文本解析')
+  const level = event.level === 'cet6' ? 'cet6' : 'cet4'
+  const cacheId = cacheIdOf(text, level)
+  // 预热是管理侧串行调用：先把上一次临时失败留下的熔断清掉，别让整批文章被误伤
+  const resetTasks = resetCircuit()
+  if (resetTasks.length) console.log('[ai-analyze] prewarm reset circuit', { tasks: resetTasks })
+
+  // 第二轮：只补全文对照，写回已有缓存，报告页和阅读页复盘都不再等模型
+  if (event.translate) {
+    const cached = await readArticleCache(cacheId)
+    if (!cached) return failure(404, '这篇还没有精讲缓存，先生成精讲')
+    const unitData = cached.unitData || {}
+    const expected = translationEntries(text).length
+    const existing = Array.isArray(unitData.fullTranslation) ? unitData.fullTranslation : []
+    const aligned = alignTranslation(text, [existing])
+    // 只有覆盖全文才跳过：早先按 70% 覆盖接受的残缺译文，这里会重新补齐
+    if (aligned.length >= expected && !event.force) {
+      return success({ prewarmed: true, cacheId, translated: true, skipped: true, sentences: aligned.length, expected })
+    }
+    const sentences = await translateFullText(text, level)
+    // 新旧译文按原句合并，补齐这次生成的部分，顺序仍与原文一致
+    const merged = alignTranslation(text, [sentences, existing])
+    if (merged.length) {
+      unitData.fullTranslation = merged
+      const written = await writeArticleCache(cacheId, level, unitData)
+      if (!written) return failure(500, '缓存写入失败')
+    }
+    if (merged.length < expected) {
+      const translated = new Set(merged.map((item) => item.en))
+      const missing = translationEntries(text)
+        .filter((entry) => !translated.has(entry.sentence))
+        .slice(0, 3)
+        .map((entry) => String(entry.sentence).slice(0, 50))
+      console.log('[ai-analyze] prewarm translate incomplete', { expected, got: merged.length, missing })
+      return failure(502, `全文对照不完整（${merged.length}/${expected} 句）`)
+    }
+    return success({ prewarmed: true, cacheId, translated: true, sentences: merged.length, expected })
+  }
+
+  // 已有同版本缓存直接跳过：脚本重复执行不会重复花模型的钱；
+  // force 只给管理侧用（例如更换提示词后重做某一篇）
+  const existed = await readArticleCache(cacheId)
+  if (existed && !event.force) {
+    return success({
+      prewarmed: true,
+      cacheId,
+      cached: true,
+      skipped: true,
+      stats: (existed.unitData && existed.unitData.stats) || {}
+    })
+  }
+
+  const unitData = buildUnitData(text, level, emptyLearned())
+  if (!unitData) return failure(422, '没有找到可分析的英文句子')
+  if (!unitData.vocabulary.length && dictError) return failure(422, `词典加载失败：${dictError}`)
+
+  const result = await enhanceUnit(text, level, unitData, { wordsOnly: false, learned: emptyLearned() })
+  // 半成品不写缓存：语法没讲成或还有词没释义时让脚本稍后重试，别把残缺内容发给所有用户
+  if (result.grammarFailed || result.wordsIncomplete) {
+    return failure(502, result.grammarFailed ? '语法精讲没有生成' : '还有生词没补全')
+  }
+  const written = await writeArticleCache(cacheId, level, result.unitData)
+  if (!written) return failure(500, '缓存写入失败')
+  return success({ prewarmed: true, cacheId, cached: false, stats: result.unitData.stats })
 }
 
 // 异步 AI 增强：规则结果先落库，模型结果只做补充；任何失败都保留原内容
@@ -565,31 +743,35 @@ function familyKey(word) {
 }
 
 // 不规则复数 / 只收了复数形的词：统一回原形，避免生词本显示 children、men
-const IRREGULAR_PLURALS = {
+// 用无原型对象，避免查 constructor / toString 时撞上 Object.prototype 上的同名属性
+const IRREGULAR_PLURALS = Object.assign(Object.create(null), {
   children: 'child', men: 'man', women: 'woman',
   feet: 'foot', teeth: 'tooth', mice: 'mouse', geese: 'goose',
   phenomena: 'phenomenon', criteria: 'criterion',
   analyses: 'analysis', diagnoses: 'diagnosis', crises: 'crisis',
   theses: 'thesis', hypotheses: 'hypothesis', emphases: 'emphasis',
-  parentheses: 'parenthesis', syntheses: 'synthesis', prognoses: 'prognosis'
-}
+  parentheses: 'parenthesis', syntheses: 'synthesis', prognoses: 'prognosis',
+  curricula: 'curriculum', appendices: 'appendix', gentlemen: 'gentleman',
+  craftsmen: 'craftsman', grandchildren: 'grandchild', millennia: 'millennium',
+  supernovae: 'supernova'
+})
 
 // 英式拼写与不规则变形：词库按美式拼写收录时也能回到原形
-const BRITISH_VERB_FORMS = {
+const BRITISH_VERB_FORMS = Object.assign(Object.create(null), {
   learnt: 'learn', spelt: 'spell', burnt: 'burn', dreamt: 'dream', leapt: 'leap',
   knelt: 'kneel', spilt: 'spill', spoilt: 'spoil', smelt: 'smell', dwelt: 'dwell',
   clove: 'cleave', cloven: 'cleave'
-}
+})
 const BRITISH_OUR_STOP = new Set([
   'four', 'hour', 'tour', 'pour', 'your', 'sour', 'flour', 'our', 'dour', 'velour',
   'detour', 'contour', 'amour', 'troubadour', 'devour', 'favourite', 'favour'
 ])
-const BRITISH_RE_MAP = {
+const BRITISH_RE_MAP = Object.assign(Object.create(null), {
   centre: 'center', metre: 'meter', litre: 'liter', theatre: 'theater', fibre: 'fiber',
   calibre: 'caliber', sombre: 'somber', manoeuvre: 'maneuver', spectre: 'specter',
   meagre: 'meager', sabre: 'saber', lustre: 'luster', sceptre: 'scepter', ochre: 'ocher',
   centimetre: 'centimeter', millimetre: 'millimeter', kilometre: 'kilometer'
-}
+})
 
 function britishLemma(word, DICT) {
   const verb = BRITISH_VERB_FORMS[word]
@@ -601,6 +783,9 @@ function britishLemma(word, DICT) {
   if (/ise$/.test(word)) candidates.push(word.replace(/ise$/, 'ize'))
   if (/ised$/.test(word)) candidates.push(word.replace(/ised$/, 'ized'))
   if (/ising$/.test(word)) candidates.push(word.replace(/ising$/, 'izing'))
+  // 词库只收美式 -ize 时，prioritised / globalising 也要能直接落到 prioritize / globalize
+  if (/ised$/.test(word)) candidates.push(word.replace(/ised$/, 'ize'))
+  if (/ising$/.test(word)) candidates.push(word.replace(/ising$/, 'ize'))
   if (/ises$/.test(word)) candidates.push(word.replace(/ises$/, 'izes'))
   if (/yse$/.test(word)) candidates.push(word.replace(/yse$/, 'yze'))
   if (/ysed$/.test(word)) candidates.push(word.replace(/ysed$/, 'yzed'))
@@ -671,14 +856,17 @@ function categoriesOf(entry) {
   if ((frq > 0 && frq < 1200) || collins >= 4) categories.push('frequent')
   // 基础词若没有任何分类，归入高频，避免在筛选页看不到
   if (!categories.length && tags.indexOf('core') >= 0) categories.push('frequent')
+  // 超纲词没有语料词频时（unfollow / greenwashing 这类新词）没有分类会从筛选页消失，
+  // 统一归到重难点
+  if (!categories.length && entry.outside) categories.push('difficult')
   return categories
 }
 
 // 词库把少数英式口语/冷僻义也标成了常规义项（crack 的「第一流的」「啪地一声」），
 // 阅读场景要的是书面常用义，这些直接剔除，避免误导
-const DROP_SENSES = {
+const DROP_SENSES = Object.assign(Object.create(null), {
   crack: ['第一流的', '啪地一声']
-}
+})
 
 function isDroppedSense(word, def) {
   const list = DROP_SENSES[word]
@@ -812,7 +1000,8 @@ let verbFormCache = null
 function verbFormIndex() {
   if (verbFormCache) return verbFormCache
   const DICT = dict()
-  const index = {}
+  // 无原型对象：constructor / toString 这类词条名会撞上 Object.prototype
+  const index = Object.create(null)
   Object.keys(DICT).forEach((base) => {
     const entry = DICT[base]
     const forms = entry && entry.forms
@@ -901,7 +1090,7 @@ let derIndexCache = null
 function derIndex() {
   if (derIndexCache) return derIndexCache
   const DICT = dict()
-  const index = {}
+  const index = Object.create(null)
   Object.keys(DICT).forEach((base) => {
     const list = DICT[base] && Array.isArray(DICT[base].der) ? DICT[base].der : []
     list.forEach((der) => {
@@ -914,13 +1103,37 @@ function derIndex() {
   return index
 }
 
+// 扩展词库里的派生词反向登记：popularization 的 base 是 popularize，
+// 查 popularize 时就能把名词形式一起列出来
+let derivedBaseCache = null
+function derivedBase() {
+  if (derivedBaseCache) return derivedBaseCache
+  const map = Object.create(null)
+  try {
+    const advanced = require('./advanced.json')
+    Object.keys(advanced).forEach((word) => {
+      const entry = advanced[word]
+      const base = entry && entry.base ? String(entry.base).trim().toLowerCase() : ''
+      if (!base || base === word) return
+      const meaning = (entry.meanings || [])[0] || {}
+      if (!map[base]) map[base] = []
+      map[base].push({ w: word, pos: meaning.pos || '', def: meaning.def || '' })
+    })
+  } catch (error) {
+    derivedBaseCache = {}
+    return derivedBaseCache
+  }
+  derivedBaseCache = map
+  return map
+}
+
 // 连字符/空格归一：like-minded 与 likeminded、well being 视为同一个词，
 // 用户少打或漏打连字符也能查到
 let compactIndexCache = null
 function compactIndex() {
   if (compactIndexCache) return compactIndexCache
   const DICT = dict()
-  const index = {}
+  const index = Object.create(null)
   Object.keys(DICT).forEach((key) => {
     const compact = key.replace(/[-\s]/g, '')
     if (compact && !index[compact]) index[compact] = key
@@ -943,7 +1156,7 @@ const LY_ADJECTIVES = new Set(('friendly lovely lonely lively likely deadly cost
 // 派生后缀 → 派生词词性
 // -ly 必须在形容词规则之前判断，否则 dramatically 会先命中 ically/ally 落到 adj.
 const DERIV_POS_RULES = [
-  [/ations?$|itions?$|tions?$|sions?$|ments?$|ances?$|ences?$|ities$|ity$|ness(es)?$|isms?$|enc(?:y|ies)$|anc(?:y|ies)$|ships?$|ery$/, 'n.'],
+  [/ations?$|itions?$|tions?$|sions?$|ments?$|ances?$|ences?$|ities$|ity$|ness(es)?$|isms?$|enc(?:y|ies)$|anc(?:y|ies)$|ships?$|ery$|ings?$/, 'n.'],
   [/ively$|ives?$|ables?$|ibles?$|ously$|ous$|ical$|al$|ests?$/, 'adj.'],
   [/ly$/, 'adv.'],
   [/ers?$|ors?$|ists?$|ants?$|ents?$/, 'n.']
@@ -1426,6 +1639,51 @@ function relatedItem(word) {
   }
 }
 
+// 词卡上的「近义」：WordNet 同义集里释义对得上的词，最多 4 个
+function synonymsOf(raw) {
+  const key = String(raw || '').trim().toLowerCase()
+  if (!key || !hasWord(synonyms(), key)) return []
+  return (synonyms()[key] || [])
+    .map((word) => relatedItem(word))
+    .filter(Boolean)
+    .slice(0, 4)
+}
+
+// 中文释义的用字集合
+function defChars(entry) {
+  const set = new Set()
+  ;((entry && entry.meanings) || []).forEach((meaning) => {
+    String(meaning.def || '').replace(/[^\u4e00-\u9fa5]/g, '').split('').forEach((ch) => set.add(ch))
+  })
+  return set
+}
+
+// 中文释义的二字片段：用来判断两个词的意思是否真的相关
+// （selfie 自拍照 / selfish 自私 只共享一个「自」，不算同根）
+function defBigrams(entry) {
+  const set = new Set()
+  ;((entry && entry.meanings) || []).forEach((meaning) => {
+    const text = String(meaning.def || '').replace(/[^\u4e00-\u9fa5]/g, '')
+    for (let i = 0; i + 1 < text.length; i += 1) set.add(text.slice(i, i + 2))
+  })
+  return set
+}
+
+function sharesMeaning(a, b) {
+  if (!a || !b) return false
+  const mine = defBigrams(a)
+  if (!mine.size) return false
+  const other = defBigrams(b)
+  for (const gram of other) if (mine.has(gram)) return true
+  // 释义只有一个字时（beauty「美」/ beautiful「美丽的」）按单字比
+  const shortA = defChars(a)
+  const shortB = defChars(b)
+  if (shortA.size === 1 || shortB.size === 1) {
+    for (const ch of shortB) if (shortA.has(ch)) return true
+  }
+  return false
+}
+
 // 词卡上的两块补充：同根（派生 / 词根 / 兄弟词）与形近（拼写只差一点）
 function relatedOf(raw) {
   const key = String(raw || '').trim().toLowerCase()
@@ -1461,27 +1719,49 @@ function relatedOf(raw) {
       push(String((item && item.w) || '').toLowerCase())
     })
   }
+  // WordNet 派生同族：词库没在 der 里登记的派生关系（diversion → divert / diverse）
+  // 也补进来，排在词干启发式前面，避免被拼写更接近但不同源的词挤掉
+  if (hasWord(relations(), key)) (relations()[key] || []).forEach(push)
   // 同词干：academy / academic、generate / generation；三个字母的词干太容易撞车（create / creed），不用
+  // 词干相同还要中文释义有一个共同用字，挡掉 selfie / selfish 这类只是前缀相同的词
+  const pushStem = (candidate) => {
+    if (!candidate || candidate === key) return
+    if (!sharesMeaning(entry, all[candidate])) return
+    push(candidate)
+  }
   const stem = stemOf(key)
-  if (stem.length >= 4) (index.stems.get(stem) || []).forEach(push)
+  if (stem.length >= 4) (index.stems.get(stem) || []).forEach(pushStem)
   ;(index.head2.get(key.slice(0, 2)) || []).forEach((candidate) => {
     const other = stemOf(candidate)
     // 三个字母的词干很容易碰巧相同：create / creed、apply / appal，要求词本身前四个字母也一致；
     // nation / native 这种真同根能留下
     if (other.length >= 4 || commonPrefixLength(key, candidate) >= 4) {
-      if (sameStem(other, stem)) push(candidate)
+      if (sameStem(other, stem)) pushStem(candidate)
     }
   })
+  // 词干启发式之后再用词根资料里人工整理的同族词补齐空位（nation → native），
+  // 不抢在前面，避免 technology 这类大词根把对话、逻辑等同根词挤进来
+  const rootInfo = rootOf(key)
+  if (rootInfo) (rootInfo.family || []).forEach((word) => push(String(word || '').toLowerCase()))
 
   // 形近：拼写只差一个字母（含相邻互换）；差两个字母的只在没有更近候选时补位
   const similar = []
+  // 人工整理的易混词优先：quiet / quite 这种相邻字母互换，启发式容易被别的近邻挤掉
+  const taken = new Set()
+  confusablesOf(key).forEach((item) => {
+    const word = String((item && item.w) || '').toLowerCase()
+    if (!word || word === key || seen.has(word) || taken.has(word) || similar.length >= 4) return
+    const related = relatedItem(word)
+    if (!related) return
+    taken.add(word)
+    similar.push(related)
+  })
   const buckets = []
   ;(index.head2.get(key.slice(0, 2)) || []).forEach((word) => buckets.push(word))
   ;(index.tail3.get(key.slice(-3)) || []).forEach((word) => buckets.push(word))
   const near = []
   const far = []
   const relaxed = []
-  const taken = new Set()
   buckets.forEach((candidate) => {
     if (candidate === key || seen.has(candidate) || taken.has(candidate)) return
     if (Math.abs(candidate.length - key.length) > 2) return
@@ -1505,16 +1785,25 @@ function relatedOf(raw) {
   // 一个同根词都没有、也没有近邻（absorb / alarm / people）：放宽到共享两个字母的二级近邻，
   // 总比空着强；有同根词时宁缺毋滥
   if (!pool.length && !family.length) pool = relaxed.filter((item) => item.shared >= 2)
-  pool.slice(0, 4).forEach((item) => {
+  pool.slice(0, 4 - similar.length).forEach((item) => {
     const related = relatedItem(item.word)
     if (related) similar.push(related)
   })
   return { family, similar }
 }
 
+// 常见拼写偏差：手动录入或原文 OCR 会把 -ation 写成 -aion（popularizaion），
+// 查词前先归一，避免一个字母之差就整条查不到
+function fixCommonTypo(word) {
+  if (/izaion$/.test(word)) return word.replace(/izaion$/, 'ization')
+  if (/isaion$/.test(word)) return word.replace(/isaion$/, 'isation')
+  if (/aion$/.test(word) && word.length > 7) return word.replace(/aion$/, 'ation')
+  return word
+}
+
 // 单词查询：供个人词库补全音标、词性释义、变形与派生
 function lookupWord(raw) {
-  const word = String(raw || '').trim().toLowerCase()
+  const word = fixCommonTypo(String(raw || '').trim().toLowerCase())
   // 允许 5G、3D 这类数字开头的现代词条
   if (!word || !/^[a-z0-9][a-z0-9' -]*$/.test(word)) return null
   const lemma = toLemma(word) || word
@@ -1550,6 +1839,9 @@ function lookupWord(raw) {
       derivatives: [],
       family: related.family,
       similar: related.similar,
+      synonyms: synonymsOf(word).length ? synonymsOf(word) : synonymsOf(info.baseWord),
+      root: rootOf(word) || rootOf(info.baseWord),
+      confusables: confusablesOf(word),
       freq4: freqLevelsOf(info.baseWord, info.entry).freq4,
       freq6: freqLevelsOf(info.baseWord, info.entry).freq6,
       categories: info.entry
@@ -1559,14 +1851,21 @@ function lookupWord(raw) {
   }
   const meanings = withCount(pickMeanings(entry, 4, key), key, entry).map(toMeaning)
   const related = relatedOf(key)
+  // 词条自己登记的派生词 + 扩展词库里反向挂回来的派生词（popularize → popularization）
+  const ownDer = Array.isArray(entry.der) ? entry.der : []
+  const baseDer = derivedBase()[key] || []
+  const derivatives = ownDer.concat(baseDer.filter((item) => !ownDer.some((own) => String((own && own.w) || '').toLowerCase() === item.w))).slice(0, 4)
   return {
     word: key,
     phonetic: entry.ph ? `/${entry.ph}/` : '',
     meanings,
     forms: entry.forms || {},
-    derivatives: (entry.der || []).slice(0, 4),
+    derivatives,
     family: related.family,
     similar: related.similar,
+    synonyms: synonymsOf(key),
+    root: rootOf(key),
+    confusables: confusablesOf(key),
     freq4: freqLevelsOf(key, entry).freq4,
     freq6: freqLevelsOf(key, entry).freq6,
     categories: categoriesOf(entry)
@@ -1593,7 +1892,8 @@ function morphCandidates(word) {
 // 除了前缀匹配，整词已收录、变形/派生词还原、变形表反查三种情况都要能命中
 function suggestWords(raw, limit) {
   const prefix = String(raw || '').trim().toLowerCase().replace(/[^a-z' -]/g, '').slice(0, 24)
-  if (prefix.length < 2) return []
+  // 一个字母就给出联想，随着输入变长自动收窄
+  if (prefix.length < 1) return []
   const max = Math.max(1, Math.min(10, Number(limit) || 6))
   const all = dict()
   // 词频越小越常见，同频再按长度和字母序排，短词优先
@@ -1658,6 +1958,57 @@ function suggestWords(raw, limit) {
   return picked
 }
 
+// 中文反查英文：输入「困惑」给出 confusion / puzzle 这类词条。
+// 释义文本只在首次查询时拼一次，之后复用
+let meaningIndex = null
+
+function meaningIndexRows() {
+  if (meaningIndex) return meaningIndex
+  const all = dict()
+  const rows = []
+  Object.keys(all).forEach((word) => {
+    const list = all[word].meanings
+    if (!Array.isArray(list) || !list.length) return
+    const text = list.map((item) => String((item && item.def) || '')).join('|')
+    if (text) rows.push({ word, text })
+  })
+  meaningIndex = rows
+  return rows
+}
+
+function searchWords(raw, limit) {
+  const query = String(raw || '').trim().replace(/\s+/g, '')
+  if (!query || !/[\u4e00-\u9fff]/.test(query)) return []
+  const max = Math.max(1, Math.min(20, Number(limit) || 8))
+  const all = dict()
+  const scoreOf = (word) => {
+    const entry = all[word]
+    if (entry.frq > 0) return entry.frq
+    return (entry.tags || '').indexOf('core') >= 0 ? 4000 : (entry.rank || 6000)
+  }
+  return meaningIndexRows()
+    .filter((row) => row.text.indexOf(query) >= 0)
+    .sort((a, b) => (
+      scoreOf(a.word) - scoreOf(b.word) ||
+      a.text.indexOf(query) - b.text.indexOf(query) ||
+      a.text.length - b.text.length
+    ))
+    .slice(0, max)
+    .map((row) => {
+      const entry = all[row.word]
+      // 优先展示真正命中中文的那几条释义，避免「搜困惑却显示绊倒」
+      const hit = (entry.meanings || []).filter((item) => String((item && item.def) || '').indexOf(query) >= 0)
+      const senses = (hit.length ? hit : pickMeanings(entry, 1, row.word)).slice(0, 2)
+      return {
+        word: row.word,
+        phonetic: entry.ph ? `/${entry.ph}/` : '',
+        meanings: withCount(senses, row.word, entry).map(toMeaning),
+        freq4: freqLevelsOf(row.word, entry).freq4,
+        freq6: freqLevelsOf(row.word, entry).freq6
+      }
+    })
+}
+
 // 各篇文章的全文翻译进行中标记：同一篇并发请求只跑一次，避免重复计费
 const translating = {}
 
@@ -1666,6 +2017,36 @@ const textTranslationCache = new Map()
 
 function textTranslationKey(text, level) {
   return crypto.createHash('sha256').update(`${level}:${text}`).digest('hex')
+}
+
+// 预览译文同样落到共享缓存：同一段正文别人先翻译过，后来的人直接复用
+async function readTextTranslationCache(key) {
+  try {
+    const res = await db.collection(ARTICLE_CACHE).doc(`tt_${key}`).get()
+    const doc = (res && res.data) || null
+    return doc && Array.isArray(doc.sentences) && doc.sentences.length ? doc.sentences : null
+  } catch (error) {
+    // 集合不存在或没有这条记录，都当作未命中
+    return null
+  }
+}
+
+async function writeTextTranslationCache(key, level, sentences) {
+  const data = { level, sentences, updatedAt: db.serverDate() }
+  try {
+    await db.collection(ARTICLE_CACHE).doc(`tt_${key}`).set({ data })
+  } catch (error) {
+    try {
+      await db.createCollection(ARTICLE_CACHE)
+    } catch (exists) {
+      // 集合已存在，说明是别的原因失败，继续重试一次
+    }
+    try {
+      await db.collection(ARTICLE_CACHE).doc(`tt_${key}`).set({ data })
+    } catch (again) {
+      console.log('[ai-analyze] text cache write failed', { message: again && again.message })
+    }
+  }
 }
 
 // 全文对照：报告页用，整篇逐句翻译，生成一次后缓存在 unitData.fullTranslation
@@ -1684,17 +2065,49 @@ async function translateArticleForReport(openid, articleId) {
   // 旧版译文没有段落序号：原文有自然段时重新生成一次，保证分段和译文质量
   const hasParagraph = cached.some((item) => item && typeof item.para === 'number')
   const multiParagraph = /\n\s*\n/.test(article.ocrText)
-  if (cached.length && (hasParagraph || !multiParagraph)) return success({ sentences: cached, cached: true })
+  const expected = translationEntries(article.ocrText).length
+  const aligned = alignTranslation(article.ocrText, [cached])
+  // 只有整篇都译到才能直接用：早先按 70% 覆盖率存下的残缺译文会在这里被补齐
+  if (expected > 0 && aligned.length >= expected && (hasParagraph || !multiParagraph)) {
+    if (aligned.length !== cached.length) {
+      db.collection('articles').doc(id).update({
+        data: { 'unitData.fullTranslation': aligned }
+      }).catch(() => {})
+    }
+    return success({ sentences: aligned, cached: true })
+  }
   if (!isEnglishText(article.ocrText)) return failure(400, '仅支持英文文本解析')
+  const level = article.level === 'cet6' ? 'cet6' : 'cet4'
+  const cacheId = cacheIdOf(article.ocrText, level)
+  // 共享精讲缓存里可能已经带了全文对照：别人翻译过同一篇，就不用再调模型
+  const shared = await readArticleCache(cacheId)
+  const sharedTranslation = shared && shared.unitData && Array.isArray(shared.unitData.fullTranslation)
+    ? alignTranslation(article.ocrText, [shared.unitData.fullTranslation])
+    : []
+  if (expected > 0 && sharedTranslation.length >= expected) {
+    await db.collection('articles').doc(id).update({
+      data: { 'unitData.fullTranslation': sharedTranslation }
+    }).catch(() => {})
+    return success({ sentences: sharedTranslation, cached: true })
+  }
   if (translating[id]) return translating[id]
 
   translating[id] = translateFullText(article.ocrText, article.level || 'cet4')
     .then(async (sentences) => {
-      if (!sentences.length) return failure(502, '全文翻译暂时没有生成，请稍后重试')
+      // 新生成的、文章里原有的、共享缓存里的按原句合并，尽量补全后再判断
+      const merged = alignTranslation(article.ocrText, [sentences, cached, sharedTranslation])
+      if (!merged.length) return failure(502, '全文翻译暂时没有生成，请稍后重试')
       await db.collection('articles').doc(id).update({
-        data: { 'unitData.fullTranslation': sentences }
+        data: { 'unitData.fullTranslation': merged }
       })
-      return success({ sentences, cached: false })
+      // 顺手补进共享缓存，后面同一篇的所有用户都能直接复用
+      db.collection(ARTICLE_CACHE).doc(cacheId).update({
+        data: { 'unitData.fullTranslation': merged, updatedAt: db.serverDate() }
+      }).catch(() => {})
+      if (merged.length < expected) {
+        return failure(502, `全文对照不完整（${merged.length}/${expected} 句），请稍后重试`)
+      }
+      return success({ sentences: merged, cached: false })
     })
     .catch((error) => {
       console.error('translate article failed', error)
@@ -1719,6 +2132,17 @@ exports.main = async (event = {}) => {
     }
   }
 
+  // 上线前预生成内置文章的精讲缓存：只接受管理侧调用，用户侧一律走 enhance
+  if (event.action === 'prewarm') {
+    if (!prewarmAllowed(event)) return failure(403, '无权执行预生成')
+    try {
+      return await prewarmArticle(event)
+    } catch (error) {
+      console.error('prewarm failed', error)
+      return failure(500, '预生成失败')
+    }
+  }
+
   // 报告页全文对照：按句翻译整篇，缓存后不再调用模型
   if (event.action === 'translate') {
     const { OPENID } = cloud.getWXContext()
@@ -1737,12 +2161,18 @@ exports.main = async (event = {}) => {
     if (!OPENID) return failure(401, '无法确认用户身份')
     const raw = typeof event.text === 'string' ? event.text.trim() : ''
     if (!raw) return failure(400, '文章正文不能为空')
-    if (raw.length > 10000) return failure(400, '文章不能超过 10000 个字符')
+    if (raw.length > MAX_ARTICLE_CHARS) return failure(400, `文章不能超过 ${MAX_ARTICLE_CHARS} 个字符`)
     if (!isEnglishText(raw)) return failure(400, '仅支持英文文本解析')
     const level = event.level === 'cet6' ? 'cet6' : 'cet4'
     const cacheKey = textTranslationKey(raw, level)
     const cached = textTranslationCache.get(cacheKey)
     if (cached) return success({ sentences: cached, cached: true })
+    // 实例内存没命中时再查共享缓存：别人翻译过同一段正文就不再调用模型
+    const stored = await readTextTranslationCache(cacheKey)
+    if (stored) {
+      textTranslationCache.set(cacheKey, stored)
+      return success({ sentences: stored, cached: true })
+    }
     try {
       const sentences = await translateFullText(raw, level)
       if (!sentences.length) return failure(502, '译文暂时没有生成，请稍后重试')
@@ -1751,6 +2181,7 @@ exports.main = async (event = {}) => {
       if (textTranslationCache.size > 30) {
         textTranslationCache.delete(textTranslationCache.keys().next().value)
       }
+      await writeTextTranslationCache(cacheKey, level, sentences)
       return success({ sentences })
     } catch (error) {
       console.error('translate text failed', error)
@@ -1778,7 +2209,9 @@ exports.main = async (event = {}) => {
         freq4: entry.freq4 || 0,
         freq6: entry.freq6 || 0,
         family: entry.family || [],
-        similar: entry.similar || []
+        similar: entry.similar || [],
+        root: entry.root || null,
+        confusables: entry.confusables || []
       }
     })
     return success(map)
@@ -1798,7 +2231,9 @@ exports.main = async (event = {}) => {
         // 原形回传：生词本里早期存成 boundaries 的条目可以自动改回 boundary
         word: entry.word || key,
         phonetic: entry.phonetic || '',
-        meanings: entry.meanings || []
+        meanings: entry.meanings || [],
+        // 批量预取只带近义词本身，词卡上用得上，又不至于把返回包撑大
+        synonyms: (entry.synonyms || []).map((item) => item.w)
       }
     })
     return success(map)
@@ -1813,9 +2248,19 @@ exports.main = async (event = {}) => {
     }
   }
 
+  // 中文反查英文：输入中文释义片段，返回命中的英文词条
+  if (event.action === 'search') {
+    try {
+      return success(searchWords(event.query, event.limit))
+    } catch (error) {
+      console.error('search failed', error)
+      return failure(500, dictError ? `词典加载失败：${dictError}` : '中文查词暂时不可用')
+    }
+  }
+
   const text = typeof event.text === 'string' ? event.text.trim() : ''
   if (!text) return failure(400, '识别文本不能为空')
-  if (text.length > 10000) return failure(400, '文章不能超过 10000 个字符')
+  if (text.length > MAX_ARTICLE_CHARS) return failure(400, `文章不能超过 ${MAX_ARTICLE_CHARS} 个字符`)
   const level = event.level === 'cet6' ? 'cet6' : 'cet4'
 
   try {

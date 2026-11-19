@@ -20,6 +20,10 @@ Page({
 
   onShow() {
     this.refresh()
+    // 本地是快照：进页面时再对一次云端，换手机或清过缓存后第一次打开就能看到完整日历
+    checkin.sync().then((log) => {
+      if (log) this.refresh()
+    })
   },
 
   refresh() {

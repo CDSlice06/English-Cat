@@ -6,21 +6,22 @@ function hasOwn(object, key) {
   return Object.prototype.hasOwnProperty.call(object, key)
 }
 
-// 把每个语法点的练习摊平成题目列表，英译汉与汉译英交替出现
-// 同一方向、同一题干只保留一次，防止历史数据里重复的题被展示两遍
+// 把每个语法点的练习摊平成题目列表，只出英译汉（中译英太重，已下线）
+// 同一题干只保留一次，防止历史数据里重复的题被展示两遍
 function collectDrills(unitData) {
   const points = Array.isArray(unitData.grammarPoints) ? unitData.grammarPoints : []
   const drills = []
   const seen = new Set()
   points.forEach((point) => {
     (point.drills || []).forEach((drill) => {
-      const key = `${drill.mode || ''}|${String(drill.prompt || '').trim().toLowerCase()}`
+      if (drill.mode !== 'en2zh') return
+      const key = String(drill.prompt || '').trim().toLowerCase()
       if (!drill.id || seen.has(key)) return
       seen.add(key)
       drills.push(Object.assign({}, drill, {
         pattern: drill.pattern || point.pattern,
-        modeLabel: drill.modeLabel || (drill.mode === 'en2zh' ? '英译汉' : '汉译英'),
-        shortMode: drill.mode === 'en2zh' ? '英→中' : '中→英'
+        modeLabel: '英译汉',
+        shortMode: '英→中'
       }))
     })
   })

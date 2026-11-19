@@ -11,8 +11,8 @@
   <block wx:else>
     <section-title
       eyebrow="STEP 02 · PROOFREAD"
-      title="{{manualMode ? '英文句子语法解析工具' : '核对文章原文'}}"
-      description="{{docMode ? '文档已提取完成，检查换行与错字，确认后存入题库。' : (manualMode ? '仅支持英文句子与英文单词，确认后存入题库，在题库里打开时再解析。' : '修正文字与换行，确认后再生成学习单元。')}}"
+      title="{{manualMode ? (storeMode ? '粘贴英文原文' : '英文句子语法解析工具') : '核对文章原文'}}"
+      description="{{docMode ? '文档已提取完成，检查换行与错字，确认后存入我的导入。' : (manualMode ? '粘贴英文原文或句子，确认后存入「我的导入」，打开时再解析。' : '修正文字与换行，确认后再生成学习单元。')}}"
     />
 
     <!-- 真题整卷只保留仔细阅读，多篇时在这里切换核对 -->
@@ -71,8 +71,8 @@
       <text class="manual-tip-text">只支持英文内容；生词后括号里的中文注释（20 字内）会自动忽略，大段中文会被拦截。保留原本的换行即可。</text>
     </view>
 
-    <!-- 出处标注：选填，标好后在「我的导入」里能看到是哪一年哪一套 -->
-    <view class="origin-card enter d2">
+    <!-- 出处标注：只给真题整卷用；用户自己粘贴的文章不可能是真题，这里不显示 -->
+    <view class="origin-card enter d2" wx:if="{{!manualMode}}">
       <view class="origin-tape"></view>
       <view class="origin-head">
         <text class="origin-title">这篇的出处</text>
@@ -109,17 +109,17 @@
 
     <view class="demo-tip enter d3">
       <view class="demo-tip-line"></view>
-      <text>{{isDemo ? '已载入体验文章，确认文本后进入词汇学习。' : (storeMode ? (docMode ? '提取完成，建议先通读一遍，再存入题库。' : '确认文本无误后就存入题库，稍后在题库里打开即可精读。') : (docMeta ? '提取完成，建议先通读一遍，再进入词汇筛选。' : '文本确认无误后，点击下方按钮生成学习单元。'))}}</text>
+      <text>{{isDemo ? '已载入体验文章，确认文本后进入词汇学习。' : (storeMode ? (docMode ? '提取完成，建议先通读一遍，再存入我的导入。' : '确认文本无误后存入「我的导入」，稍后打开就能精读。') : (docMeta ? '提取完成，建议先通读一遍，再进入词汇筛选。' : '文本确认无误后，点击下方按钮生成学习单元。'))}}</text>
     </view>
   </block>
 
   <view class="action-bar">
     <view class="action-meta">
-      <text class="action-meta-strong">{{storeMode ? '导入题库' : '下一步'}}</text>
-      <text>{{ocrText ? (storeMode ? '存入后在题库里随时开始精读' : '文本已就绪，可生成学习单元') : '请先粘贴或上传文章原文'}}</text>
+      <text class="action-meta-strong">{{storeMode ? '导入文章' : '下一步'}}</text>
+      <text>{{ocrText ? (storeMode ? '存入后在「我的导入」里随时开始精读' : '文本已就绪，可生成学习单元') : '请先粘贴英文原文'}}</text>
     </view>
     <primary-button
-      text="{{storeMode ? (analyzing ? '正在存入题库…' : '存入题库') : (analyzing ? '正在生成学习单元…' : '生成词汇与解析')}}"
+      text="{{storeMode ? (analyzing ? '正在存入…' : '存入我的导入') : (analyzing ? '正在生成学习单元…' : '生成词汇与解析')}}"
       disabled="{{analyzing || !canSubmit}}"
       bind:tap="next"
     />

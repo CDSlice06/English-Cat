@@ -114,7 +114,7 @@
           </view>
         </view>
 
-        <view class="drill-note">配 {{item.drillCount}} 道双向翻译练习：先英译汉，再汉译英，用手机打字写出来。</view>
+        <view class="drill-note">配 {{item.drillCount}} 道英译汉练习：用手机打字写出来。</view>
       </block>
 
       <view class="grammar-foot">
@@ -131,8 +131,8 @@
       id="next-station"
       visible="{{nextReady}}"
       title="语法这一站通关了"
-      desc="所有语法点都看完了。下一站用英译汉、汉译英把它们真正写出来。"
-      next-name="双语输出练习"
+      desc="所有语法点都看完了。下一站用英译汉把它们真正写出来。"
+      next-name="英译汉练习"
       step="STEP 06 · OUTPUT"
       cat="practice-writing"
       action-text="继续 · 输出练习"
@@ -143,7 +143,7 @@
   <view class="action-bar">
     <view class="action-meta">
       <text class="action-meta-strong">语法点 {{viewedCount}}/{{points.length}}</text>
-      <text>{{drillTotal}} 道练习 · 英译汉 + 汉译英</text>
+      <text>{{drillTotal}} 道练习 · 英译汉</text>
     </view>
     <primary-button text="开始语法练习" disabled="{{!drillTotal}}" bind:tap="goPractice" />
     <view class="bar-secondary" bind:tap="goPhrases">

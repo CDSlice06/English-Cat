@@ -1,4 +1,4 @@
-const { loadStudy, getProgress, vocabStats, triggerEnhance, analyzeText, saveUnit, loadRemembered, readStudySnapshot, resumeInfo } = require('../../services/study')
+const { loadStudy, getProgress, vocabStats, triggerEnhance, analyzeText, saveUnit, loadRemembered, readStudySnapshot, resumeInfo, isReadingArticle, readReadingSeconds, READING_TARGET_SECONDS } = require('../../services/study')
 
 // 精讲要串两次模型调用（选点 + 讲解），最长接近一分钟，
 // 刷新窗口必须覆盖这段耗时，否则提示会一直挂着不动
@@ -7,7 +7,7 @@ const MAX_AI_POLLS = 20
 const DRILL_VERSION = 5
 
 Page({
-  data: { loading: true, error: '', title: '', progress: {}, units: [], aiPending: false, aiFailed: false, aiStalled: false, repairing: false, resume: null },
+  data: { loading: true, error: '', title: '', progress: {}, units: [], readingMode: false, readingMinutes: 0, aiPending: false, aiFailed: false, aiStalled: false, repairing: false, resume: null },
 
   onShow() {
     const tabBar = typeof this.getTabBar === 'function' && this.getTabBar()
@@ -49,7 +49,17 @@ Page({
     const article = study.article || {}
     const unit = study.unit || {}
     const unitData = article.unitData || {}
-    const progress = getProgress(unit, unitData)
+    // 外刊只保留「阅读」一个入口，进度按累计活跃阅读时长算
+    const readingMode = isReadingArticle(article)
+    const readingSeconds = readingMode ? readReadingSeconds(article._id, unit) : 0
+    const readingDone = readingSeconds >= READING_TARGET_SECONDS
+    const progress = readingMode
+      ? Object.assign({}, getProgress(unit, unitData), {
+        completed: readingDone ? 1 : 0,
+        total: 1,
+        percent: readingDone ? 100 : Math.min(99, Math.floor((readingSeconds / READING_TARGET_SECONDS) * 100))
+      })
+      : getProgress(unit, unitData)
     const grammarTotal = (unitData.grammarPoints || []).length
     const phraseTotal = (unitData.phrases || []).length
     const vocabTotal = (unitData.vocabulary || []).length
@@ -91,27 +101,42 @@ Page({
     // 单词补全一分钟内不重复触发，避免刚补过又立刻再烧一次额度
     const wordsRetry = wordsPending && (!aiAt || Date.now() - aiAt > 60 * 1000)
     if (!article.isDemo && !emptyUnit && (waiting && (!wordsPending || wordsRetry) || grammarStuck)) {
-      triggerEnhance(article._id)
+      // 命中共享缓存时精讲几秒内就写完，回来立刻刷新；冷启动仍由下面的轮询兜底
+      triggerEnhance(article._id).then(() => {
+        if (!aiPending || aiFailed) return
+        loadStudy(true).then((study) => this.applyStudy(study)).catch(() => {})
+      })
       if (!aiFailed) aiPending = true
     }
 
     // 断点续接：上次停在哪一站、那一站还没学完，就给一个一键回到原位的入口
     const saved = article.isDemo ? null : resumeInfo(article._id)
     const stationDone = [vocab.mastered >= vocab.total, phraseDone, grammarDone, practiceDone]
-    const resume = saved && !stationDone[saved.station - 1] ? saved : null
+    const resume = readingMode ? null : (saved && !stationDone[saved.station - 1] ? saved : null)
 
     this.setData({
       loading: false,
       title: article.title,
       progress,
+      readingMode,
+      readingMinutes: Math.floor(readingSeconds / 60),
       aiPending,
       aiFailed,
       resume,
-      units: [
-        { title: '词汇', desc: `单词 ${vocab.mastered}/${vocab.total} 已掌握`, done: vocab.mastered >= vocab.total, url: '/pages/vocabulary/index', cat: 'vocab-magnifier', tone: 'sun' },
+      units: readingMode ? [
+        {
+          title: '阅读全文',
+          desc: `已读 ${Math.floor(readingSeconds / 60)} 分钟 · 累计读满 15 分钟算学完`,
+          done: readingDone,
+          url: '/pages/reading/index',
+          cat: 'reading-highlight',
+          tone: 'sky'
+        }
+      ] : [
+        { title: '词汇', desc: `单词 ${vocab.mastered}/${vocab.total} 已掌握`, done: vocab.mastered >= vocab.total, url: '/pkgWords/pages/vocabulary/index', cat: 'vocab-magnifier', tone: 'sun' },
         { title: '词组搭配', desc: `已看 ${progress.phrasesViewed}/${phraseTotal} 个固定搭配`, done: phraseDone, url: '/pages/phrases/index', cat: 'reading-highlight', tone: 'sky' },
         { title: '语法与句式', desc: `已看 ${progress.grammarViewed}/${grammarTotal} 个语法点`, done: grammarDone, url: '/pages/analysis/index', cat: 'idea-bulb', tone: 'mint' },
-        { title: '输出练习', desc: `已通过 ${progress.practicePassed}/${progress.drillTotal} 道双向翻译`, done: practiceDone, url: '/pages/practice/index', cat: 'practice-writing', tone: 'coral' }
+        { title: '输出练习', desc: `已通过 ${progress.practicePassed}/${progress.drillTotal} 道英译汉`, done: practiceDone, url: '/pages/practice/index', cat: 'practice-writing', tone: 'coral' }
       ]
     })
 

@@ -1,5 +1,5 @@
-// 内置真题库：清单常驻内存，正文按需拉取。
-// 云函数 examBank 打包了全部真题原文，用户不用自己上传
+// 内置题库：清单常驻内存，正文按需拉取。
+// 云函数 examBank 打包了全部真题原文与合规外刊，用户不用自己上传
 function call(action, data) {
   return new Promise((resolve, reject) => {
     if (!wx.cloud || !wx.cloud.callFunction) {
@@ -12,7 +12,7 @@ function call(action, data) {
       success(res) {
         const result = (res && res.result) || {}
         if (result.code === 0) resolve(result.data)
-        else reject(new Error(result.message || '真题库暂时打不开'))
+        else reject(new Error(result.message || '题库暂时打不开'))
       },
       fail(err) { reject(new Error((err && err.errMsg) || '无法连接云开发环境')) }
     })

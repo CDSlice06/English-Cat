@@ -1,4 +1,4 @@
-const { importArticle, openArticle, analyzeText, saveUnit } = require('./study')
+const { importArticle, openArticle, readReadingArticle, analyzeText, saveUnit, triggerEnhance } = require('./study')
 
 // 题库文章统一走「先入库、再解析」：
 // 解析不再由 study 云函数嵌套调用 analyzeArticle（部分环境会失败），
@@ -46,4 +46,31 @@ function startBankArticle(article) {
     })
 }
 
-module.exports = { prepareBankArticle, startBankArticle }
+// 外刊独立阅读：入库 → 按 id 读（不切换当前文章）→ 需要解析就解析落库，
+// 返回 articleId 供阅读页带着 ?id= 打开
+function startReadingArticle(article) {
+  let articleId = ''
+  let ready = false
+  return prepareBankArticle(article)
+    .then((id) => {
+      articleId = id
+      return readReadingArticle(articleId)
+    })
+    .then((data) => {
+      if (!data || !data.needsAnalysis) {
+        // 老文章已经解析过：精讲也完成后就不用再跑一轮云端
+        ready = !!(data && data.article && data.article.aiStatus === 'ready'
+          && data.article.wordsPending !== true)
+        return null
+      }
+      if (!data.text) throw new Error('这篇文章没有正文，换一篇试试')
+      return analyzeText(data.text, data.level, data.remembered)
+        .then((unitData) => saveUnit(articleId, unitData))
+    })
+    // 外刊同样吃共享精讲缓存：命中时只是几次读库，打开就有译文和释义，不再调用模型。
+    // 冷缓存那次最多等 2.5 秒，剩下的交给云端在后台跑完，别把打开文章卡住
+    .then(() => (ready ? null : triggerEnhance(articleId, 2500)))
+    .then(() => articleId)
+}
+
+module.exports = { prepareBankArticle, startBankArticle, startReadingArticle }

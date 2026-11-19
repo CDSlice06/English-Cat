@@ -1,0 +1,304 @@
+<view class="page has-bar" bindtap="closeSwipe">
+  <view wx:if="{{loading}}" class="loading">
+    <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
+    <text>正在加载学习数据…</text>
+  </view>
+  <view wx:elif="{{error}}" class="error-box">
+    <cat-image custom-class="state-cat" name="not-found" size="large" />
+    <text class="error-text">{{error}}</text>
+    <primary-button text="重新加载" bind:tap="loadPage" />
+  </view>
+  <block wx:else>
+    <section-title eyebrow="STEP 03 · VOCABULARY" title="把生词变成熟词" description="每个义项均标注词性；结合原句理解，再点亮“已掌握”。" />
+
+    <view class="origin-entry">
+      <text class="origin-entry-btn" bindtap="openOrigin">看原文</text>
+    </view>
+
+    <article-drawer
+      visible="{{originOpen}}"
+      text="{{originText}}"
+      highlight="{{originHighlight}}"
+      bind:close="closeOrigin"
+    />
+
+    <view class="overview enter d1">
+      <view class="paper-tape overview-tape"></view>
+      <view class="paper-star overview-star"></view>
+      <view class="overview-glow"></view>
+      <view class="overview-photo">
+        <cat-image custom-class="overview-cat" name="vocab-magnifier" size="medium" />
+      </view>
+      <view class="overview-copy">
+        <text class="overview-kicker">MASTERED</text>
+        <view class="overview-number-row">
+          <text class="overview-number en">{{masteredCount}}</text>
+          <text class="overview-unit">/ {{vocabularyCount}}</text>
+        </view>
+        <text class="overview-text">已掌握 · 本篇共 {{vocabularyCount}} 个词，全部点亮才通关</text>
+        <view class="overview-track">
+          <view class="overview-fill" style="width: {{masteredPercent}}%"></view>
+        </view>
+      </view>
+    </view>
+
+    <view class="filters">
+      <scroll-view class="filter-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="filter-inner">
+          <view
+            wx:for="{{filters}}"
+            wx:key="key"
+            class="filter {{item.active ? 'filter-on' : ''}}"
+            bind:tap="selectCategory"
+            data-key="{{item.key}}"
+          >
+            <text>{{item.shortLabel}}</text>
+            <text class="filter-count">{{item.count}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="filter-fade"></view>
+    </view>
+
+    <view class="cet-bar">
+      <text class="cet-bar-label">星级标尺</text>
+      <view class="cet-seg">
+        <view
+          class="cet-seg-item {{cetTarget === 'cet4' ? 'cet-seg-on' : ''}}"
+          bind:tap="selectCetTarget"
+          data-target="cet4"
+        >四级</view>
+        <view
+          class="cet-seg-item {{cetTarget === 'cet6' ? 'cet-seg-on' : ''}}"
+          bind:tap="selectCetTarget"
+          data-target="cet6"
+        >六级</view>
+      </view>
+    </view>
+
+    <view class="result-head">
+      <view class="result-title-wrap">
+        <text class="result-stamp en">WORDS</text>
+        <text class="result-label">{{activeLabel}}</text>
+      </view>
+      <view class="result-side">
+        <text class="result-count">{{words.length}} 个词</text>
+        <view class="freq-help" bind:tap="showFreqHelp">
+          <text class="freq-help-mark">?</text>
+          <text>星级说明</text>
+        </view>
+      </view>
+    </view>
+
+    <text class="swipe-hint">左滑卡片，可快速「掌握 / 收藏」</text>
+
+    <view class="word-list">
+      <view wx:for="{{words}}" wx:key="id" class="swipe-row">
+        <view class="swipe-actions">
+          <view
+            class="swipe-btn swipe-know {{item.mastered ? 'swipe-btn-off' : ''}}"
+            catchtap="toggleWord"
+            data-id="{{item.id}}"
+          >
+            <text>{{item.mastered ? '取消' : '掌握'}}</text>
+          </view>
+          <view
+            class="swipe-btn swipe-book {{item.inBook ? 'swipe-btn-off' : ''}}"
+            catchtap="addToBook"
+            data-id="{{item.id}}"
+          >
+            <text>{{item.inBook ? '已收' : '收藏'}}</text>
+          </view>
+        </view>
+        <view
+          id="word-{{item.id}}"
+          class="word-card tone-{{item.tone}} {{item.mastered ? 'word-mastered' : ''}}"
+          style="transform: translateX({{item.offset}}px);"
+          data-id="{{item.id}}"
+          bindtouchstart="swipeStart"
+          bindtouchmove="swipeMove"
+          bindtouchend="swipeEnd"
+        >
+        <view class="word-accent"></view>
+        <view class="word-top">
+          <view class="word-main">
+            <view class="word-line">
+              <view class="word-mark marker-highlight">
+                <text class="word en">{{item.word}}</text>
+              </view>
+              <speak-btn word="{{item.word}}" />
+              <text wx:if="{{item.known}}" class="known-chip">{{item.knownLabel}}</text>
+            </view>
+            <text class="phonetic">{{item.phonetic}}</text>
+            <view class="word-meta">
+              <view wx:if="{{item.star}}" class="freq-stars">
+                <view
+                  wx:for="{{[1, 2, 3]}}"
+                  wx:for-item="level"
+                  wx:key="*this"
+                  class="freq-star {{level <= item.star ? 'freq-star-on' : ''}}"
+                ></view>
+                <text class="freq-word">{{item.starLabel}}</text>
+              </view>
+              <text wx:else class="freq-none">星级未收录</text>
+            </view>
+          </view>
+          <view class="master-button {{item.mastered ? 'mastered-button' : ''}} {{saving ? 'button-saving' : ''}}" bind:tap="toggleWord" data-id="{{item.id}}">
+            <view class="master-mark"></view>
+            <text>{{item.mastered ? '已掌握' : '标记掌握'}}</text>
+          </view>
+        </view>
+
+        <meaning-list wx:if="{{item.meanings.length}}" meanings="{{item.meanings}}" />
+        <view wx:else class="pending-meaning">
+          <text class="pending-dot"></text>
+          <text wx:if="{{item.known}}">已认识，释义可在生词本里查看</text>
+          <text wx:elif="{{aiBusy}}">释义与音标正在补全</text>
+          <text wx:else>词库暂未收录，释义暂不可用</text>
+        </view>
+
+        <view class="word-more" bind:tap="toggleMore" data-id="{{item.id}}">
+          <text>{{item.expanded ? '收起更多' : '展开词根 · 易混 · 用法 · 派生'}}</text>
+          <view class="more-arrow {{item.expanded ? 'more-arrow-on' : ''}}"></view>
+        </view>
+
+        <block wx:if="{{item.expanded}}">
+          <view class="word-family" wx:if="{{item.root}}">
+            <text class="family-label">词根</text>
+            <view class="root-body">
+              <view class="root-head">
+                <text class="root-form en">{{item.root.form}}</text>
+                <text class="root-meaning">{{item.root.meaning}}</text>
+              </view>
+              <text wx:if="{{item.root.origin}}" class="root-origin">{{item.root.origin}}</text>
+              <text wx:if="{{item.root.build}}" class="root-build">构词：{{item.root.build}}</text>
+              <text wx:if="{{item.root.core}}" class="root-core">核心义：{{item.root.core}}</text>
+              <view wx:if="{{item.root.family.length}}" class="root-family">
+                <text class="root-family-label">同根</text>
+                <view class="root-family-items">
+                  <text
+                    wx:for="{{item.root.family}}"
+                    wx:key="*this"
+                    wx:for-item="rootWord"
+                    class="family-item en"
+                  >{{rootWord}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+          <view class="word-family" wx:if="{{item.patterns.length}}">
+            <text class="family-label">用法</text>
+            <view class="family-items">
+              <view wx:for="{{item.patterns}}" wx:key="text" wx:for-item="pattern" class="family-item">
+                <text class="en">{{pattern.text}}</text>
+                <text wx:if="{{pattern.gloss}}" class="family-item-gloss">{{pattern.gloss}}</text>
+              </view>
+            </view>
+            <text wx:if="{{item.patternExample}}" class="pattern-example en">例：{{item.patternExample}}</text>
+          </view>
+          <view class="word-family" wx:if="{{item.synonyms.length}}">
+            <text class="family-label">近义</text>
+            <view class="der-list">
+              <view wx:for="{{item.synonyms}}" wx:key="w" wx:for-item="syn" class="der-row">
+                <view class="der-head">
+                  <text class="der-word en">{{syn.w}}</text>
+                  <text class="der-pos">{{syn.pos}}</text>
+                </view>
+                <text wx:if="{{syn.def}}" class="der-def">{{syn.def}}</text>
+              </view>
+            </view>
+          </view>
+          <view class="word-family word-confuse" wx:if="{{item.confusables.length}}">
+            <text class="family-label">易混</text>
+            <view class="der-list">
+              <view wx:for="{{item.confusables}}" wx:key="w" wx:for-item="confuse" class="der-row">
+                <view class="der-head">
+                  <text class="der-word en">{{confuse.w}}</text>
+                  <text class="der-pos">{{confuse.pos}}</text>
+                </view>
+                <text wx:if="{{confuse.def}}" class="der-def">{{confuse.def}}</text>
+                <text class="confuse-note">{{confuse.note}}</text>
+              </view>
+            </view>
+          </view>
+          <view class="word-family" wx:if="{{item.formList.length}}">
+            <text class="family-label">变形</text>
+            <view class="family-items">
+              <text wx:for="{{item.formList}}" wx:key="label" wx:for-item="form" class="family-item">{{form.label}} {{form.value}}</text>
+            </view>
+          </view>
+          <view class="word-family" wx:if="{{item.derivatives.length}}">
+            <text class="family-label">派生</text>
+            <view class="der-list">
+              <view wx:for="{{item.derivatives}}" wx:key="w" wx:for-item="der" class="der-row">
+                <view class="der-head">
+                  <text class="der-word en">{{der.w}}</text>
+                  <text class="der-pos">{{der.pos}}</text>
+                </view>
+                <text wx:if="{{der.def}}" class="der-def">{{der.def}}</text>
+              </view>
+            </view>
+          </view>
+          <view class="word-family" wx:if="{{item.similar.length}}">
+            <text class="family-label">形近</text>
+            <view class="der-list">
+              <view wx:for="{{item.similar}}" wx:key="w" wx:for-item="near" class="der-row">
+                <view class="der-head">
+                  <text class="der-word en">{{near.w}}</text>
+                  <text class="der-pos">{{near.pos}}</text>
+                </view>
+                <text wx:if="{{near.def}}" class="der-def">{{near.def}}</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="word-family" wx:if="{{item.sentence}}">
+            <text class="family-label">文中例句</text>
+            <view class="sentence">
+              <text class="sentence-mark en">“</text>
+              <text class="sentence-text">{{item.sentence}}</text>
+            </view>
+          </view>
+        </block>
+
+        <view class="word-book-row">
+          <view class="book-chip {{item.inBook ? 'book-chip-on' : ''}}" bind:tap="addToBook" data-id="{{item.id}}">
+            <view class="book-chip-mark"></view>
+            <text>{{item.inBook ? '已在生词本' : '加入生词本'}}</text>
+          </view>
+          <text class="book-hint" wx:if="{{!item.inBook}}">不认识就先收着，之后再点亮</text>
+        </view>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{!words.length}}" class="empty-words">
+      <cat-image name="sleepy-nap" size="medium" />
+      <text>这一类还没收词，换个分类看看。</text>
+    </view>
+
+    <next-station
+      id="next-station"
+      visible="{{nextReady}}"
+      title="词汇这一站通关了"
+      desc="这篇的单词已经全部点亮。下一站把词组整块记，别再逐词直译。"
+      next-name="词组与固定搭配"
+      step="STEP 04 · PHRASES"
+      cat="vocab-magnifier"
+      action-text="继续 · 词组搭配"
+      bind:next="goPhrases"
+    />
+  </block>
+
+  <view class="action-bar">
+    <view class="action-meta">
+      <text class="action-meta-strong">词汇单元</text>
+      <text>{{nextReady ? '本站已通关，可以继续' : '已掌握 ' + masteredCount + ' / ' + vocabularyCount + ' 个，全部掌握才通关'}}</text>
+    </view>
+    <primary-button
+      text="{{nextReady ? '继续看词组搭配' : '可跳过 · 先去词组搭配'}}"
+      secondary="{{!nextReady}}"
+      disabled="{{saving}}"
+      bind:tap="goPhrases"
+    />
+  </view>
+</view>

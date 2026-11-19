@@ -9,14 +9,14 @@
     <primary-button text="重新连接" bind:tap="load" />
   </view>
   <block wx:elif="{{!items.length}}">
-    <section-title eyebrow="STEP 06 · OUTPUT" title="读懂，也要写出来" description="每个语法点配英译汉与汉译英各一道，写完用手机打字提交。" />
+    <section-title eyebrow="STEP 06 · OUTPUT" title="读懂，也要写出来" description="每个语法点配一道英译汉，写完用手机打字提交。" />
     <view class="empty-analysis">
       <cat-image name="sleepy-nap" size="medium" />
       <text>练习还没出题，先去语法页把句型过一遍。</text>
     </view>
   </block>
   <block wx:else>
-    <section-title eyebrow="STEP 06 · OUTPUT" title="双语输出，把语法用出来" description="先英译汉检查理解，再汉译英把结构写对；系统检查整句意思与句型是否完整。" />
+    <section-title eyebrow="STEP 06 · OUTPUT" title="输出练习，把语法用出来" description="给出英文句子，用中文写出整句意思；系统检查关键表达是否到位。" />
 
     <view class="report-row">
       <view class="report-link" bind:tap="goSummary">
@@ -152,11 +152,11 @@
 
       <view wx:if="{{showReference}}" class="reference">
         <text class="reference-label">参考答案</text>
-        <text class="reference-text {{item.mode === 'en2zh' ? '' : 'en'}}">{{item.reference}}</text>
+        <text class="reference-text">{{item.reference}}</text>
       </view>
     </view>
 
-    <text class="demo-text">判定看整句意思与句型结构，不会直接写出缺的英文单词；汉译英会逐点核对你写到的信息，并附「正确用法」，照着改一遍更有效。</text>
+    <text class="demo-text">判定看整句意思与关键表达，不会直接写出参考答案；反馈里附「正确用法」，照着改一遍更有效。</text>
 
     <next-station
       id="next-station"

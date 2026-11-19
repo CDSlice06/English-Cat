@@ -9,7 +9,7 @@
     <primary-button text="重新连接" bind:tap="load" />
   </view>
   <block wx:else>
-    <section-title eyebrow="MY SPACE" title="我的精读喵" description="认真学习，也认真休息。" />
+    <section-title eyebrow="MY SPACE" title="我的精读喵" />
 
     <view class="id-card enter d1">
       <view class="id-glow"></view>
@@ -27,18 +27,36 @@
     </view>
 
     <view class="stat-grid enter d2">
-      <view class="stat-card tone-sun">
-        <text class="stat-value en">{{mastered}}</text>
+      <view class="stat-card stat-link tone-sun" hover-class="stat-hover" bindtap="goKnownWords">
+        <text class="stat-value en">{{book.known}}</text>
         <text class="stat-label">已掌握词汇</text>
       </view>
-      <view class="stat-card tone-mint">
+      <view class="stat-card stat-link tone-mint" hover-class="stat-hover" bindtap="goDrills">
         <text class="stat-value en">{{overview.passedDrills}}</text>
         <text class="stat-label">累计通过题数</text>
       </view>
-      <view class="stat-card tone-sky">
+      <view class="stat-card stat-link tone-sky" hover-class="stat-hover" bindtap="goLibrary">
         <text class="stat-value en">{{overview.masteredArticles}}<text class="stat-unit">篇</text></text>
         <text class="stat-label">掌握篇数</text>
       </view>
+    </view>
+
+    <view wx:if="{{reviewEntry.visible}}" class="recite-entry review-entry enter d2" hover-class="recite-entry-hover" bindtap="goReview">
+      <view class="recite-entry-copy">
+        <text class="recite-entry-kicker">TODAY'S REVIEW</text>
+        <text class="recite-entry-title">今日复习</text>
+        <text class="recite-entry-sub">{{reviewEntry.meta}}</text>
+      </view>
+      <text class="entry-badge review-badge">{{reviewEntry.action}}</text>
+    </view>
+
+    <view class="recite-entry enter d2" hover-class="recite-entry-hover" bindtap="goRecite">
+      <view class="recite-entry-copy">
+        <text class="recite-entry-kicker">DAILY RECITE</text>
+        <text class="recite-entry-title">今日背诵</text>
+        <text class="recite-entry-sub">单词、词组选义拼写，练对转「记得」</text>
+      </view>
+      <text class="entry-badge recite-badge">去背诵</text>
     </view>
 
     <view class="notebook-list enter d3">
@@ -100,7 +118,11 @@
           <view class="shelf-split">
             <view class="split-item">
               <view class="dot dot-coral"></view>
-              <text>已收藏 {{grammarBook.total}} 张语法卡</text>
+              <text>已收藏 {{grammarBook.total}} 张</text>
+            </view>
+            <view wx:if="{{grammarBook.articles}}" class="split-item">
+              <view class="dot dot-neutral"></view>
+              <text>来自 {{grammarBook.articles}} 篇</text>
             </view>
           </view>
         </view>
@@ -108,11 +130,37 @@
       </view>
     </view>
 
-    <text class="privacy">学习记录保存在你的云环境，上传的文档不会发送给第三方；换设备登录也能接着学。</text>
-
-    <view class="reset-zone enter d5">
-      <primary-button text="{{resetting ? '正在重置…' : '清除学习记录'}}" secondary="{{true}}" disabled="{{resetting}}" bind:tap="reset" />
-      <text class="version">英语精读喵 v1.0.0</text>
+    <view class="settings enter d4">
+      <view class="paper-tape settings-tape"></view>
+      <view class="paw-print settings-paw"></view>
+      <view class="settings-head">
+        <text class="settings-stamp en">SETTINGS</text>
+        <text class="settings-title">设置</text>
+      </view>
+      <view wx:if="{{remind.available}}" class="setting-row" hover-class="setting-hover" bindtap="toggleRemind">
+        <text class="setting-label">学习提醒</text>
+        <view class="setting-side">
+          <text class="setting-value {{remind.enabled ? 'setting-value-on' : ''}}">{{remind.busy ? '处理中…' : (remind.enabled ? '已预约 1 次' : '未开启')}}</text>
+          <view class="setting-arrow"></view>
+        </view>
+      </view>
+      <view class="setting-row" hover-class="setting-hover" bindtap="openAbout">
+        <text class="setting-label">关于与隐私</text>
+        <view class="setting-arrow"></view>
+      </view>
+      <view class="setting-row setting-hit-row">
+        <text class="setting-label">意见反馈</text>
+        <view class="setting-arrow"></view>
+        <button class="setting-hit" open-type="feedback" aria-label="意见反馈"></button>
+      </view>
     </view>
+
+    <view class="settings settings-danger-card enter d4">
+      <view class="setting-row" hover-class="setting-hover" bindtap="reset">
+        <text class="setting-label setting-label-danger">{{resetting ? '正在清除…' : '清除本篇学习记录'}}</text>
+      </view>
+    </view>
+
+    <text class="version">英语精读喵 v{{version}}</text>
   </block>
 </view>

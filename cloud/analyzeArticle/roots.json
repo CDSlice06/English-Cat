@@ -1,0 +1,1231 @@
+{
+  "version": 1,
+  "source": "词根释义与同族词按《Oxford Dictionary of English Etymology》、Merriam-Webster 通行拉丁/希腊词根表人工整理；只登记能确定同源的词，宁缺勿滥。",
+  "prefixes": {
+    "ab": "离开",
+    "abs": "离开",
+    "ad": "向、朝",
+    "ac": "向、朝（ad- 的变体）",
+    "af": "向、朝（ad- 的变体）",
+    "ag": "向、朝（ad- 的变体）",
+    "al": "向、朝（ad- 的变体）",
+    "an": "向、朝（ad- 的变体）",
+    "ap": "向、朝（ad- 的变体）",
+    "ar": "向、朝（ad- 的变体）",
+    "as": "向、朝（ad- 的变体）",
+    "at": "向、朝（ad- 的变体）",
+    "ante": "前",
+    "anti": "反、抗",
+    "auto": "自己",
+    "bene": "好",
+    "bi": "二",
+    "bio": "生命",
+    "circum": "环绕",
+    "co": "共同、一起（con- 的变体）",
+    "col": "共同、一起（con- 的变体）",
+    "com": "共同、一起（con- 的变体）",
+    "con": "共同、一起",
+    "contra": "相反",
+    "contro": "相反（contra- 的变体）",
+    "cor": "共同、一起（con- 的变体）",
+    "de": "向下、去除",
+    "di": "分开、离开（dis- 的变体）",
+    "dif": "分开（dis- 的变体）",
+    "dis": "分开、否定",
+    "e": "出（ex- 的变体）",
+    "ef": "出（ex- 的变体）",
+    "em": "使…（en- 的变体）",
+    "en": "使…",
+    "ex": "出、向外",
+    "extra": "超出",
+    "fore": "前",
+    "geo": "地",
+    "hyper": "超",
+    "hypo": "下",
+    "il": "不、向内（in- 的变体）",
+    "im": "不、向内（in- 的变体）",
+    "in": "不、向内",
+    "inter": "之间",
+    "intra": "内",
+    "intro": "向内",
+    "macro": "大",
+    "manu": "手",
+    "meta": "变化、超越",
+    "micro": "小",
+    "mis": "错误",
+    "mono": "一",
+    "multi": "多",
+    "non": "非",
+    "ob": "反、朝",
+    "oc": "反、朝（ob- 的变体）",
+    "of": "反、朝（ob- 的变体）",
+    "op": "反、朝（ob- 的变体）",
+    "omni": "全",
+    "out": "超出、向外",
+    "over": "过度",
+    "per": "穿过、彻底",
+    "peri": "周围",
+    "poly": "多",
+    "post": "后",
+    "pre": "前",
+    "pro": "向前、支持",
+    "re": "再、回",
+    "retro": "向后",
+    "semi": "半",
+    "sub": "下、次于",
+    "suc": "下（sub- 的变体）",
+    "suf": "下（sub- 的变体）",
+    "sug": "下（sub- 的变体）",
+    "sup": "下（sub- 的变体）",
+    "sus": "下（sub- 的变体）",
+    "super": "上、超",
+    "sur": "上、超出",
+    "sym": "共同（syn- 的变体）",
+    "syn": "共同",
+    "techno": "技艺",
+    "tele": "远",
+    "trans": "跨、转移",
+    "tri": "三",
+    "ultra": "超",
+    "un": "不",
+    "under": "下、不足",
+    "uni": "一"
+  },
+  "suffixes": {
+    "able": "可…的",
+    "ible": "可…的",
+    "age": "名词后缀（状态、行为）",
+    "al": "形容词/名词后缀",
+    "ance": "名词后缀",
+    "ency": "名词后缀",
+    "ence": "名词后缀",
+    "ancy": "名词后缀",
+    "ant": "形容词/名词后缀（人、物）",
+    "ent": "形容词/名词后缀",
+    "ar": "形容词/名词后缀",
+    "ary": "形容词/名词后缀",
+    "ate": "动词/形容词后缀",
+    "ation": "名词后缀",
+    "ition": "名词后缀",
+    "tion": "名词后缀",
+    "sion": "名词后缀",
+    "ion": "名词后缀",
+    "dom": "名词后缀（状态、领域）",
+    "ee": "被…的人",
+    "eer": "从事…的人",
+    "en": "使…；由…制成",
+    "er": "人/物",
+    "or": "人/物",
+    "ory": "名词/形容词后缀",
+    "ese": "…的（语言、国家）",
+    "esque": "…风格的",
+    "ess": "女性",
+    "ful": "充满…的",
+    "fy": "使…化",
+    "ify": "使…化",
+    "hood": "名词后缀（身份、状态）",
+    "ic": "形容词后缀",
+    "ical": "形容词后缀",
+    "ics": "学科",
+    "ing": "动名词/现在分词",
+    "ish": "有点…的；…民族的",
+    "ism": "主义、学说",
+    "ist": "人",
+    "ite": "人；矿物",
+    "itis": "炎症",
+    "ity": "名词后缀（性质、状态）",
+    "ive": "形容词后缀",
+    "ative": "形容词后缀",
+    "itive": "形容词后缀",
+    "ize": "动词后缀（使…化）",
+    "ise": "动词后缀（使…化）",
+    "less": "无…的",
+    "let": "小",
+    "like": "像…的",
+    "ly": "副词/形容词后缀",
+    "ment": "名词后缀",
+    "ness": "名词后缀",
+    "ology": "学科",
+    "ous": "形容词后缀（充满…的）",
+    "ship": "名词后缀（身份、关系）",
+    "some": "有…倾向的",
+    "ward": "向…方向",
+    "wise": "在…方面",
+    "ure": "名词后缀",
+    "ture": "名词后缀",
+    "ual": "形容词后缀",
+    "ial": "形容词后缀",
+    "y": "形容词/名词后缀",
+    "ty": "名词后缀",
+    "cy": "名词后缀",
+    "ry": "名词后缀/集合",
+    "ery": "名词后缀",
+    "th": "名词后缀（如 strength）"
+  },
+  "roots": [
+    {
+      "id": "vert",
+      "form": "vert / vers",
+      "meaning": "转",
+      "origin": "拉丁 vertere（转）",
+      "variants": ["vert", "vers"],
+      "words": ["divert", "diversion", "diverse", "diversity", "diversify", "convert", "conversion", "convertible", "reverse", "reversal", "version", "versus", "versatile", "universe", "universal", "university", "adverse", "adversity", "avert", "aversion", "controversy", "controversial", "introvert", "extrovert", "traverse", "invert", "inversion", "pervert", "subvert", "perverse", "perversion", "advertise", "advertisement", "anniversary"]
+    },
+    {
+      "id": "spect",
+      "form": "spect / spic",
+      "meaning": "看",
+      "origin": "拉丁 specere（看）",
+      "variants": ["spect", "spic", "spis", "spec", "pect"],
+      "words": ["spectator", "spectacle", "spectacular", "speculate", "speculation", "speculative", "inspect", "inspection", "inspector", "prospect", "prospective", "perspective", "respect", "respectful", "respectable", "respective", "respectively", "suspect", "suspicion", "suspicious", "aspect", "expect", "expectation", "unexpected", "conspicuous", "despise", "circumspect", "retrospect", "specimen", "spectrum", "special", "especially", "specific", "specifically", "species", "specialist", "specialize", "specification", "specify"]
+    },
+    {
+      "id": "port",
+      "form": "port",
+      "meaning": "携带",
+      "origin": "拉丁 portare（携带）",
+      "variants": ["port"],
+      "words": ["import", "importance", "important", "export", "transport", "transportation", "portable", "portfolio", "report", "reporter", "support", "supportive", "supporter", "deport", "deportation", "porter", "port"]
+    },
+    {
+      "id": "dict",
+      "form": "dict",
+      "meaning": "说、宣告",
+      "origin": "拉丁 dicere（说）",
+      "variants": ["dict", "dic"],
+      "words": ["dictate", "dictation", "dictator", "dictionary", "predict", "prediction", "predictable", "unpredictable", "contradict", "contradiction", "contradictory", "dedicate", "dedication", "indicate", "indication", "indicator", "verdict", "addict", "addiction", "addictive"]
+    },
+    {
+      "id": "duc",
+      "form": "duc / duct",
+      "meaning": "引导",
+      "origin": "拉丁 ducere（引导）",
+      "variants": ["duc", "duct"],
+      "words": ["conduct", "conductor", "introduce", "introduction", "introductory", "produce", "product", "production", "productive", "productivity", "reduce", "reduction", "deduce", "deduction", "induce", "inducement", "educate", "education", "educational", "educator", "seduce", "seduction", "abduct", "abduction", "deduct", "duct", "aqueduct", "reproduce", "reproduction", "producer"]
+    },
+    {
+      "id": "ject",
+      "form": "ject",
+      "meaning": "投、扔",
+      "origin": "拉丁 iacere（投）",
+      "variants": ["ject"],
+      "words": ["project", "projection", "projector", "reject", "rejection", "inject", "injection", "eject", "ejection", "subject", "subjective", "object", "objective", "objection", "adjective", "trajectory", "conjecture", "projectile"]
+    },
+    {
+      "id": "mit",
+      "form": "mit / miss",
+      "meaning": "送、放出",
+      "origin": "拉丁 mittere（送）",
+      "variants": ["mit", "miss", "mis"],
+      "words": ["admit", "admission", "commit", "commitment", "commission", "committee", "submit", "submission", "transmit", "transmission", "transmitter", "emit", "emission", "omit", "omission", "permit", "permission", "dismiss", "dismissal", "missile", "mission", "missionary", "promise", "promising", "compromise", "premise"]
+    },
+    {
+      "id": "scrib",
+      "form": "scrib / script",
+      "meaning": "写",
+      "origin": "拉丁 scribere（写）",
+      "variants": ["scrib", "script"],
+      "words": ["describe", "description", "descriptive", "prescribe", "prescription", "subscribe", "subscription", "subscriber", "manuscript", "script", "scripture", "transcript", "transcription", "inscription", "postscript", "ascribe", "conscription"]
+    },
+    {
+      "id": "graph",
+      "form": "graph / gram",
+      "meaning": "写、画",
+      "origin": "希腊 graphein（写）",
+      "variants": ["graph", "gram"],
+      "words": ["paragraph", "diagram", "program", "programme", "grammar", "graphic", "graphics", "biography", "biographical", "autobiography", "calligraphy"]
+    },
+    {
+      "id": "bio",
+      "form": "bio",
+      "meaning": "生命",
+      "origin": "希腊 bios（生命）",
+      "variants": ["bio"],
+      "words": ["biology", "biological", "biologist", "biodiversity", "biosphere", "biochemistry", "antibiotic", "biodegradable"]
+    },
+    {
+      "id": "geo",
+      "form": "geo",
+      "meaning": "地",
+      "origin": "希腊 ge（地）",
+      "variants": ["geo"],
+      "words": ["geography", "geographic", "geographical", "geology", "geologist", "geological", "geometry", "geometric", "geometrical"]
+    },
+    {
+      "id": "tele",
+      "form": "tele",
+      "meaning": "远",
+      "origin": "希腊 tele（远）",
+      "variants": ["tele"],
+      "words": ["telecommunications", "telecommunication", "telegram", "telegraph", "telepathy", "teleconference"]
+    },
+    {
+      "id": "phon",
+      "form": "phon",
+      "meaning": "声音",
+      "origin": "希腊 phone（声音）",
+      "variants": ["phon"],
+      "words": ["telephone", "microphone", "symphony", "phonograph", "megaphone", "saxophone", "phone"]
+    },
+    {
+      "id": "vis",
+      "form": "vis / vid",
+      "meaning": "看",
+      "origin": "拉丁 videre（看）",
+      "variants": ["vis", "vid"],
+      "words": ["visible", "invisible", "visibility", "vision", "visual", "visualize", "visualization", "television", "supervise", "supervision", "supervisor", "revise", "revision", "visit", "visitor", "evidence", "evident", "provide", "provision", "video", "advise", "advisable"]
+    },
+    {
+      "id": "aud",
+      "form": "aud",
+      "meaning": "听",
+      "origin": "拉丁 audire（听）",
+      "variants": ["aud"],
+      "words": ["audio", "audience", "audit", "auditor", "auditorium", "audible", "inaudible", "audiovisual"]
+    },
+    {
+      "id": "cred",
+      "form": "cred",
+      "meaning": "相信",
+      "origin": "拉丁 credere（相信）",
+      "variants": ["cred", "creed"],
+      "words": ["credit", "credible", "incredible", "credibility", "creditor", "creed", "credential", "credentials", "credulous"]
+    },
+    {
+      "id": "cur",
+      "form": "cur / curs / cours",
+      "meaning": "跑",
+      "origin": "拉丁 currere（跑）",
+      "variants": ["curr", "curs", "cours", "cur"],
+      "words": ["current", "currently", "currency", "curriculum", "occur", "occurrence", "recur", "recurrent", "recurrence", "excursion", "cursor", "cursory", "course", "discourse", "concurrent", "incur", "precursor", "cursive"]
+    },
+    {
+      "id": "fac",
+      "form": "fac / fact / fect / fic",
+      "meaning": "做",
+      "origin": "拉丁 facere（做）",
+      "variants": ["fac", "fact", "fect", "fic", "feas"],
+      "words": ["factory", "manufacture", "manufacturing", "manufacturer", "fact", "factor", "factual", "faculty", "perfect", "perfection", "affect", "affection", "affectionate", "effect", "effective", "effectiveness", "infect", "infection", "infectious", "defect", "defective", "deficient", "deficiency", "sufficient", "efficient", "efficiency", "artificial", "beneficial", "sacrifice", "facilitate", "facility", "feasible"]
+    },
+    {
+      "id": "fer",
+      "form": "fer",
+      "meaning": "带、拿",
+      "origin": "拉丁 ferre（带）",
+      "variants": ["fer"],
+      "words": ["transfer", "transferable", "offer", "offering", "prefer", "preference", "preferable", "refer", "reference", "referee", "suffer", "suffering", "differ", "difference", "different", "differentiate", "infer", "inference", "confer", "conference", "fertile", "fertility", "ferry"]
+    },
+    {
+      "id": "flu",
+      "form": "flu",
+      "meaning": "流",
+      "origin": "拉丁 fluere（流）",
+      "variants": ["flu"],
+      "words": ["fluent", "fluency", "influence", "influential", "fluid", "affluent", "fluctuate", "fluctuation", "influx"]
+    },
+    {
+      "id": "form",
+      "form": "form",
+      "meaning": "形状",
+      "origin": "拉丁 forma（形状）",
+      "variants": ["form"],
+      "words": ["form", "formation", "formula", "formulate", "formulation", "inform", "information", "informative", "reform", "transform", "transformation", "uniform", "perform", "performance", "performer", "conform", "conformity", "deform", "deformity", "format", "formal", "informal", "formalize"]
+    },
+    {
+      "id": "fort",
+      "form": "fort / forc",
+      "meaning": "强",
+      "origin": "拉丁 fortis（强）",
+      "variants": ["fort", "forc"],
+      "words": ["fort", "fortress", "fortify", "effort", "comfort", "comfortable", "uncomfortable", "discomfort", "reinforce", "reinforcement", "force", "enforce"]
+    },
+    {
+      "id": "gen",
+      "form": "gen",
+      "meaning": "生、产生",
+      "origin": "拉丁 genus / gignere（生）",
+      "variants": ["gen"],
+      "words": ["generate", "generation", "generator", "generative", "general", "generally", "generalize", "genetic", "genetics", "gene", "genius", "genuine", "gender", "generous", "generosity", "degenerate", "regenerate", "congenital"]
+    },
+    {
+      "id": "grad",
+      "form": "grad / gress",
+      "meaning": "走、步",
+      "origin": "拉丁 gradi（走）",
+      "variants": ["grad", "gress"],
+      "words": ["grade", "gradual", "gradually", "graduate", "graduation", "undergraduate", "upgrade", "degrade", "degradation", "progress", "progressive", "regress", "regression", "aggressive", "aggression", "congress", "digress", "digression", "gradient"]
+    },
+    {
+      "id": "hab",
+      "form": "hab / hibit",
+      "meaning": "持有",
+      "origin": "拉丁 habere（持有）",
+      "variants": ["hab", "hibit"],
+      "words": ["habit", "habitual", "inhabit", "inhabitant", "habitat", "exhibit", "exhibition", "prohibit", "prohibition", "inhibit", "inhibition"]
+    },
+    {
+      "id": "jud",
+      "form": "jud / jur / just",
+      "meaning": "判断、法",
+      "origin": "拉丁 iudex / ius（法）",
+      "variants": ["jud", "jur", "just"],
+      "words": ["judge", "judgment", "judicial", "judiciary", "prejudice", "jurisdiction", "jury", "juror", "justice", "justify", "justification", "unjust", "injury", "injure", "adjust", "adjustable"]
+    },
+    {
+      "id": "log",
+      "form": "log",
+      "meaning": "言、学科",
+      "origin": "希腊 logos（言说、道理）",
+      "variants": ["log"],
+      "words": ["logic", "logical", "illogical", "dialogue", "monologue", "apology", "apologize", "technology", "technological", "methodology", "ideology", "ideological", "sociology", "sociological", "sociologist", "ecology", "ecological"]
+    },
+    {
+      "id": "man",
+      "form": "man / manu",
+      "meaning": "手",
+      "origin": "拉丁 manus（手）",
+      "variants": ["manu", "man"],
+      "words": ["manual", "manually", "manipulate", "manipulation", "manage", "management", "manager", "managerial"]
+    },
+    {
+      "id": "mand",
+      "form": "mand / mend",
+      "meaning": "命令、委托",
+      "origin": "拉丁 mandare（命令）",
+      "variants": ["mand", "mend"],
+      "words": ["demand", "command", "commander", "recommend", "recommendation", "mandate", "mandatory", "commend"]
+    },
+    {
+      "id": "mem",
+      "form": "mem",
+      "meaning": "记忆",
+      "origin": "拉丁 memor（记得的）",
+      "variants": ["mem"],
+      "words": ["memory", "memorize", "memorial", "remember", "remembrance", "commemorate", "memorable", "memorandum"]
+    },
+    {
+      "id": "min",
+      "form": "min",
+      "meaning": "小",
+      "origin": "拉丁 minuere（减小）",
+      "variants": ["min"],
+      "words": ["minimum", "minimal", "minimize", "minor", "minority", "minute", "diminish", "miniature"]
+    },
+    {
+      "id": "mob",
+      "form": "mob / mot / mov",
+      "meaning": "动",
+      "origin": "拉丁 movere（动）",
+      "variants": ["mob", "mot", "mov"],
+      "words": ["mobile", "mobility", "mobilize", "motion", "motive", "motivate", "motivation", "emotion", "emotional", "promote", "promotion", "remote", "remove", "removal", "movement", "move", "movie", "commotion", "locomotive", "motor"]
+    },
+    {
+      "id": "mort",
+      "form": "mort",
+      "meaning": "死",
+      "origin": "拉丁 mors（死）",
+      "variants": ["mort"],
+      "words": ["mortal", "mortality", "immortal", "mortuary", "mortgage"]
+    },
+    {
+      "id": "nat",
+      "form": "nat",
+      "meaning": "出生",
+      "origin": "拉丁 nasci（出生）",
+      "variants": ["nat"],
+      "words": ["nature", "natural", "naturally", "native", "nation", "national", "nationality", "international", "innate", "prenatal", "neonatal", "naturalize"]
+    },
+    {
+      "id": "nom",
+      "form": "nom / nym",
+      "meaning": "名字",
+      "origin": "拉丁 nomen / 希腊 onoma（名字）",
+      "variants": ["nom", "nym", "onym"],
+      "words": ["nominal", "nominate", "nomination", "nominee", "anonymous", "synonym", "antonym", "pseudonym", "homonym", "acronym"]
+    },
+    {
+      "id": "nov",
+      "form": "nov",
+      "meaning": "新",
+      "origin": "拉丁 novus（新）",
+      "variants": ["nov"],
+      "words": ["novel", "novelty", "innovate", "innovation", "innovative", "renovate", "renovation", "novice"]
+    },
+    {
+      "id": "oper",
+      "form": "oper",
+      "meaning": "工作",
+      "origin": "拉丁 opus / operari（工作）",
+      "variants": ["oper"],
+      "words": ["operate", "operation", "operational", "operator", "cooperate", "cooperation", "cooperative", "opera"]
+    },
+    {
+      "id": "pel",
+      "form": "pel / puls",
+      "meaning": "推、驱",
+      "origin": "拉丁 pellere（推）",
+      "variants": ["pel", "puls"],
+      "words": ["expel", "expulsion", "propel", "propeller", "repel", "repellent", "repulse", "pulse", "impulse", "compulsive", "compulsory", "compel", "compelling"]
+    },
+    {
+      "id": "pend",
+      "form": "pend / pens",
+      "meaning": "悬挂、称量",
+      "origin": "拉丁 pendere（悬挂、称量）",
+      "variants": ["pend", "pens"],
+      "words": ["depend", "dependent", "dependence", "independent", "independence", "pendant", "pending", "suspend", "suspense", "suspension", "compensate", "compensation", "expense", "expensive", "expenditure", "spend", "pension", "pensive", "indispensable", "dispensable"]
+    },
+    {
+      "id": "plic",
+      "form": "plic / plex / ply",
+      "meaning": "折、叠",
+      "origin": "拉丁 plicare（折）",
+      "variants": ["plic", "plex", "ply", "pli"],
+      "words": ["complicated", "complicate", "complication", "complex", "complexity", "implicit", "explicit", "imply", "implication", "reply", "apply", "application", "applicant", "appliance", "multiply", "multiplication", "duplicate", "replicate", "comply", "compliance", "perplex", "supply"]
+    },
+    {
+      "id": "pon",
+      "form": "pon / pos",
+      "meaning": "放、置",
+      "origin": "拉丁 ponere（放置）",
+      "variants": ["pon", "pos", "poun"],
+      "words": ["compose", "composition", "composer", "component", "compound", "deposit", "expose", "exposure", "impose", "imposition", "oppose", "opposition", "propose", "proposal", "purpose", "dispose", "disposal", "disposition", "positive", "postpone", "transpose", "position"]
+    },
+    {
+      "id": "press",
+      "form": "press",
+      "meaning": "压",
+      "origin": "拉丁 premere（压）",
+      "variants": ["press"],
+      "words": ["press", "pressure", "compress", "compression", "express", "expression", "expressive", "impress", "impression", "impressive", "depress", "depression", "suppress", "suppression", "oppress", "oppression", "repress", "repression"]
+    },
+    {
+      "id": "prim",
+      "form": "prim / princ",
+      "meaning": "第一、首要",
+      "origin": "拉丁 primus / princeps（第一）",
+      "variants": ["prim", "princ"],
+      "words": ["primary", "primarily", "prime", "primitive", "principle", "principal", "princess"]
+    },
+    {
+      "id": "reg",
+      "form": "reg / rect",
+      "meaning": "直、统治",
+      "origin": "拉丁 regere（统治、使直）",
+      "variants": ["reg", "rect"],
+      "words": ["direct", "direction", "director", "directory", "correct", "correction", "erect", "rectangle", "rectangular", "rectify", "regime", "region", "regular", "regularly", "regulate", "regulation", "regulatory", "directly", "correctly", "incorrect", "indirect"]
+    },
+    {
+      "id": "rupt",
+      "form": "rupt",
+      "meaning": "破",
+      "origin": "拉丁 rumpere（破）",
+      "variants": ["rupt"],
+      "words": ["interrupt", "interruption", "disrupt", "disruption", "disruptive", "erupt", "eruption", "corrupt", "corruption", "bankrupt", "bankruptcy", "rupture", "abrupt", "abruptly"]
+    },
+    {
+      "id": "sci",
+      "form": "sci",
+      "meaning": "知道",
+      "origin": "拉丁 scire（知道）",
+      "variants": ["sci"],
+      "words": ["science", "scientific", "scientist", "conscious", "consciousness", "conscience", "conscientious", "subconscious", "unconscious", "omniscient"]
+    },
+    {
+      "id": "sequ",
+      "form": "sec / sequ",
+      "meaning": "跟随",
+      "origin": "拉丁 sequi（跟随）",
+      "variants": ["sec", "sequ", "su", "sui"],
+      "words": ["second", "secondary", "secondly", "sequence", "consequence", "consequent", "consequently", "subsequent", "subsequently", "pursue", "pursuit", "consecutive", "prosecute", "prosecution", "persecute", "persecution", "suit", "suitable"]
+    },
+    {
+      "id": "sens",
+      "form": "sens / sent",
+      "meaning": "感觉",
+      "origin": "拉丁 sentire（感觉）",
+      "variants": ["sens", "sent"],
+      "words": ["sense", "sensible", "sensitive", "sensitivity", "sensation", "sensory", "consent", "resent", "resentment", "sentiment", "sentimental", "sentence", "dissent", "assent", "nonsense", "consensus"]
+    },
+    {
+      "id": "serv",
+      "form": "serv",
+      "meaning": "服务、保存",
+      "origin": "拉丁 servire（服务）/ servare（保存）",
+      "variants": ["serv"],
+      "words": ["serve", "service", "servant", "deserve", "preserve", "preservation", "reserve", "reservation", "reservoir", "conserve", "conservation", "conservative", "observe", "observation", "observer", "observatory"]
+    },
+    {
+      "id": "sta",
+      "form": "sist / sta / stat / stit",
+      "meaning": "站、立",
+      "origin": "拉丁 stare（站立）",
+      "variants": ["sist", "sta", "stat", "stit", "ist"],
+      "words": ["assist", "assistance", "assistant", "consist", "consistent", "consistency", "insist", "insistence", "persist", "persistence", "persistent", "resist", "resistance", "exist", "existence", "stable", "stability", "establish", "establishment", "station", "stationary", "statistic", "statistics", "statistical", "statue", "status", "substitute", "institute", "institution", "constitute", "constitution", "constant", "constantly", "distance", "distant", "instant", "substance", "substantial"]
+    },
+    {
+      "id": "struct",
+      "form": "struct / stru",
+      "meaning": "建造",
+      "origin": "拉丁 struere（建造）",
+      "variants": ["struct", "stru"],
+      "words": ["structure", "structural", "construct", "construction", "constructive", "destruct", "destruction", "destructive", "instruct", "instruction", "instructor", "instrument", "instrumental", "obstruct", "obstruction", "infrastructure"]
+    },
+    {
+      "id": "tain",
+      "form": "tain / ten / tent",
+      "meaning": "握、持有",
+      "origin": "拉丁 tenere（握住）",
+      "variants": ["tain", "ten", "tent"],
+      "words": ["contain", "container", "content", "maintain", "maintenance", "obtain", "retain", "sustain", "sustainable", "tenant", "tenure", "detain", "detention", "entertain", "entertainment"]
+    },
+    {
+      "id": "tort",
+      "form": "tort",
+      "meaning": "扭",
+      "origin": "拉丁 torquere（扭）",
+      "variants": ["tort"],
+      "words": ["distort", "distortion", "torture", "tortuous", "extort", "extortion", "retort"]
+    },
+    {
+      "id": "tract",
+      "form": "tract",
+      "meaning": "拉、拖",
+      "origin": "拉丁 trahere（拉）",
+      "variants": ["tract"],
+      "words": ["attract", "attraction", "attractive", "contract", "contraction", "contractor", "distract", "distraction", "extract", "extraction", "abstract", "subtract", "tractor", "traction", "retract", "protract"]
+    },
+    {
+      "id": "vac",
+      "form": "vac / van / vain",
+      "meaning": "空",
+      "origin": "拉丁 vacare（空）",
+      "variants": ["vac", "van", "vain"],
+      "words": ["vacant", "vacancy", "vacation", "evacuate", "evacuation", "vacuum", "vain", "vanish", "vanity"]
+    },
+    {
+      "id": "ven",
+      "form": "ven / vent",
+      "meaning": "来",
+      "origin": "拉丁 venire（来）",
+      "variants": ["ven", "vent"],
+      "words": ["invent", "invention", "inventor", "inventive", "prevent", "prevention", "preventive", "event", "eventual", "eventually", "adventure", "venture", "avenue", "revenue", "convene", "convention", "convenient", "convenience", "intervene", "intervention", "circumvent", "conventional", "unconventional"]
+    },
+    {
+      "id": "viv",
+      "form": "viv / vit",
+      "meaning": "生命、活",
+      "origin": "拉丁 vivere（活）",
+      "variants": ["viv", "vit"],
+      "words": ["survive", "survival", "survivor", "vivid", "vital", "vitality", "vitamin", "revive", "revival", "vivacious"]
+    },
+    {
+      "id": "voc",
+      "form": "voc / vok / voic",
+      "meaning": "叫、声音",
+      "origin": "拉丁 vocare（叫）",
+      "variants": ["voc", "vok", "voic"],
+      "words": ["voice", "vocal", "vocation", "vocational", "advocate", "advocacy", "invoke", "provoke", "provocative", "evoke", "revoke"]
+    },
+    {
+      "id": "vol",
+      "form": "vol",
+      "meaning": "意愿",
+      "origin": "拉丁 velle（意愿）",
+      "variants": ["vol"],
+      "words": ["volunteer", "voluntary", "volition", "benevolent", "malevolent"]
+    },
+    {
+      "id": "cap",
+      "form": "cap / cept / ceive",
+      "meaning": "拿、抓住",
+      "origin": "拉丁 capere（拿）",
+      "variants": ["cap", "cept", "ceive", "ceipt"],
+      "words": ["capacity", "capable", "capability", "capture", "captive", "escape", "accept", "acceptance", "acceptable", "concept", "conception", "exception", "exceptional", "except", "intercept", "receive", "receiver", "receipt", "perceive", "perception", "deceive", "deception"]
+    },
+    {
+      "id": "fin",
+      "form": "fin",
+      "meaning": "界限、结束",
+      "origin": "拉丁 finis（界限）",
+      "variants": ["fin"],
+      "words": ["final", "finally", "finance", "financial", "finish", "finite", "infinite", "infinity", "define", "definition", "definite", "definitely", "confine", "refine", "refinement"]
+    },
+    {
+      "id": "fract",
+      "form": "frag / fract",
+      "meaning": "破",
+      "origin": "拉丁 frangere（破）",
+      "variants": ["frag", "fract"],
+      "words": ["fragment", "fraction", "fracture", "fragile", "fragility", "refract"]
+    },
+    {
+      "id": "grat",
+      "form": "grat / grac",
+      "meaning": "感谢、愉快",
+      "origin": "拉丁 gratus（令人愉快的）",
+      "variants": ["grat", "grac"],
+      "words": ["grateful", "gratitude", "congratulate", "congratulation", "gratify", "grace", "gracious", "graceful", "disgrace"]
+    },
+    {
+      "id": "her",
+      "form": "her / hes",
+      "meaning": "粘、附",
+      "origin": "拉丁 haerere（粘住）",
+      "variants": ["her", "hes"],
+      "words": ["hesitate", "hesitation", "adhere", "adhesion", "coherent", "coherence", "inherent", "inherit", "inheritance"]
+    },
+    {
+      "id": "labor",
+      "form": "labor",
+      "meaning": "劳动",
+      "origin": "拉丁 labor（劳动）",
+      "variants": ["labor"],
+      "words": ["labor", "laboratory", "elaborate", "collaboration", "collaborate", "collaborative"]
+    },
+    {
+      "id": "liber",
+      "form": "liber",
+      "meaning": "自由",
+      "origin": "拉丁 liber（自由的）",
+      "variants": ["liber"],
+      "words": ["liberty", "liberal", "liberate", "liberation", "deliberate", "deliberation"]
+    },
+    {
+      "id": "liter",
+      "form": "liter",
+      "meaning": "文字",
+      "origin": "拉丁 littera（文字）",
+      "variants": ["liter"],
+      "words": ["literature", "literary", "literate", "literacy", "literal", "literally", "illiterate"]
+    },
+    {
+      "id": "loc",
+      "form": "loc",
+      "meaning": "地方",
+      "origin": "拉丁 locus（地方）",
+      "variants": ["loc"],
+      "words": ["local", "locate", "location", "allocate", "allocation", "dislocate", "locality"]
+    },
+    {
+      "id": "luc",
+      "form": "luc / lum",
+      "meaning": "光",
+      "origin": "拉丁 lux / lumen（光）",
+      "variants": ["luc", "lum"],
+      "words": ["lucid", "illuminate", "illumination", "luminous", "luminary", "translucent"]
+    },
+    {
+      "id": "magn",
+      "form": "magn / maj / max",
+      "meaning": "大",
+      "origin": "拉丁 magnus（大）",
+      "variants": ["magn", "maj", "max", "may"],
+      "words": ["magnify", "magnitude", "magnificent", "major", "majority", "maximum", "maximize", "maximal", "mayor"]
+    },
+    {
+      "id": "mal",
+      "form": "mal",
+      "meaning": "坏",
+      "origin": "拉丁 malus（坏的）",
+      "variants": ["mal"],
+      "words": ["malice", "malicious", "malfunction", "malnutrition", "malaria", "malignant"]
+    },
+    {
+      "id": "medi",
+      "form": "medi",
+      "meaning": "中间",
+      "origin": "拉丁 medius（中间的）",
+      "variants": ["medi"],
+      "words": ["medium", "media", "mediate", "mediation", "mediator", "intermediate", "immediate", "immediately", "medieval"]
+    },
+    {
+      "id": "migr",
+      "form": "migr",
+      "meaning": "迁移",
+      "origin": "拉丁 migrare（迁移）",
+      "variants": ["migr"],
+      "words": ["migrate", "migration", "migrant", "immigrant", "immigration", "emigrate", "emigration"]
+    },
+    {
+      "id": "milit",
+      "form": "milit",
+      "meaning": "士兵",
+      "origin": "拉丁 miles（士兵）",
+      "variants": ["milit"],
+      "words": ["military", "militia", "militant", "militarism"]
+    },
+    {
+      "id": "norm",
+      "form": "norm",
+      "meaning": "标准",
+      "origin": "拉丁 norma（标准）",
+      "variants": ["norm"],
+      "words": ["normal", "normally", "abnormal", "enormous", "normalize", "norm"]
+    },
+    {
+      "id": "not",
+      "form": "not",
+      "meaning": "标记、知晓",
+      "origin": "拉丁 notare（标记）",
+      "variants": ["not"],
+      "words": ["notice", "noticeable", "notify", "notification", "notion", "notable", "notably", "denote", "annotation", "notorious", "annotate"]
+    },
+    {
+      "id": "numer",
+      "form": "numer / numb",
+      "meaning": "数",
+      "origin": "拉丁 numerus（数）",
+      "variants": ["numer", "numb"],
+      "words": ["number", "numerous", "numerical", "numeral", "enumerate", "innumerable"]
+    },
+    {
+      "id": "opt",
+      "form": "opt",
+      "meaning": "选择、看",
+      "origin": "拉丁 optare（选择）/ 希腊 optikos（看）",
+      "variants": ["opt"],
+      "words": ["option", "optional", "adopt", "adoption", "optical", "optics"]
+    },
+    {
+      "id": "ordin",
+      "form": "ord / ordin",
+      "meaning": "顺序",
+      "origin": "拉丁 ordo（顺序）",
+      "variants": ["ord", "ordin"],
+      "words": ["order", "orderly", "ordinary", "extraordinary", "coordinate", "coordination", "subordinate", "ordinance", "disorder"]
+    },
+    {
+      "id": "par",
+      "form": "par / pair",
+      "meaning": "相等、准备",
+      "origin": "拉丁 parare（准备）/ par（相等）",
+      "variants": ["par", "pair"],
+      "words": ["compare", "comparison", "comparable", "comparative", "prepare", "preparation", "repair", "separate", "separation"]
+    },
+    {
+      "id": "part",
+      "form": "part / port",
+      "meaning": "部分、分开",
+      "origin": "拉丁 pars / portio（部分）",
+      "variants": ["part", "port"],
+      "words": ["part", "partial", "partially", "participate", "participation", "participant", "particle", "particular", "particularly", "partner", "partnership", "depart", "departure", "department", "partition", "portion", "proportion", "proportional", "impartial", "apartment", "apart", "partly"]
+    },
+    {
+      "id": "pass",
+      "form": "pass / path",
+      "meaning": "感情、受苦",
+      "origin": "拉丁 pati（忍受）/ 希腊 pathos（感情）",
+      "variants": ["pass", "path", "pat"],
+      "words": ["passion", "passionate", "passive", "compassion", "patient", "patience", "compatible", "sympathy", "sympathetic", "pathetic", "pathology", "apathy"]
+    },
+    {
+      "id": "pater",
+      "form": "pater / patr",
+      "meaning": "父亲",
+      "origin": "拉丁 pater（父亲）",
+      "variants": ["pater", "patr"],
+      "words": ["paternal", "paternity", "patriot", "patriotic", "patriotism", "patron", "patronage"]
+    },
+    {
+      "id": "ped",
+      "form": "ped / pod",
+      "meaning": "脚",
+      "origin": "拉丁 pes / 希腊 pous（脚）",
+      "variants": ["ped", "pod"],
+      "words": ["pedal", "pedestrian", "expedition", "impede", "impediment", "pedestal", "tripod", "podiatry"]
+    },
+    {
+      "id": "phil",
+      "form": "phil",
+      "meaning": "爱",
+      "origin": "希腊 philein（爱）",
+      "variants": ["phil"],
+      "words": ["philosophy", "philosopher", "philosophical", "philanthropy", "philanthropic"]
+    },
+    {
+      "id": "photo",
+      "form": "photo",
+      "meaning": "光",
+      "origin": "希腊 phos（光）",
+      "variants": ["photo"],
+      "words": ["photograph", "photography", "photographer", "photographic", "photon", "photosynthesis"]
+    },
+    {
+      "id": "poli",
+      "form": "poli / polis",
+      "meaning": "城邦、政治",
+      "origin": "希腊 polis（城邦）",
+      "variants": ["poli", "polis"],
+      "words": ["politics", "political", "politician", "policy", "police", "metropolis", "cosmopolitan"]
+    },
+    {
+      "id": "popul",
+      "form": "popul / publ",
+      "meaning": "人民",
+      "origin": "拉丁 populus（人民）",
+      "variants": ["popul", "publ"],
+      "words": ["popular", "popularity", "population", "populate", "public", "publication", "publicize", "publicity", "republic", "publish", "publisher", "republican"]
+    },
+    {
+      "id": "psych",
+      "form": "psych",
+      "meaning": "心灵",
+      "origin": "希腊 psyche（灵魂）",
+      "variants": ["psych"],
+      "words": ["psychology", "psychological", "psychologist", "psychiatry", "psychiatrist", "psychic"]
+    },
+    {
+      "id": "quir",
+      "form": "quir / quest / quis",
+      "meaning": "寻求",
+      "origin": "拉丁 quaerere（寻求）",
+      "variants": ["quir", "quest", "quis", "quer"],
+      "words": ["require", "requirement", "acquire", "acquisition", "inquire", "inquiry", "enquire", "enquiry", "question", "quest", "request", "conquest", "conquer", "exquisite", "prerequisite"]
+    },
+    {
+      "id": "sacr",
+      "form": "sacr / sanct / sain",
+      "meaning": "神圣",
+      "origin": "拉丁 sacer / sanctus（神圣）",
+      "variants": ["sacr", "sanct", "sain"],
+      "words": ["sacred", "saint", "sanction", "sanctuary", "sanctify"]
+    },
+    {
+      "id": "scop",
+      "form": "scop",
+      "meaning": "看",
+      "origin": "希腊 skopein（看）",
+      "variants": ["scop"],
+      "words": ["scope", "microscope", "microscopic", "telescope", "telescopic", "macroscopic"]
+    },
+    {
+      "id": "sect",
+      "form": "sect / seg",
+      "meaning": "切",
+      "origin": "拉丁 secare（切）",
+      "variants": ["sect", "seg"],
+      "words": ["section", "sector", "insect", "intersect", "intersection", "dissect", "segment", "sectional"]
+    },
+    {
+      "id": "solv",
+      "form": "solv / solut",
+      "meaning": "解开",
+      "origin": "拉丁 solvere（解开）",
+      "variants": ["solv", "solut", "solu"],
+      "words": ["solve", "solution", "dissolve", "dissolution", "resolve", "resolution", "resolute", "absolute", "absolve", "solvent", "soluble", "absolutely"]
+    },
+    {
+      "id": "son",
+      "form": "son / soun",
+      "meaning": "声音",
+      "origin": "拉丁 sonus（声音）",
+      "variants": ["son", "soun"],
+      "words": ["sound", "sonic", "resonance", "resonant", "consonant", "supersonic", "unison"]
+    },
+    {
+      "id": "spir",
+      "form": "spir",
+      "meaning": "呼吸",
+      "origin": "拉丁 spirare（呼吸）",
+      "variants": ["spir", "pir"],
+      "words": ["spirit", "spiritual", "inspire", "inspiration", "inspiring", "aspire", "aspiration", "expire", "expiration", "perspire", "respiration", "respiratory", "conspiracy", "conspire"]
+    },
+    {
+      "id": "strict",
+      "form": "strict / string / strain",
+      "meaning": "拉紧",
+      "origin": "拉丁 stringere（拉紧）",
+      "variants": ["strict", "string", "strain"],
+      "words": ["strict", "strictly", "restrict", "restriction", "restrain", "restraint", "stringent", "constrict", "district"]
+    },
+    {
+      "id": "tact",
+      "form": "tact / tang",
+      "meaning": "触",
+      "origin": "拉丁 tangere（触）",
+      "variants": ["tact", "tang", "tag"],
+      "words": ["contact", "tactile", "tangible", "intangible", "contagious", "tangent"]
+    },
+    {
+      "id": "tempor",
+      "form": "tempor / tempo",
+      "meaning": "时间",
+      "origin": "拉丁 tempus（时间）",
+      "variants": ["tempor", "tempo"],
+      "words": ["temporary", "temporarily", "tempo", "contemporary", "temporal"]
+    },
+    {
+      "id": "tend",
+      "form": "tend / tens / tent",
+      "meaning": "伸展",
+      "origin": "拉丁 tendere（伸展）",
+      "variants": ["tend", "tens", "tent"],
+      "words": ["tend", "tendency", "extend", "extension", "extensive", "extent", "intend", "intention", "intense", "intensity", "intensify", "tension", "tense", "attend", "attention", "attentive", "contend", "contention", "pretend"]
+    },
+    {
+      "id": "termin",
+      "form": "termin",
+      "meaning": "界限",
+      "origin": "拉丁 terminus（界限）",
+      "variants": ["termin"],
+      "words": ["terminal", "terminate", "termination", "determine", "determination", "determined", "interminable", "exterminate"]
+    },
+    {
+      "id": "terr",
+      "form": "terr",
+      "meaning": "土地",
+      "origin": "拉丁 terra（土地）",
+      "variants": ["terr"],
+      "words": ["territory", "territorial", "terrain", "terrace", "terrestrial", "subterranean"]
+    },
+    {
+      "id": "test",
+      "form": "test",
+      "meaning": "证明",
+      "origin": "拉丁 testis（证人）",
+      "variants": ["test"],
+      "words": ["test", "testify", "testimony", "protest", "contest", "contestant", "detest"]
+    },
+    {
+      "id": "text",
+      "form": "text",
+      "meaning": "编织",
+      "origin": "拉丁 texere（编织）",
+      "variants": ["text"],
+      "words": ["text", "textile", "texture", "context", "contextual", "pretext"]
+    },
+    {
+      "id": "thes",
+      "form": "thes / thet",
+      "meaning": "放置",
+      "origin": "希腊 tithenai（放置）",
+      "variants": ["thes", "thet"],
+      "words": ["thesis", "hypothesis", "synthesize", "synthesis", "synthetic", "parenthesis", "antithesis"]
+    },
+    {
+      "id": "tribut",
+      "form": "tribut",
+      "meaning": "给予",
+      "origin": "拉丁 tribuere（给予）",
+      "variants": ["tribut"],
+      "words": ["contribute", "contribution", "contributor", "distribute", "distribution", "distributor", "attribute", "attribution", "tribute", "retribution"]
+    },
+    {
+      "id": "turb",
+      "form": "turb",
+      "meaning": "搅动",
+      "origin": "拉丁 turbare（搅动）",
+      "variants": ["turb"],
+      "words": ["disturb", "disturbance", "turbulent", "turbulence", "perturb", "turbine"]
+    },
+    {
+      "id": "uni",
+      "form": "uni",
+      "meaning": "一",
+      "origin": "拉丁 unus（一）",
+      "variants": ["uni"],
+      "words": ["unite", "unity", "union", "unique", "unify", "unification", "unit"]
+    },
+    {
+      "id": "urb",
+      "form": "urb",
+      "meaning": "城市",
+      "origin": "拉丁 urbs（城市）",
+      "variants": ["urb"],
+      "words": ["urban", "urbanize", "urbanization", "suburb", "suburban"]
+    },
+    {
+      "id": "vari",
+      "form": "vari / var",
+      "meaning": "变化",
+      "origin": "拉丁 variare（变化）",
+      "variants": ["vari", "var"],
+      "words": ["vary", "variable", "variation", "variety", "various", "invariably", "variant"]
+    },
+    {
+      "id": "verb",
+      "form": "verb",
+      "meaning": "词、话",
+      "origin": "拉丁 verbum（词）",
+      "variants": ["verb"],
+      "words": ["verbal", "verbally", "proverb", "verb", "adverb"]
+    },
+    {
+      "id": "volv",
+      "form": "volv / volut",
+      "meaning": "卷、转",
+      "origin": "拉丁 volvere（卷、转）",
+      "variants": ["volv", "volut", "volum"],
+      "words": ["involve", "involvement", "evolve", "evolution", "evolutionary", "revolve", "revolution", "revolutionary", "volume", "devolve"]
+    },
+    {
+      "id": "cid",
+      "form": "cid / cis",
+      "meaning": "切、杀",
+      "origin": "拉丁 caedere（切）",
+      "variants": ["cid", "cis"],
+      "words": ["decide", "decision", "decisive", "precise", "precision", "concise", "suicide", "homicide", "pesticide", "scissors", "incise"]
+    },
+    {
+      "id": "claim",
+      "form": "claim / clam",
+      "meaning": "喊",
+      "origin": "拉丁 clamare（喊）",
+      "variants": ["claim", "clam"],
+      "words": ["claim", "exclaim", "exclamation", "proclaim", "proclamation", "acclaim", "acclamation", "clamor"]
+    },
+    {
+      "id": "corp",
+      "form": "corp",
+      "meaning": "身体",
+      "origin": "拉丁 corpus（身体）",
+      "variants": ["corp"],
+      "words": ["corporation", "corporate", "corpse", "corporal", "incorporate", "corps"]
+    },
+    {
+      "id": "cycl",
+      "form": "cycl",
+      "meaning": "圆、环",
+      "origin": "希腊 kyklos（圆）",
+      "variants": ["cycl"],
+      "words": ["cycle", "bicycle", "recycle", "recycling", "cyclic", "cyclone", "encyclopedia"]
+    },
+    {
+      "id": "demo",
+      "form": "demo",
+      "meaning": "人民",
+      "origin": "希腊 demos（人民）",
+      "variants": ["demo"],
+      "words": ["democracy", "democratic", "democrat", "demographic", "demographics"]
+    },
+    {
+      "id": "dynam",
+      "form": "dynam",
+      "meaning": "力量",
+      "origin": "希腊 dynamis（力量）",
+      "variants": ["dynam"],
+      "words": ["dynamic", "dynamics", "dynamite", "dynamo"]
+    },
+    {
+      "id": "erg",
+      "form": "erg",
+      "meaning": "工作",
+      "origin": "希腊 ergon（工作）",
+      "variants": ["erg"],
+      "words": ["energy", "energetic", "synergy", "ergonomic"]
+    },
+    {
+      "id": "hydr",
+      "form": "hydr",
+      "meaning": "水",
+      "origin": "希腊 hydor（水）",
+      "variants": ["hydr"],
+      "words": ["hydrogen", "hydroelectric", "dehydration", "dehydrate", "hydraulic"]
+    },
+    {
+      "id": "metr",
+      "form": "metr / meter",
+      "meaning": "测量",
+      "origin": "希腊 metron（度量）",
+      "variants": ["metr", "meter"],
+      "words": ["meter", "metric", "thermometer", "diameter", "parameter", "symmetry", "symmetrical", "centimeter"]
+    },
+    {
+      "id": "clud",
+      "form": "clud / clus / clos",
+      "meaning": "关闭",
+      "origin": "拉丁 claudere（关闭）",
+      "variants": ["clud", "clus", "clos"],
+      "words": ["include", "exclude", "exclusive", "exclusively", "conclude", "conclusion", "preclude", "disclose", "disclosure", "enclose", "enclosure", "inclusion", "inclusive", "exclusion", "conclusive", "seclude", "closure", "closet", "closely", "close"]
+    },
+    {
+      "id": "sid",
+      "form": "sid / sed / sess",
+      "meaning": "坐",
+      "origin": "拉丁 sedere（坐）",
+      "variants": ["sid", "sed", "sess"],
+      "words": ["president", "presidency", "resident", "residence", "residential", "session", "assess", "assessment", "subsidy", "preside", "presidential", "reside", "sediment", "supersede", "insidious", "sedentary"]
+    },
+    {
+      "id": "cresc",
+      "form": "cresc / creas / cret",
+      "meaning": "生长",
+      "origin": "拉丁 crescere（生长）",
+      "variants": ["cresc", "creas", "cret"],
+      "words": ["increase", "increasingly", "decrease", "concrete"]
+    },
+    {
+      "id": "gest",
+      "form": "gest",
+      "meaning": "带、运",
+      "origin": "拉丁 gerere（携带、进行）",
+      "variants": ["gest"],
+      "words": ["suggest", "suggestion", "suggestive", "digest", "digestion", "congestion", "gesture"]
+    },
+    {
+      "id": "spond",
+      "form": "spond / spons",
+      "meaning": "承诺、回应",
+      "origin": "拉丁 spondere（承诺）",
+      "variants": ["spond", "spons", "spous"],
+      "words": ["respond", "response", "responsible", "responsibility", "correspond", "corresponding", "correspondent", "sponsor", "sponsorship", "responsive", "respondent", "correspondence", "spouse", "responsiveness"]
+    },
+    {
+      "id": "sum",
+      "form": "sum / sumpt",
+      "meaning": "拿、取",
+      "origin": "拉丁 sumere（拿取）",
+      "variants": ["sum", "sumpt"],
+      "words": ["assume", "assumption", "consume", "consumer", "consumption", "resume", "presume", "presumably", "presumption"]
+    },
+    {
+      "id": "vinc",
+      "form": "vinc / vict",
+      "meaning": "征服",
+      "origin": "拉丁 vincere（征服）",
+      "variants": ["vinc", "vict"],
+      "words": ["convince", "convincing", "victory", "victorious", "invincible"]
+    },
+    {
+      "id": "lat",
+      "form": "lat",
+      "meaning": "带、运",
+      "origin": "拉丁 latus（ferre 的过去分词，带）",
+      "variants": ["lat"],
+      "words": ["translate", "translation", "relate", "relation", "relationship", "relative", "relatively", "correlate", "correlation"]
+    },
+    {
+      "id": "vad",
+      "form": "vad / vas",
+      "meaning": "走、行",
+      "origin": "拉丁 vadere（走）",
+      "variants": ["vad", "vas"],
+      "words": ["invade", "invasion", "evade", "evasion", "pervade", "pervasive", "evasive", "invasive"]
+    },
+    {
+      "id": "tempt",
+      "form": "tempt",
+      "meaning": "尝试、试探",
+      "origin": "拉丁 temptare（试探）",
+      "variants": ["tempt"],
+      "words": ["attempt", "tempt", "temptation"]
+    },
+    {
+      "id": "prehend",
+      "form": "prehend / prehens / pris",
+      "meaning": "抓、握",
+      "origin": "拉丁 prehendere（抓住）",
+      "variants": ["prehend", "prehens", "pris"],
+      "words": ["comprehend", "comprehension", "comprehensive", "enterprise", "prison", "prisoner", "surprise", "surprising", "surprisingly", "apprehend", "apprehension", "apprehensive", "comprehensible", "incomprehensible"]
+    },
+    {
+      "id": "fid",
+      "form": "fid",
+      "meaning": "信任",
+      "origin": "拉丁 fidere（信任）",
+      "variants": ["fid"],
+      "words": ["confident", "confidence", "confidential", "fidelity", "diffident", "confide", "confidently"]
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+.about-page {
+  padding-bottom: 60rpx;
+}
+
+/* ---------- 页头 ---------- */
+.about-hero {
+  position: relative;
+  margin-bottom: 26rpx;
+  padding: 34rpx 30rpx 30rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  background: linear-gradient(155deg, #fffef9 0%, #fdf4e2 100%);
+  box-shadow: var(--shadow-paper);
+}
+
+.about-tape {
+  top: -13rpx;
+  left: 44rpx;
+  width: 104rpx;
+  height: 26rpx;
+  transform: rotate(-4deg);
+}
+
+.about-star {
+  top: 28rpx;
+  right: 40rpx;
+}
+
+.about-kicker {
+  display: block;
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 20rpx;
+  letter-spacing: 3rpx;
+  color: var(--faint);
+}
+
+.about-title {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.about-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  margin-top: 10rpx;
+}
+
+.about-version {
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #a86a11;
+}
+
+.about-date {
+  font-size: 22rpx;
+  color: var(--faint);
+}
+
+.about-sub {
+  display: block;
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* ---------- 说明卡片 ---------- */
+.about-card {
+  position: relative;
+  margin-bottom: 20rpx;
+  padding: 26rpx 28rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  background: rgba(255, 253, 249, 0.94);
+  box-shadow: var(--shadow-paper);
+}
+
+.about-card:last-of-type {
+  margin-bottom: 0;
+}
+
+.about-h {
+  display: block;
+  margin-bottom: 12rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.about-p {
+  display: block;
+  font-size: 26rpx;
+  line-height: 1.8;
+  color: var(--muted);
+}
+
+.about-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  margin-top: 8rpx;
+}
+
+.about-dot {
+  flex: none;
+  width: 10rpx;
+  height: 10rpx;
+  margin-top: 14rpx;
+  border-radius: 50%;
+  background: rgba(168, 106, 17, 0.42);
+}
+
+.about-item-text {
+  flex: 1;
+  font-size: 26rpx;
+  line-height: 1.75;
+  color: var(--muted);
+}
+
+.about-feedback {
+  margin-top: 18rpx;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 26rpx;
+  font-weight: 700;
+  line-height: 1.6;
+  color: #a86a11;
+  text-decoration: underline;
+}
+
+.about-feedback::after {
+  border: none;
+}
+
+.about-footer {
+  display: block;
+  margin-top: 34rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: var(--faint);
+}

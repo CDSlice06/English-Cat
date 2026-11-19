@@ -20,9 +20,10 @@
           <text class="overview-kicker">NOW READING</text>
           <text class="overview-title">{{title}}</text>
           <view class="overview-meta">
-            <text class="overview-meta-strong">{{progress.completed}}/{{progress.total}} 个单元</text>
+            <text wx:if="{{readingMode}}" class="overview-meta-strong">已读 {{readingMinutes}} 分钟 / 15 分钟</text>
+            <text wx:else class="overview-meta-strong">{{progress.completed}}/{{progress.total}} 个单元</text>
             <text class="overview-meta-sep">·</text>
-            <text>已完成 {{progress.percent}}%</text>
+            <text>{{readingMode ? '阅读进度' : '已完成'}} {{progress.percent}}%</text>
           </view>
         </view>
         <view class="overview-photo">
@@ -30,7 +31,7 @@
           <cat-image custom-class="overview-cat" name="import-book" size="medium" />
         </view>
       </view>
-      <progress-bar percent="{{progress.percent}}" label="四个学习单元" />
+      <progress-bar percent="{{progress.percent}}" label="{{readingMode ? '累计阅读时长' : '四个学习单元'}}" />
       <view wx:if="{{resume}}" class="resume-entry" hover-class="resume-entry-hover" data-url="{{resume.url}}" bindtap="go">
         <view class="resume-icon">
           <cat-image name="pass-check" size="small" />
@@ -47,24 +48,24 @@
       </view>
       <view wx:elif="{{aiPending}}" class="ai-pending">
         <text class="ai-pending-dot"></text>
-        <text>猫猫正在补充语法讲解，稍后自动刷新</text>
+        <text>{{readingMode ? '猫猫正在补充生词释义和长难句讲解，稍后自动刷新' : '猫猫正在补充语法讲解，稍后自动刷新'}}</text>
       </view>
       <view wx:elif="{{aiFailed}}" class="ai-pending ai-failed">
         <text class="ai-pending-dot"></text>
-        <text>这次语法精讲没成功，先用现有讲解学习，稍后会自动再试</text>
+        <text>{{readingMode ? '这次长难句讲解没成功，先读原文，稍后会自动再试' : '这次语法精讲没成功，先用现有讲解学习，稍后会自动再试'}}</text>
       </view>
       <view wx:elif="{{aiStalled}}" class="ai-pending ai-failed">
         <text class="ai-pending-dot"></text>
-        <text>精讲还在后台生成，先学现有的词汇和语法，稍后回到本页会自动刷新</text>
+        <text>{{readingMode ? '讲解还在后台生成，先读原文，稍后回到本页会自动刷新' : '精讲还在后台生成，先学现有的词汇和语法，稍后回到本页会自动刷新'}}</text>
       </view>
     </view>
 
     <view class="list-head">
       <view class="list-title-wrap">
-        <text class="list-stamp en">STATIONS</text>
-        <text class="list-title">学习单元</text>
+        <text class="list-stamp en">{{readingMode ? 'READING' : 'STATIONS'}}</text>
+        <text class="list-title">{{readingMode ? '阅读' : '学习单元'}}</text>
       </view>
-      <text class="list-hint">点击继续学习</text>
+      <text class="list-hint">{{readingMode ? '读满 15 分钟算学完' : '点击继续学习'}}</text>
     </view>
 
     <view class="unit-list">
@@ -83,7 +84,7 @@
         <view class="unit-copy">
           <view class="unit-title-row">
             <text class="unit-title">{{item.title}}</text>
-            <text class="status {{item.done ? 'status-done' : ''}}">{{item.done ? '已完成' : '待学习'}}</text>
+            <text class="status {{item.done ? 'status-done' : ''}}">{{readingMode ? (item.done ? '已学完' : '继续读') : (item.done ? '已完成' : '待学习')}}</text>
           </view>
           <text class="unit-desc">{{item.desc}}</text>
         </view>
@@ -91,7 +92,27 @@
       </view>
     </view>
 
-    <view class="summary-entry {{progress.completed === 4 ? 'summary-ready' : ''}}" data-url="/pages/summary/index" bindtap="go">
+    <view class="list-head">
+      <view class="list-title-wrap">
+        <text class="list-stamp en">EXTRA</text>
+        <text class="list-title">专项训练</text>
+      </view>
+      <text class="list-hint">{{readingMode ? '独立练习，不占阅读进度' : '独立题库，不占四站进度'}}</text>
+    </view>
+
+    <view class="handbook-entry" hover-class="handbook-entry-hover" data-url="/pkgTranslate/pages/translation/index" bindtap="go">
+      <view class="handbook-icon">
+        <cat-image name="reading-highlight" size="small" />
+      </view>
+      <view class="handbook-copy">
+        <text class="handbook-kicker en">TRANSLATION</text>
+        <text class="handbook-title">真题翻译手账</text>
+        <text class="handbook-desc">四六级 75 套翻译真题，随时查、按自己的节奏背</text>
+      </view>
+      <view class="summary-arrow"></view>
+    </view>
+
+    <view wx:if="{{!readingMode}}" class="summary-entry {{progress.completed === 4 ? 'summary-ready' : ''}}" data-url="/pages/summary/index" bindtap="go">
       <view class="paper-tape summary-tape"></view>
       <view class="summary-icon">
         <cat-image name="{{progress.completed === 4 ? 'complete-halo' : 'pass-check'}}" size="small" />

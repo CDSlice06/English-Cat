@@ -89,14 +89,15 @@ Page({
     const source = Array.isArray(unitData.grammarPoints) ? unitData.grammarPoints : []
     const viewed = unit.grammarViewed || []
     const expanded = Object.assign({}, this.data.expanded)
-    // 和练习页同一口径：同方向 + 同题干只算一道，避免两页题数对不上
+    // 和练习页同一口径：同一题干只算一道，避免两页题数对不上
     const drillKeys = new Set()
 
     const points = source.map((point, index) => {
-      const drills = point.drills || []
+      // 中译英已下线，题数和练习页只算英译汉
+      const drills = (point.drills || []).filter((drill) => drill.mode === 'en2zh')
       drills.forEach((drill) => {
         if (!drill.id) return
-        drillKeys.add(`${drill.mode || ''}|${String(drill.prompt || '').trim().toLowerCase()}`)
+        drillKeys.add(String(drill.prompt || '').trim().toLowerCase())
       })
       const isViewed = viewed.indexOf(point.id) >= 0
       if (expanded[point.id] === undefined) expanded[point.id] = isViewed

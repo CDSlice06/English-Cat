@@ -39,7 +39,23 @@ async function analyzeDemo() {
   return null
 }
 
-const PROGRESS_FIELDS = ['masteredWords', 'grammarViewed', 'phrasesViewed']
+const PROGRESS_FIELDS = ['masteredWords', 'grammarViewed', 'phrasesViewed', 'readingSeconds']
+
+// 外刊按「阅读优先」学习：不拆四站，进度只看累计活跃阅读时长
+const READING_TARGET_SECONDS = 15 * 60
+
+// 只有外刊是「阅读优先」；用户自己导入的文章（含真题）仍走四站式精读
+function isReadingArticle(article) {
+  if (!article) return false
+  return (article.origin || '') === 'journal'
+}
+
+function readingPercentOf(unit) {
+  const seconds = Math.max(0, Number(unit && unit.readingSeconds) || 0)
+  if (seconds >= READING_TARGET_SECONDS) return 100
+  // 差几秒也不能提前显示 100%，未达标最多 99%
+  return Math.min(99, Math.floor((seconds / READING_TARGET_SECONDS) * 100))
+}
 
 // 词汇/词组抽取规则版本：与 analyzeArticle 的 unitData.extractVersion 对齐。
 // 旧版本的文章在用户重新选中时自动重解析，不需要删掉再导入一遍
@@ -66,7 +82,9 @@ const PROGRESS_FIELDS = ['masteredWords', 'grammarViewed', 'phrasesViewed']
 //     语法补否定转移、It 句型、倍数、虚拟倒装、定语从句关系词、句首状语、分号/冒号/同位语/分词短语等；还原英式拼写和 e 结尾比较级
 // 21：词库补考研进阶词与外刊议题新词 145 条；词组补现代议题名词搭配与论证短语 165 条
 // 22：语法补 18 类句式（倒装、使役、感官动词、宾补、名词化、破折号插入语、反意疑问、间接引语等），并修正进行时/被动/名词性从句误判
-const EXTRACT_VERSION = 22
+// 23：新增 advanced.json 派生词/复合词扩展库，补 -ings 名词词性、英式 -ised 还原与拼写纠正
+// 24：新增 ECDICT 全量补充词库（约 2.8 万条），词表外的正常英文词也能抽进生词表
+const EXTRACT_VERSION = 24
 
 // 「已认识」词表：每人一条文档，记录生词本里的词和在别的文章里点过掌握的词。
 // 解析新文章时命中只做标记、不再让模型解释，省下这部分 token
@@ -347,6 +365,7 @@ function vocabProgressOf(unit, vocabulary) {
 // 与前端 getProgress 同一口径：四站各占 25%，站内按完成条数比例连续计分
 function percentOf(article, unit) {
   if (!unit) return 0
+  if (isReadingArticle(article)) return readingPercentOf(unit)
   const data = (article && article.unitData) || {}
   const vocabulary = Array.isArray(data.vocabulary) ? data.vocabulary : []
   const grammarPoints = Array.isArray(data.grammarPoints) ? data.grammarPoints : []
@@ -385,6 +404,8 @@ async function checkSwitch(openid, targetId) {
     .get()
   const current = latest.data[0] || null
   if (current && current._id !== targetId) {
+    // 阅读型文章按活跃阅读时长推进，不适用「学超 35% 锁文章」
+    if (isReadingArticle(current)) return null
     const unit = await findUnit(openid, current._id)
     const percent = percentOf(current, unit)
     // 进度超过 35% 就锁住，避免频繁换文章反复消耗模型额度；
@@ -394,6 +415,22 @@ async function checkSwitch(openid, targetId) {
     }
   }
   return null
+}
+
+// 外刊是独立阅读轨道：当前还有一篇没学完的真题时，读外刊不抢「当前文章」，
+// 否则首页的继续学习和今日计划会被顶成阅读模式
+async function shouldKeepCurrent(openid, target) {
+  if (!isReadingArticle(target)) return false
+  const latest = await db.collection('articles')
+    .where({ openid, isDemo: false, queued: _.neq(true) })
+    .orderBy('createdAt', 'desc')
+    .limit(1)
+    .get()
+  const current = latest.data[0] || null
+  if (!current || current._id === target._id) return false
+  if (isReadingArticle(current)) return false
+  const unit = await findUnit(openid, current._id)
+  return unitStarted(unit)
 }
 
 async function ensureDemoArticle(openid) {
@@ -567,6 +604,13 @@ function validateChanges(article, changes) {
     }
   }
 
+  if (Object.prototype.hasOwnProperty.call(changes, 'readingSeconds')) {
+    const value = changes.readingSeconds
+    if (!Number.isInteger(value) || value < 0 || value > 86400) {
+      return { message: 'readingSeconds 必须是 0-86400 的整数' }
+    }
+  }
+
   if (Object.prototype.hasOwnProperty.call(changes, 'phrasesViewed')) {
     const value = changes.phrasesViewed
     const validIds = new Set(phrases.map((item) => item.id))
@@ -725,6 +769,33 @@ function readPreviewUnitData(value) {
   return Object.assign({}, value, { extractVersion: EXTRACT_VERSION })
 }
 
+// 外刊修订正文后正文哈希会变：入库前找出同一篇外刊的旧记录，
+// 把累计阅读时长带过来，升级版本不会把「已学 X 分钟」清零
+async function findStaleJournal(openid, bankId, articleId) {
+  try {
+    const res = await db.collection('articles')
+      .where({ openid, bankId, origin: 'journal', _id: _.neq(articleId) })
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get()
+    return (res.data || [])[0] || null
+  } catch (error) {
+    console.error('[study] find stale journal failed', error)
+    return null
+  }
+}
+
+async function inheritReadingProgress(openid, fromArticleId, toArticleId) {
+  const oldUnit = await findUnit(openid, fromArticleId)
+  const seconds = Math.max(0, Number(oldUnit && oldUnit.readingSeconds) || 0)
+  if (!seconds) return
+  const unit = await ensureUnit(openid, toArticleId)
+  if (Math.max(0, Number(unit && unit.readingSeconds) || 0) >= seconds) return
+  await db.collection('article_units').doc(unit._id).update({
+    data: { readingSeconds: seconds, updatedAt: db.serverDate() }
+  })
+}
+
 // 导入 = 只把正文收进题库：不判换文章、不开始精读；带预览结果时直接落库
 async function importArticle(openid, event) {
   const text = typeof event.text === 'string' ? event.text.trim() : ''
@@ -769,6 +840,9 @@ async function importArticle(openid, event) {
     }
     await db.collection('articles').where({ _id: articleId, openid }).update({ data: patch })
   } else {
+    const stale = meta.origin === 'journal' && meta.bankId
+      ? await findStaleJournal(openid, meta.bankId, articleId)
+      : null
     await db.collection('articles').add({
       data: {
         _id: articleId,
@@ -788,6 +862,7 @@ async function importArticle(openid, event) {
         createdAt: db.serverDate()
       }
     })
+    if (stale) await inheritReadingProgress(openid, stale._id, articleId)
   }
 
   return success({ article: await findArticle(openid, articleId) })
@@ -851,6 +926,7 @@ async function listArticles(openid) {
       kind: true,
       origin: true,
       source: true,
+      bankId: true,
       year: true,
       month: true,
       paper: true,
@@ -873,6 +949,7 @@ async function listArticles(openid) {
       kind: article.kind || '',
       origin: article.origin || 'import',
       source: article.source || '',
+      bankId: article.bankId || '',
       year: article.year || 0,
       month: article.month || 0,
       paper: article.paper || 0,
@@ -924,8 +1001,12 @@ function unitStarted(unit) {
 }
 
 // 与 percentOf 同一口径：四站各 25%，站内按完成条数比例连续计分。
-// totals 缺失（老文章还没补算）时 percent 返回 null，前端只显示「学过」
-function progressOf(totals, unit) {
+// 阅读型文章只看累计活跃阅读时长；totals 缺失（老文章还没补算）时 percent 返回 null，前端只显示「学过」
+function progressOf(article, totals, unit) {
+  if (isReadingArticle(article)) {
+    const seconds = Math.max(0, Number(unit && unit.readingSeconds) || 0)
+    return { percent: readingPercentOf(unit), studied: seconds > 0, mastered: 0, total: 0, readingSeconds: seconds }
+  }
   const mastered = (unit && Array.isArray(unit.masteredWords) ? unit.masteredWords : []).length
   if (!totals) return { percent: null, studied: unitStarted(unit), mastered, total: 0 }
   const records = (unit && unit.practiceRecords) || {}
@@ -954,7 +1035,8 @@ async function attachProgress(openid, items, rows) {
         masteredWords: true,
         grammarViewed: true,
         phrasesViewed: true,
-        practiceRecords: true
+        practiceRecords: true,
+        readingSeconds: true
       })
       .limit(100)
       .get()
@@ -973,11 +1055,13 @@ async function attachProgress(openid, items, rows) {
     filled.forEach((value, id) => totals.set(id, value))
   }
   items.forEach((item) => {
-    const progress = progressOf(totals.get(item._id), units.get(item._id))
+    const progress = progressOf(item, totals.get(item._id), units.get(item._id))
     item.percent = progress.percent
     item.studied = progress.studied
     item.mastered = progress.mastered
     item.vocabulary = progress.total
+    item.readingSeconds = progress.readingSeconds || 0
+    item.readingMode = isReadingArticle(item)
   })
 }
 
@@ -1105,6 +1189,10 @@ async function previewArticle(openid, event) {
     articleId,
     title: article.title || '',
     level: article.level === 'cet6' ? 'cet6' : 'cet4',
+    // 客户端据此决定进「阅读优先」还是四站学习
+    kind: article.kind || '',
+    origin: article.origin || 'import',
+    source: article.source || '',
     text,
     wordCount: article.wordCount || (text.match(/[A-Za-z][A-Za-z'-]*/g) || []).length,
     year: article.year || 0,
@@ -1127,9 +1215,13 @@ async function openArticle(openid, event) {
   const article = await findArticle(openid, articleId)
   if (!article) return failure(404, '文章不存在或无权访问')
   await ensureTopic(openid, article)
-  // 切到已入库的文章只受 35% 门槛限制
-  const blocked = await checkSwitch(openid, articleId)
-  if (blocked) return blocked
+  // 外刊独立阅读时不参与换文章限制，也不切换当前文章
+  const keepCurrent = await shouldKeepCurrent(openid, article)
+  if (!keepCurrent) {
+    // 切到已入库的文章只受 35% 门槛限制
+    const blocked = await checkSwitch(openid, articleId)
+    if (blocked) return blocked
+  }
 
   if (!hasUnitData(article) || isExtractOutdated(article)) {
     // 客户端会直接调 analyzeArticle，已记住的词/词组/语法要一起带过去，
@@ -1147,7 +1239,32 @@ async function openArticle(openid, event) {
     })
   }
 
-  await markCurrent(openid, articleId)
+  if (!keepCurrent) await markCurrent(openid, articleId)
+  const unit = await ensureUnit(openid, articleId)
+  const safe = sanitizeStudy(article, unit)
+  return success({ article: safe.article, unit: safe.unit })
+}
+
+// 阅读页按 id 取外刊：只读，不切换当前文章，供外刊独立阅读轨道使用
+async function readArticle(openid, event) {
+  const articleId = typeof event.articleId === 'string' ? event.articleId.trim() : ''
+  if (!articleId) return failure(400, 'articleId 不能为空')
+  const article = await findArticle(openid, articleId)
+  if (!article) return failure(404, '文章不存在或无权访问')
+  if (!isReadingArticle(article)) return failure(400, '只有外刊可以直接阅读')
+  await ensureTopic(openid, article)
+  if (!hasUnitData(article) || isExtractOutdated(article)) {
+    const remembered = await loadRemembered(openid)
+    return success({
+      needsAnalysis: true,
+      articleId,
+      text: article.ocrText || '',
+      level: article.level === 'cet6' ? 'cet6' : 'cet4',
+      title: article.title,
+      remembered,
+      outdated: isExtractOutdated(article)
+    })
+  }
   const unit = await ensureUnit(openid, articleId)
   const safe = sanitizeStudy(article, unit)
   return success({ article: safe.article, unit: safe.unit })
@@ -1176,8 +1293,11 @@ async function saveUnit(openid, event) {
   const incoming = Object.assign({}, unitData, { extractVersion: EXTRACT_VERSION })
   const article = await findArticle(openid, articleId)
   if (!article) return failure(404, '文章不存在或无权访问')
-  const blocked = await checkSwitch(openid, articleId)
-  if (blocked) return blocked
+  const keepCurrent = await shouldKeepCurrent(openid, article)
+  if (!keepCurrent) {
+    const blocked = await checkSwitch(openid, articleId)
+    if (blocked) return blocked
+  }
   // 规则升级后的重解析：按词条文本把旧进度映射到新 id，不清空
   const rebuilding = isExtractOutdated(article)
 
@@ -1199,7 +1319,7 @@ async function saveUnit(openid, event) {
   // 首次解析出来的 id 与旧进度对不上，进度清零
   if (rebuilding) await remapProgress(openid, articleId, article.unitData, incoming)
   else await clearProgress(openid, articleId)
-  await markCurrent(openid, articleId)
+  if (!keepCurrent) await markCurrent(openid, articleId)
   const unit = await ensureUnit(openid, articleId)
   const fresh = await findArticle(openid, articleId)
   // 兜底用刚写入的内容组装返回，避免查询异常时前端拿到空文章
@@ -1300,7 +1420,11 @@ async function overview(openid) {
     const phrases = Array.isArray(unitData.phrases) ? unitData.phrases : []
     const drills = []
     grammarPoints.forEach((point) => {
-      ;(point.drills || []).forEach((drill) => drills.push(drill))
+      ;(point.drills || []).forEach((drill) => {
+        // 中译英已下线，口径与练习页一致，只统计英译汉
+        if (drill.mode !== 'en2zh') return
+        drills.push(drill)
+      })
     })
     const drillIds = new Set(drills.map((drill) => drill.id))
     const records = unit.practiceRecords || {}
@@ -1360,6 +1484,8 @@ exports.main = async (event = {}) => {
         return await previewArticle(OPENID, event)
       case 'openArticle':
         return await openArticle(OPENID, event)
+      case 'read':
+        return await readArticle(OPENID, event)
       case 'saveUnit':
         return await saveUnit(OPENID, event)
       case 'deleteArticle':

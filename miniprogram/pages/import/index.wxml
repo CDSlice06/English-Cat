@@ -9,86 +9,33 @@
     <primary-button text="重新加载" bind:tap="loadPage" />
   </view>
   <block wx:else>
-    <section-title eyebrow="STEP 01 · IMPORT" title="上传你的精读文章" description="把今天的文章整理进 Word 或 PDF，上传后自动提取全文，省去逐字敲入。" />
+    <section-title eyebrow="STEP 01 · IMPORT" title="导入精读文章" description="复制一段英文原文粘进来，自动拆句、标生词、排语法。" />
 
-    <view class="steps enter d1">
-      <view class="step-item">
-        <view class="step-num en">1</view>
-        <text class="step-label">上传</text>
-      </view>
-      <view class="step-line"></view>
-      <view class="step-item">
-        <view class="step-num en">2</view>
-        <text class="step-label">提取</text>
-      </view>
-      <view class="step-line"></view>
-      <view class="step-item">
-        <view class="step-num en">3</view>
-        <text class="step-label">精读</text>
-      </view>
-    </view>
-
-    <!-- 一张纸卡，两种状态：未选文件 / 已选文件 -->
-    <view class="file-card enter d2 {{file ? 'file-card-on' : ''}}">
+    <!-- 粘贴入口 -->
+    <view class="file-card enter d2">
       <view class="file-tape"></view>
-      <view class="file-head" hover-class="file-head-hover" bind:tap="chooseFile">
-        <view class="file-badge {{file ? 'file-badge-' + file.ext : 'file-badge-empty'}}">
-          <text wx:if="{{file}}" class="file-ext en">{{file.ext === 'pdf' ? 'PDF' : 'DOC'}}</text>
-          <view wx:else class="file-plus"></view>
+      <view class="file-head" hover-class="file-head-hover" bind:tap="goManual">
+        <view class="file-badge file-badge-empty">
+          <view class="file-plus"></view>
         </view>
         <view class="file-copy">
-          <block wx:if="{{file}}">
-            <text class="file-name">{{file.name}}</text>
-            <text class="file-meta">{{file.sizeLabel}} · 已就绪，待提取</text>
-          </block>
-          <block wx:else>
-            <text class="file-name">选择一篇文章文件</text>
-            <text class="file-meta">支持 .docx 与 .pdf，单份不超过 8MB</text>
-          </block>
+          <text class="file-name">粘贴英文原文</text>
+          <text class="file-meta">外刊、课本、笔记段落都可以，粘进来就能开始精读</text>
         </view>
-        <view wx:if="{{file}}" class="file-remove" catchtap="removeFile">移除</view>
-        <view wx:else class="file-enter"></view>
+        <view class="file-enter"></view>
       </view>
-
-      <view wx:if="{{!file}}" class="file-hint">
-        <text class="file-hint-text">找不到文件？先把 Word 或 PDF 发到「文件传输助手」，再回来从微信会话里选择。</text>
-        <text class="file-hint-note">系统会按有效页数（空白页不算）自动处理：10 页及以上先从末尾裁到 9 页；6 页及以上从第 4 页开始；5 页从第 2 页开始；4 页以内从第 1 页开始。上传前删掉<text class="file-hint-warn">听力原文与题解（答案与解析）</text>识别会更快更准。</text>
-        <view class="file-tags">
-          <text class="file-tag">.docx</text>
-          <text class="file-tag">.pdf</text>
-          <text class="file-tag">≤ 8MB</text>
-        </view>
+      <view class="file-hint">
+        <text class="file-hint-text">不用整篇都贴，一段也可以。中文和乱码会自动过滤，只保留英文正文。</text>
+        <text class="file-hint-note">真题已经内置在题库里，不需要自己上传文件。</text>
       </view>
     </view>
 
     <view class="actions enter d3">
-      <primary-button text="{{parsing ? stageText : '提取文章原文'}}" disabled="{{!file || parsing}}" bind:tap="parse" />
       <primary-button text="从题库抽一篇" secondary="{{true}}" bind:tap="goBank" />
-      <view class="manual-link" bind:tap="goManual">
-        <text>解析不了？直接粘贴英文原文</text>
+      <view class="manual-link" bind:tap="goJournals">
+        <text>没带文章？去读今天的英语外刊</text>
         <view class="manual-arrow"></view>
       </view>
     </view>
   </block>
-
-  <view wx:if="{{parsing}}" class="processing-mask">
-    <view class="processing-card">
-      <view class="processing-tape"></view>
-      <view class="processing-sticker">
-        <cat-image name="reading-highlight" size="medium" />
-      </view>
-      <text class="processing-title">正在提取文章原文</text>
-      <text class="processing-text">{{stageText}}</text>
-      <view class="processing-track">
-        <view
-          class="processing-fill {{uploading || ocrRunning ? 'processing-fill-progress' : ''}}"
-          style="{{uploading || ocrRunning ? 'width:' + (progress > 6 ? progress : 6) + '%' : ''}}"
-        ></view>
-      </view>
-      <text class="processing-tip">Word 通常几秒完成；扫描版 PDF 逐页识别会久一点，请保持页面打开</text>
-      <view wx:if="{{uploading || ocrRunning}}" class="processing-cancel" bind:tap="cancelParse">
-        <text>{{uploading ? '取消上传' : '取消识别'}}</text>
-      </view>
-    </view>
-  </view>
 </view>

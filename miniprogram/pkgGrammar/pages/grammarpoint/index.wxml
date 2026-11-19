@@ -1,0 +1,152 @@
+<view class="page gpoint">
+  <view wx:if="{{missing}}" class="empty">
+    <cat-image name="not-found" size="large" />
+    <text class="empty-title">没找到这个语法点</text>
+    <text class="empty-text">回到语法本的大纲里重新点一次吧。</text>
+  </view>
+
+  <block wx:else>
+    <view class="gp-hero enter d1">
+      <view class="coil-bind"></view>
+      <view class="gp-kicker">
+        <text class="gp-cat">{{categoryName}}</text>
+        <text wx:if="{{module}}" class="gp-module">模块 {{module.order}} · {{module.title}}</text>
+      </view>
+      <text class="gp-title">{{point.label}}</text>
+      <view class="gp-meta">
+        <text class="gp-order">{{orderText}}</text>
+        <text class="gp-key en">{{point.key}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{method}}" class="gp-card gp-method enter d2">
+      <view class="gp-card-head">
+        <text class="gp-card-title">{{method.title}}</text>
+        <text class="gp-card-sub">{{method.subtitle}}</text>
+      </view>
+      <view
+        wx:for="{{method.steps}}"
+        wx:for-item="step"
+        wx:for-index="stepIndex"
+        wx:key="title"
+        class="gp-step"
+      >
+        <text class="gp-step-index en">{{stepIndex + 1}}</text>
+        <view class="gp-step-body">
+          <text class="gp-step-title">{{step.title}}</text>
+          <text class="gp-step-detail">{{step.detail}}</text>
+        </view>
+      </view>
+      <view class="gp-walk">
+        <text class="gp-walk-label">拿一句真题式长句走一遍</text>
+        <text class="gp-walk-en en">{{method.demo.en}}</text>
+        <text class="gp-walk-zh">{{method.demo.zh}}</text>
+        <view wx:for="{{method.demo.chunks}}" wx:for-item="chunk" wx:key="label" class="gp-walk-row">
+          <text class="gp-walk-tag">{{chunk.label}}</text>
+          <text class="gp-walk-text">{{chunk.text}}</text>
+        </view>
+      </view>
+      <view class="gp-tips">
+        <text wx:for="{{method.tips}}" wx:key="*this" class="gp-tip">{{item}}</text>
+      </view>
+    </view>
+
+    <view class="gp-card enter d2">
+      <text class="gp-label">一句话定义</text>
+      <text class="gp-text">{{point.definition}}</text>
+    </view>
+
+    <view class="gp-card enter d2">
+      <view wx:if="{{point.identify}}" class="gp-row">
+        <text class="gp-row-label">怎么识别</text>
+        <text class="gp-text">{{point.identify}}</text>
+      </view>
+      <view wx:if="{{point.usage}}" class="gp-row">
+        <text class="gp-row-label">怎么用</text>
+        <text class="gp-text">{{point.usage}}</text>
+      </view>
+      <view wx:if="{{point.translate}}" class="gp-row">
+        <text class="gp-row-label">怎么译</text>
+        <text class="gp-text">{{point.translate}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{point.trap}}" class="gp-card gp-trap enter d3">
+      <text class="gp-label">易错对比</text>
+      <view class="gp-demo gp-demo-bad">
+        <view class="gp-mark"></view>
+        <text class="gp-demo-text en">{{point.trap.wrong}}</text>
+      </view>
+      <view class="gp-demo gp-demo-good">
+        <view class="gp-mark"></view>
+        <text class="gp-demo-text en">{{point.trap.right}}</text>
+      </view>
+      <text class="gp-trap-note">{{point.trap.note}}</text>
+    </view>
+
+    <view wx:if="{{point.notes}}" class="gp-card gp-usage enter d3">
+      <text class="gp-label">常被问到的点</text>
+      <text wx:if="{{point.notes.summary}}" class="gp-summary">{{point.notes.summary}}</text>
+      <view wx:for="{{point.notes.items}}" wx:for-item="note" wx:key="q" class="gp-note">
+        <text class="gp-note-q">{{note.q}}</text>
+        <text class="gp-note-a">{{note.a}}</text>
+        <view wx:if="{{note.good}}" class="gp-demo gp-demo-good">
+          <view class="gp-mark"></view>
+          <text class="gp-demo-text en">{{note.good}}</text>
+        </view>
+        <view wx:if="{{note.bad}}" class="gp-demo gp-demo-bad">
+          <view class="gp-mark"></view>
+          <text class="gp-demo-text en">{{note.bad}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{point.examples.length}}" class="gp-card enter d3">
+      <text class="gp-label">例句</text>
+      <view class="gp-examples">
+        <view wx:for="{{point.examples}}" wx:for-item="example" wx:key="en" class="gp-example">
+          <text class="gp-example-en en">{{example.en}}</text>
+          <text class="gp-example-zh">{{example.zh}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{module}}" class="gp-card gp-module-card enter d4">
+      <text class="gp-label">它在整个体系里的位置</text>
+      <text class="gp-module-title">{{categoryName}} · {{module.title}}</text>
+      <view wx:if="{{module.guide}}" class="gp-line">
+        <text class="gp-tag">怎么学</text>
+        <text class="gp-line-text">{{module.guide}}</text>
+      </view>
+      <view class="gp-line">
+        <text class="gp-tag">学完能做到</text>
+        <text class="gp-line-text">{{module.goal}}</text>
+      </view>
+      <view class="gp-line">
+        <text class="gp-tag">考什么</text>
+        <text class="gp-line-text">{{module.exam}}</text>
+      </view>
+      <view class="gp-line">
+        <text class="gp-tag gp-tag-warn">易错</text>
+        <text class="gp-line-text">{{module.traps}}</text>
+      </view>
+    </view>
+
+    <view class="gp-card gp-source enter d4">
+      <text class="gp-label">内容说明</text>
+      <text class="gp-text">按通行语法体系整理，参考张道真《实用英语语法》、剑桥《English Grammar in Use》及四六级真题用法；例句为教研自编，用来演示结构，不是真题原句。</text>
+      <button class="gp-feedback" open-type="feedback">发现错误？点此反馈</button>
+    </view>
+
+    <view class="gp-nav enter d4">
+      <view class="gp-nav-btn {{prev ? '' : 'gp-nav-off'}}" data-key="{{prev.key}}" bindtap="goPoint">
+        <text class="gp-nav-dir">上一个</text>
+        <text class="gp-nav-name">{{prev ? prev.label : '已经是第一个'}}</text>
+      </view>
+      <view class="gp-nav-btn gp-nav-next {{next ? '' : 'gp-nav-off'}}" data-key="{{next.key}}" bindtap="goPoint">
+        <text class="gp-nav-dir">下一个</text>
+        <text class="gp-nav-name">{{next ? next.label : '已经是最后一个'}}</text>
+      </view>
+    </view>
+  </block>
+</view>

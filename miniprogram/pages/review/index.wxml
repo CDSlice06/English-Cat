@@ -1,9 +1,30 @@
 <view class="page review-page">
-  <section-title eyebrow="DAILY REVIEW" title="今日复习" description="按 1 / 3 / 7 / 15 / 30 / 180 天的间隔到期：只复习今天该复习的词，记得就亲手搬走。" />
+  <section-title eyebrow="DAILY REVIEW" title="今日复习" description="{{desc}}" />
+
+  <view class="review-tabs enter d1">
+    <view class="review-tab {{tab === 'word' ? 'review-tab-active' : ''}}" data-tab="word" bindtap="switchTab">词汇</view>
+    <view class="review-tab {{tab === 'phrase' ? 'review-tab-active' : ''}}" data-tab="phrase" bindtap="switchTab">词组</view>
+    <view class="review-tab {{tab === 'grammar' ? 'review-tab-active' : ''}}" data-tab="grammar" bindtap="switchTab">语法</view>
+  </view>
+
+  <view class="review-target enter d1">
+    <text class="review-target-label">每日</text>
+    <view class="review-target-options">
+      <view
+        wx:for="{{targetOptions}}"
+        wx:key="*this"
+        class="review-target-chip {{item === targetBase ? 'review-target-chip-on' : ''}}"
+        data-value="{{item}}"
+        bindtap="pickTarget"
+      >{{item}}</view>
+    </view>
+    <text class="review-target-unit">条</text>
+    <view class="review-target-help" hover-class="review-target-help-hover" bindtap="showTargetHelp">?</view>
+  </view>
 
   <view wx:if="{{loading}}" class="loading">
     <cat-image custom-class="state-cat" name="sleepy-nap" size="large" />
-    <text>正在挑今天的复习词…</text>
+    <text>正在挑今天要复习的内容…</text>
   </view>
   <view wx:elif="{{error}}" class="error-box">
     <cat-image custom-class="state-cat" name="not-found" size="large" />
@@ -13,52 +34,110 @@
   <block wx:else>
     <view wx:if="{{total}}" class="review-progress enter d1">
       <view class="review-progress-row">
-        <text class="review-progress-label">今日已复习</text>
-        <text class="review-progress-value en">{{doneCount}} / {{total}}</text>
+        <text class="review-progress-label">今日已复习<text class="review-progress-value en">{{doneCount}} / {{total}}</text></text>
+        <view class="review-progress-bar"><view class="review-progress-fill" style="width: {{percent}}%;"></view></view>
       </view>
-      <progress-bar percent="{{percent}}" label="本轮复习进度" />
-      <text class="review-progress-hint">还剩 {{left}} 个词</text>
+      <text wx:if="{{moreCount && current}}" class="review-cap-hint">每日目标 {{target}} 条，还有 {{moreCount}} 条到期内容留到明天</text>
     </view>
 
     <view wx:if="{{current}}" class="review-card enter d2">
       <view class="paper-tape review-tape"></view>
       <view class="review-card-head">
-        <text class="review-kicker">WORD CARD</text>
-        <text class="review-stage">第 {{current.reviewNo}} 次 · {{current.intervalLabel}}</text>
+        <text class="review-kicker">{{tab === 'grammar' ? 'GRAMMAR CARD' : (current.entryType === 'phrase' ? 'PHRASE CARD' : 'WORD CARD')}}</text>
+        <text wx:if="{{current.early}}" class="review-early">提前复习</text>
+        <text wx:if="{{tab === 'grammar' && current.articleTitle}}" class="review-source">{{current.articleTitle}}</text>
       </view>
-      <view class="review-word-row">
-        <text class="review-word en">{{current.word}}</text>
-        <speak-btn word="{{current.word}}" />
-      </view>
-      <text wx:if="{{current.phonetic}}" class="review-phonetic">{{current.phonetic}}</text>
-      <meaning-list wx:if="{{current.meanings.length}}" meanings="{{current.meanings}}" />
-      <text wx:else class="review-nomap">这个词暂未收录释义，先凭记忆判断。</text>
 
-      <view class="review-curve">
+      <block wx:if="{{tab === 'grammar'}}">
+        <text class="review-grammar-key">{{current.word}}</text>
+        <text wx:if="{{current.sentence}}" class="review-grammar-sentence">{{current.sentence}}</text>
+
+        <block wx:if="{{revealed}}">
+          <text wx:if="{{current.pattern}}" class="review-grammar-pattern">{{current.pattern}}</text>
+          <text wx:if="{{current.translation}}" class="review-grammar-translation">{{current.translation}}</text>
+          <text wx:if="{{current.understanding}}" class="review-grammar-text">{{current.understanding}}</text>
+          <text wx:if="{{current.usageTip}}" class="review-grammar-tip">用法：{{current.usageTip}}</text>
+          <view wx:if="{{current.examples && current.examples.length}}" class="review-grammar-examples">
+            <view wx:for="{{current.examples}}" wx:key="en" class="review-grammar-example">
+              <text class="review-grammar-ex-en">{{item.en}}</text>
+              <text class="review-grammar-ex-zh">{{item.zh}}</text>
+            </view>
+          </view>
+        </block>
+        <view wx:else class="review-reveal">
+          <text class="review-reveal-hint">先读原句，回忆这个句型的结构和用法</text>
+          <view class="review-reveal-btn" bindtap="reveal">显示讲解</view>
+        </view>
+      </block>
+
+      <block wx:else>
+        <view class="review-word-row">
+          <text class="review-word en">{{current.word}}</text>
+          <speak-btn word="{{current.word}}" />
+        </view>
+        <text wx:if="{{current.phonetic}}" class="review-phonetic">{{current.phonetic}}</text>
+
+        <block wx:if="{{revealed}}">
+          <scroll-view wx:if="{{current.meanings && current.meanings.length}}" scroll-y class="review-meaning-scroll">
+            <meaning-list meanings="{{current.meanings}}" />
+          </scroll-view>
+          <text wx:else class="review-nomap">{{current.entryType === 'phrase' ? '这个词组暂未收录释义，先凭记忆判断。' : '这个词暂未收录释义，先凭记忆判断。'}}</text>
+          <text wx:if="{{current.entryType === 'phrase' && current.note}}" class="review-phrase-extra">{{current.note}}</text>
+          <text wx:if="{{current.entryType === 'phrase' && current.sentence}}" class="review-phrase-sentence">{{current.sentence}}</text>
+          <text wx:if="{{tab === 'word' && sentence}}" class="review-example en">{{sentence}}</text>
+          <text wx:if="{{tab === 'word' && sentenceZh}}" class="review-example-zh">{{sentenceZh}}</text>
+          <view wx:if="{{current.drawingPath}}" class="review-drawing" bindtap="previewDrawing" data-path="{{current.drawingPath}}">
+            <image class="review-drawing-img" src="{{current.drawingPath}}" mode="aspectFit" />
+            <text class="review-drawing-tip">我画的 · 点开看大图</text>
+            <text class="review-drawing-del" catchtap="removeDrawing">删掉这张画</text>
+          </view>
+          <view class="review-draw-btn" bindtap="goDraw">{{current.drawingPath ? '重新画一张' : '画几笔记住它'}}</view>
+        </block>
+        <view wx:else class="review-reveal">
+          <text class="review-reveal-hint">{{current.entryType === 'phrase' ? '先在心里回忆词组意思，再对答案' : '先在心里回忆词义，再对答案'}}</text>
+          <view class="review-reveal-btn" bindtap="reveal">显示释义</view>
+        </view>
+      </block>
+
+      <view class="review-stage-line">
+        <view class="review-stage-dots">
+          <view wx:for="{{current.curve}}" wx:key="label" class="stage-dot stage-dot-{{item.state}}"></view>
+        </view>
+        <text class="review-stage-text">第 {{current.reviewNo}} 档</text>
+        <text class="review-curve-hint">下次 {{current.when}}</text>
+      </view>
+      <text class="review-curve-toggle" bindtap="toggleCurve">{{curveOpen ? '收起复习节奏' : '查看复习节奏'}}</text>
+      <view wx:if="{{curveOpen}}" class="review-curve">
         <view wx:for="{{current.curve}}" wx:key="label" class="curve-item curve-{{item.state}}">
           <view class="curve-dot"></view>
           <text class="curve-label">{{item.label}}</text>
         </view>
       </view>
-      <text class="review-curve-hint">本次是第 {{current.reviewNo}} 次复习 · {{current.when}}</text>
-
-      <view class="review-actions">
-        <view class="review-btn review-unknown {{busy ? 'review-btn-busy' : ''}}" bindtap="mark" data-result="unknown">
-          <text class="review-btn-main">不记得</text>
-          <text class="review-btn-hint">留在词库里，稍后再看</text>
-        </view>
-        <view class="review-btn review-known {{busy ? 'review-btn-busy' : ''}}" bindtap="mark" data-result="known">
-          <text class="review-btn-main">记得</text>
-          <text class="review-btn-hint">搬进「记得」</text>
-        </view>
-      </view>
     </view>
 
     <view wx:elif="{{done}}" class="review-done enter d2">
-      <cat-image custom-class="done-cat" name="complete-halo" size="large" />
-      <text class="done-title">{{total ? '今天到期的词都复习完了' : '今天没有到期的词'}}</text>
-      <text class="done-text">{{total ? '本轮复习 ' + doneCount + ' 个词。按 1 / 3 / 7 / 15 / 30 / 180 天的节奏，下次到期时会自动出现在这里。' : (nextTip ? '按 1 / 3 / 7 / 15 / 30 / 180 天的曲线，' + nextTip + '。' : '新记的词会在明天进入第一次复习，还没到期就先不用管它。')}}</text>
-      <primary-button text="回到生词本" bind:tap="goWordbook" />
+      <cat-image custom-class="done-cat" name="{{grammarError && tab === 'grammar' ? 'not-found' : 'complete-halo'}}" size="large" />
+      <text class="done-title">{{doneTitle}}</text>
+      <text class="done-text">{{moreCount ? '今天已复习 ' + doneCount + ' 条，达到每日目标；还有 ' + moreCount + ' 条到期内容留到明天。' : (total ? '今天已复习 ' + doneCount + ' 条。' + (restCount ? '还想多练可以再复习一批。' : '按 1 / 3 / 7 / 15 / 30 / 90 / 180 天的节奏，下次到期时会自动出现在这里。') : doneText)}}</text>
+      <primary-button wx:if="{{restCount}}" text="再复习 {{batch}} 条" bind:tap="boost" />
+      <primary-button wx:elif="{{tab === 'grammar' && grammarError}}" text="重新加载" bind:tap="load" />
+      <primary-button wx:else text="{{tab === 'grammar' ? '回到语法本' : (tab === 'phrase' ? '回到词组本' : '回到生词本')}}" bind:tap="goWordbook" />
+    </view>
+
+    <view wx:if="{{current}}" class="review-footer">
+      <text wx:if="{{revealed}}" class="review-footer-hint">忘了就退档，连续两次「认识」才升一档</text>
+      <view class="review-actions">
+        <view class="review-btn review-unknown {{!revealed ? 'review-btn-muted' : ''}} {{busy ? 'review-btn-busy' : ''}}" bindtap="mark" data-result="unknown">
+          <text class="review-btn-main">不认识</text>
+        </view>
+        <view class="review-btn review-fuzzy {{!revealed ? 'review-btn-muted' : ''}} {{busy ? 'review-btn-busy' : ''}}" bindtap="mark" data-result="fuzzy">
+          <text class="review-btn-main">模糊</text>
+        </view>
+        <view class="review-btn review-known {{!revealed ? 'review-btn-muted' : ''}} {{busy ? 'review-btn-busy' : ''}}" bindtap="mark" data-result="known">
+          <text class="review-btn-main">认识</text>
+        </view>
+      </view>
+      <view class="review-sibling">这里只考认不认识，想练拼写就去「我的」页的今日背诵</view>
     </view>
   </block>
 </view>

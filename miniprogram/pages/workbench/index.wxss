@@ -318,7 +318,8 @@
   display: flex;
   align-items: center;
   gap: 18rpx;
-  margin-top: 36rpx;
+  /* 和上面「专项训练」拉开，避免被读成同一组 */
+  margin-top: 52rpx;
   padding: 30rpx 26rpx 26rpx;
   border: 2rpx dashed rgba(116, 72, 40, 0.26);
   border-radius: var(--r-lg);
@@ -454,7 +455,7 @@
   }
 }
 
-/* ---------- �����ϴΣ��ϵ����ӣ� ---------- */
+/* ---------- 继续上次（断点续接） ---------- */
 .resume-entry {
   position: relative;
   z-index: 2;
@@ -565,4 +566,79 @@
   margin-top: 4rpx;
   color: #8a6a4d;
   font-size: 21rpx;
+}
+
+/* ---------- 真题翻译手账入口 ---------- */
+.handbook-entry {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  margin-top: 0;
+  padding: 30rpx 26rpx 24rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.34);
+  border-radius: var(--r-md);
+  background-color: #fffdf8;
+  background-image: repeating-linear-gradient(0deg, rgba(116, 72, 40, 0) 0 39rpx, rgba(116, 72, 40, 0.07) 39rpx 40rpx);
+  box-shadow: var(--shadow-paper);
+}
+
+/* 顶部一小段和纸胶带，和学习页其他卡片同一套贴法 */
+.handbook-entry::before {
+  content: '';
+  position: absolute;
+  left: 44rpx;
+  top: -13rpx;
+  width: 96rpx;
+  height: 26rpx;
+  background: rgba(255, 226, 160, 0.94);
+  border-left: 2rpx dashed rgba(116, 72, 40, 0.14);
+  border-right: 2rpx dashed rgba(116, 72, 40, 0.14);
+  transform: rotate(-4deg);
+}
+
+.handbook-entry-hover {
+  background-color: #fff8e8;
+  box-shadow: 2rpx 2rpx 0 rgba(103, 73, 40, 0.10);
+}
+
+.handbook-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+  border: 2rpx solid rgba(75, 64, 52, 0.18);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 3rpx 4rpx 0 rgba(75, 64, 52, 0.10);
+  transform: rotate(-3deg);
+}
+
+.handbook-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.handbook-kicker {
+  color: var(--amber);
+  font-size: 17rpx;
+  font-weight: 700;
+  letter-spacing: 2.4rpx;
+}
+
+.handbook-title {
+  color: #3d2d1c;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.handbook-desc {
+  color: var(--muted);
+  font-size: 21rpx;
+  line-height: 1.5;
 }

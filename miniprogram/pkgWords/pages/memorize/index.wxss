@@ -1,0 +1,901 @@
+.memorize {
+  padding-bottom: 60rpx;
+}
+
+/* ---------- 状态页 ---------- */
+.mem-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18rpx;
+  padding: 90rpx 40rpx;
+  color: var(--muted);
+  font-size: var(--fs-body);
+  text-align: center;
+}
+
+.mem-state-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.mem-state-btn {
+  margin-top: 10rpx;
+  padding: 12rpx 34rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-pill);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: var(--fs-note);
+  font-weight: 700;
+  box-shadow: var(--shadow-1);
+}
+
+/* ---------- 今日进度 ---------- */
+.mem-progress {
+  margin-bottom: 22rpx;
+  padding: 18rpx 24rpx 20rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  background: rgba(255, 253, 246, 0.92);
+  box-shadow: var(--shadow-paper);
+}
+
+.mem-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.mem-progress-label {
+  color: var(--ink);
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.mem-progress-value {
+  margin-left: 8rpx;
+  color: #a86a11;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.mem-progress-group {
+  flex: none;
+  color: var(--muted);
+  font-size: 21rpx;
+}
+
+.mem-progress-bar {
+  height: 8rpx;
+  margin-top: 14rpx;
+  border-radius: 999rpx;
+  background: rgba(168, 106, 17, 0.14);
+  overflow: hidden;
+}
+
+.mem-progress-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #f0c37a, #c9832a);
+}
+
+/* 两类切换：单词 / 词组 */
+.mem-tabs {
+  display: flex;
+  gap: 10rpx;
+  margin-bottom: 22rpx;
+  padding: 8rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: 999rpx;
+  background: rgba(255, 253, 249, 0.86);
+  box-shadow: var(--shadow-paper);
+}
+
+.mem-tab {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 12rpx 0;
+  border-radius: 999rpx;
+  color: var(--muted);
+  font-size: 26rpx;
+  text-align: center;
+}
+
+.mem-tab-on {
+  background: #fff3cf;
+  box-shadow: inset 0 0 0 2rpx rgba(168, 106, 17, 0.16);
+  color: #8a5a0d;
+  font-weight: 700;
+}
+
+.mem-tab-count {
+  color: var(--faint);
+  font-size: 19rpx;
+}
+
+.mem-tab-on .mem-tab-count {
+  color: #a86a11;
+}
+
+.mem-tab-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+  padding: 56rpx 40rpx 64rpx;
+  border: 2rpx dashed var(--paper-line);
+  border-radius: var(--r-md);
+  background: rgba(255, 253, 249, 0.6);
+}
+
+.mem-tab-empty-text {
+  color: var(--muted);
+  font-size: 24rpx;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.mem-scope {
+  margin-bottom: 14rpx;
+}
+
+.mem-scope-label {
+  display: block;
+  color: var(--faint);
+  font-size: 21rpx;
+  line-height: 1.6;
+}
+
+.mem-scope-note {
+  display: block;
+  color: var(--faint);
+  font-size: 19rpx;
+  opacity: 0.85;
+}
+
+/* 每组数量：可以自己填，也能用加减键按 5 个一档调 */
+.mem-size-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.mem-size-label {
+  color: var(--faint);
+  font-size: 20rpx;
+}
+
+.mem-stepper {
+  display: flex;
+  align-items: center;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-pill);
+  background: rgba(255, 253, 249, 0.9);
+  overflow: hidden;
+}
+
+.mem-step-btn {
+  width: 52rpx;
+  height: 46rpx;
+  line-height: 44rpx;
+  color: var(--muted);
+  font-size: 26rpx;
+  text-align: center;
+}
+
+.mem-step-btn:active {
+  background: rgba(255, 210, 92, 0.22);
+}
+
+/* 到上下限时按钮变灰，按了也不会有反馈，告诉用户到头了 */
+.mem-step-off {
+  color: var(--faint);
+  opacity: 0.4;
+}
+
+.mem-step-off:active {
+  background: transparent;
+}
+
+.mem-size-input {
+  width: 72rpx;
+  height: 46rpx;
+  padding: 0;
+  border-left: 2rpx solid var(--paper-line);
+  border-right: 2rpx solid var(--paper-line);
+  color: var(--ink);
+  font-size: 24rpx;
+  font-weight: 700;
+  text-align: center;
+}
+
+.mem-size-unit {
+  color: var(--faint);
+  font-size: 19rpx;
+}
+
+/* ---------- 词卡 ---------- */
+.mem-card {
+  position: relative;
+  margin-top: 26rpx;
+  padding: 46rpx 32rpx 34rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  box-shadow: var(--shadow-1);
+}
+
+.mem-tape {
+  position: absolute;
+  top: -15rpx;
+  left: 50%;
+  width: 120rpx;
+  height: 28rpx;
+  margin-left: -60rpx;
+  background: rgba(255, 210, 92, 0.55);
+  transform: rotate(-2deg);
+}
+
+/* 重练标记：这个词刚才在选择题里没答对，换一种题型又出现 */
+.mem-retry-flag {
+  display: inline-block;
+  margin-bottom: 16rpx;
+  padding: 6rpx 16rpx;
+  border-radius: var(--r-pill);
+  background: rgba(193, 101, 63, 0.12);
+  color: #a86a11;
+  font-size: 20rpx;
+  letter-spacing: 1rpx;
+}
+
+/* 四个环节的状态条：过掉的打勾，正在做的高亮，答错的标红，不表示先后顺序 */
+.mem-stages {
+  display: flex;
+  gap: 8rpx;
+  margin-bottom: 18rpx;
+}
+
+.mem-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 4rpx;
+  padding: 12rpx 4rpx;
+  border-radius: var(--r-sm);
+  background: rgba(103, 73, 40, 0.05);
+  color: var(--faint);
+}
+
+/* 只有过了的环节才出现对勾，没编号，避免看起来像固定的第几步 */
+.mem-stage-check {
+  font-size: 18rpx;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.mem-stage-label {
+  font-size: 20rpx;
+  letter-spacing: 0.5rpx;
+}
+
+.mem-stage-done {
+  color: var(--mint);
+  background: var(--mint-soft);
+}
+
+.mem-stage-on {
+  color: #8a5c0d;
+  background: rgba(255, 210, 92, 0.24);
+}
+
+/* 对答案时把例句亮出来 */
+.mem-sentence {
+  display: block;
+  margin: 6rpx 0 4rpx;
+  padding: 18rpx 22rpx;
+  border-left: 6rpx solid var(--amber);
+  border-radius: var(--r-sm);
+  background: rgba(255, 253, 249, 0.92);
+  color: var(--ink);
+  font-size: 28rpx;
+  line-height: 1.7;
+}
+
+/* 例句的中文意思：小一号跟在英文下面，确认句意不靠猜 */
+.mem-sentence-zh {
+  display: block;
+  margin: 0 0 6rpx;
+  padding: 0 22rpx;
+  color: var(--faint);
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+
+/* 语境填词：句子放大，空格一眼能看到 */
+.mem-cloze {
+  display: block;
+  margin: 18rpx 0 8rpx;
+  padding: 26rpx 24rpx;
+  border: 1rpx dashed rgba(168, 106, 17, 0.4);
+  border-radius: var(--r-md);
+  background: rgba(255, 253, 249, 0.95);
+  color: var(--ink);
+  font-size: 32rpx;
+  line-height: 1.9;
+}
+
+/* 挖空句子的中文意思，选词前先确认这句话在说什么 */
+.mem-cloze-zh {
+  display: block;
+  margin: 0 0 10rpx;
+  color: var(--faint);
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+
+.mem-cloze-tip {
+  display: block;
+  margin-bottom: 8rpx;
+  color: var(--faint);
+  font-size: var(--fs-note);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.mem-fail-tip {
+  display: block;
+  margin-top: 16rpx;
+  color: #c1653f;
+  font-size: var(--fs-note);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.mem-step {
+  display: inline-block;
+  padding: 6rpx 18rpx;
+  border-radius: var(--r-pill);
+  background: rgba(255, 210, 92, 0.24);
+  color: #a97a13;
+  font-size: 20rpx;
+  letter-spacing: 1rpx;
+}
+
+.mem-step.mem-ok {
+  background: var(--mint-soft);
+  color: var(--mint);
+  font-weight: 700;
+}
+
+.mem-step.mem-bad {
+  background: rgba(193, 101, 63, 0.14);
+  color: #c1653f;
+  font-weight: 700;
+}
+
+.mem-word {
+  display: block;
+  margin: 26rpx 0 6rpx;
+  color: var(--ink);
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 66rpx;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  word-break: break-word;
+}
+
+.mem-phonetic-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  min-height: 40rpx;
+}
+
+.mem-phonetic {
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+/* 听音选意思：先听发音，靠声音回忆词义 */
+.mem-listen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14rpx;
+  margin: 34rpx 0 10rpx;
+}
+
+.mem-listen-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 152rpx;
+  height: 152rpx;
+  border: 2rpx dashed var(--amber);
+  border-radius: 50%;
+  background: rgba(255, 210, 92, 0.14);
+}
+
+/* 喇叭图标由组件固定 52rpx，这里放大到和圆环匹配 */
+.mem-speak {
+  transform: scale(1.5);
+}
+
+.mem-listen-tip {
+  color: var(--muted);
+  font-size: var(--fs-note);
+}
+
+.mem-reveal-link {
+  color: var(--faint);
+  font-size: 21rpx;
+  text-decoration: underline;
+}
+
+/* 释义选项：字母徽章 + 纸片按钮，四选一 */
+.mem-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+  margin-top: 30rpx;
+}
+
+.mem-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 18rpx;
+  min-height: 96rpx;
+  padding: 20rpx 22rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-md);
+  background: #fffaf0;
+  color: var(--ink);
+  box-shadow: 2rpx 3rpx 0 rgba(103, 73, 40, 0.08);
+}
+
+.mem-option-hover {
+  background: #fff3d8;
+}
+
+/* 选错亮红、留在原位；选对亮绿，停一下再进拼写 */
+.mem-option-wrong {
+  border-color: #e0897f;
+  background: #fdeae7;
+  animation: mem-shake 0.32s ease;
+}
+
+.mem-option-wrong .mem-option-badge {
+  background: #e26d5c;
+  color: #fff;
+}
+
+.mem-option-right {
+  border-color: #6fbf8a;
+  background: #e7f6ec;
+}
+
+.mem-option-right .mem-option-badge {
+  background: #4f9e6b;
+  color: #fff;
+}
+
+@keyframes mem-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6rpx);
+  }
+  75% {
+    transform: translateX(6rpx);
+  }
+}
+
+.mem-option-badge {
+  flex: none;
+  width: 44rpx;
+  height: 44rpx;
+  line-height: 44rpx;
+  margin-top: 2rpx;
+  border-radius: 50%;
+  background: rgba(103, 73, 40, 0.08);
+  color: var(--muted);
+  font-size: 22rpx;
+  font-weight: 700;
+  text-align: center;
+}
+
+.mem-option-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+/* 语境填词的选项是单词 / 词组本身，英文放大一点更好认 */
+.mem-option-word {
+  color: var(--ink);
+  font-size: 32rpx;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* 一条释义一行，词性是独立的小标签，多个词性分行显示 */
+.mem-mean-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 10rpx;
+}
+
+.mem-pos {
+  flex: none;
+  min-width: 46rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  margin-top: 4rpx;
+  padding: 0 10rpx;
+  border-radius: 8rpx;
+  background: rgba(103, 73, 40, 0.07);
+  color: var(--muted);
+  font-size: 19rpx;
+  text-align: center;
+}
+
+.mem-def {
+  flex: 1;
+  color: var(--ink);
+  font-size: 27rpx;
+  line-height: 1.6;
+}
+
+.mem-meanings-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  margin-top: 20rpx;
+  padding: 18rpx 20rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-md);
+  background: #fffaf0;
+}
+
+.mem-answer {
+  display: block;
+  margin-top: 16rpx;
+  color: #c1653f;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.mem-hint {
+  display: block;
+  margin-top: 14rpx;
+  color: var(--faint);
+  font-size: 22rpx;
+}
+
+/* 拼写：一行横线格子，输入一个字母就点亮一格 */
+.spell-field {
+  position: relative;
+  margin-top: 22rpx;
+  padding: 28rpx 14rpx 20rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-md);
+  background: #fffdf7;
+}
+
+.spell-cells {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6rpx;
+  min-height: 70rpx;
+}
+
+.spell-cell {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 46rpx;
+  height: 66rpx;
+  border-bottom: 4rpx solid var(--paper-line);
+}
+
+.spell-ch {
+  color: var(--ink);
+  font-size: 38rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.spell-filled {
+  border-bottom-color: rgba(103, 73, 40, 0.45);
+}
+
+.spell-active {
+  border-bottom-color: var(--amber);
+}
+
+.spell-active .spell-ch {
+  color: var(--amber);
+}
+
+.spell-sep {
+  width: 26rpx;
+  border-bottom: none;
+}
+
+.spell-sep .spell-ch {
+  color: var(--muted);
+  font-size: 30rpx;
+}
+
+/* 长单词换小格子，保证一行放得下 */
+.spell-compact .spell-cell {
+  width: 36rpx;
+}
+
+.spell-compact .spell-ch {
+  font-size: 32rpx;
+}
+
+.spell-tight .spell-cell {
+  width: 29rpx;
+  height: 60rpx;
+}
+
+.spell-tight .spell-ch {
+  font-size: 26rpx;
+}
+
+/* 自绘字母键盘：26 个字母 + 退格，不弹系统键盘，也就没有光标 */
+.mem-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-top: 26rpx;
+}
+
+.mem-key {
+  width: calc((100% - 48rpx) / 7);
+  height: 72rpx;
+  line-height: 72rpx;
+  text-align: center;
+  border: 2rpx solid var(--paper-line);
+  border-radius: 14rpx;
+  background: #fffdf7;
+  color: var(--ink);
+  font-size: 26rpx;
+  box-shadow: 2rpx 3rpx 0 rgba(103, 73, 40, 0.08);
+}
+
+.mem-key-hover {
+  background: #fff3d8;
+}
+
+.mem-key-del {
+  width: calc((100% - 48rpx) / 7 * 2 + 8rpx);
+  color: var(--muted);
+  font-size: 28rpx;
+}
+
+.mem-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 26rpx;
+}
+
+.mem-skip,
+.mem-submit {
+  flex: 1;
+  padding: 20rpx 0;
+  border-radius: var(--r-md);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  text-align: center;
+}
+
+.mem-skip {
+  border: 2rpx solid var(--paper-line);
+  background: var(--paper);
+  color: var(--muted);
+}
+
+.mem-submit {
+  background: var(--amber);
+  color: #fff8e6;
+  box-shadow: 2rpx 3rpx 0 rgba(103, 73, 40, 0.14);
+}
+
+.mem-next {
+  margin-top: 30rpx;
+  padding: 22rpx;
+  border-radius: var(--r-md);
+  background: var(--ink);
+  color: #fff8e6;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  text-align: center;
+}
+
+.mem-next-hover {
+  opacity: 0.88;
+}
+
+.mem-note {
+  margin-top: 22rpx;
+  color: var(--faint);
+  font-size: 20rpx;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.mem-link {
+  margin-top: 10rpx;
+  color: var(--amber);
+  font-size: 22rpx;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: underline;
+}
+
+/* 自己画的记忆草图：看词选义时贴在单词下面，答错时也能看到 */
+.mem-drawing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  margin: 14rpx 0 4rpx;
+  padding: 10rpx;
+  border: 2rpx dashed rgba(168, 106, 17, 0.35);
+  border-radius: var(--r-md);
+  background: rgba(255, 253, 249, 0.92);
+}
+
+.mem-drawing-img {
+  width: 100%;
+  height: 220rpx;
+}
+
+.mem-drawing-small .mem-drawing-img {
+  height: 160rpx;
+}
+
+.mem-drawing-tip {
+  color: var(--faint);
+  font-size: 20rpx;
+}
+
+.mem-drawing-del {
+  color: #b23b30;
+  font-size: 20rpx;
+  padding: 2rpx 10rpx;
+}
+
+.mem-draw-btn {
+  margin-top: 16rpx;
+  padding: 16rpx 0;
+  border: 2rpx dashed rgba(168, 106, 17, 0.45);
+  border-radius: var(--r-md);
+  background: rgba(255, 243, 212, 0.55);
+  color: var(--amber);
+  font-size: 23rpx;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ---------- 完成页 ---------- */
+.mem-done {
+  position: relative;
+  margin-top: 40rpx;
+  padding: 50rpx 30rpx 34rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  box-shadow: var(--shadow-1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  text-align: center;
+}
+
+.mem-done-tape {
+  position: absolute;
+  top: -15rpx;
+  left: 50%;
+  width: 120rpx;
+  height: 28rpx;
+  margin-left: -60rpx;
+  background: rgba(255, 210, 92, 0.55);
+  transform: rotate(2deg);
+}
+
+.mem-done-title {
+  margin-top: 8rpx;
+  color: var(--ink);
+  font-size: var(--fs-sub);
+  font-weight: 700;
+}
+
+.mem-done-text {
+  color: var(--muted);
+  font-size: var(--fs-note);
+  line-height: 1.7;
+}
+
+.mem-done-stats {
+  display: flex;
+  gap: 12rpx;
+  width: 100%;
+  margin-top: 16rpx;
+}
+
+.mem-stat {
+  flex: 1;
+  padding: 16rpx 0;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-md);
+  background: #fffaf0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.mem-done-note {
+  margin-top: 14rpx;
+  color: var(--mint);
+  font-size: 22rpx;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.mem-stat-num {
+  color: var(--ink);
+  font-size: 40rpx;
+  font-weight: 700;
+}
+
+.mem-stat-label {
+  color: var(--faint);
+  font-size: 20rpx;
+}
+
+.mem-done-actions {
+  display: flex;
+  gap: 16rpx;
+  width: 100%;
+  margin-top: 24rpx;
+}
+
+.mem-done-btn {
+  flex: 1;
+  padding: 20rpx 0;
+  border-radius: var(--r-md);
+  background: var(--amber);
+  color: #fff8e6;
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+
+.mem-done-btn-ghost {
+  background: var(--paper);
+  border: 2rpx solid var(--paper-line);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mem-fill { transition: none; }
+}

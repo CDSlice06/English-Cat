@@ -31,6 +31,11 @@
       "permission": { "read": false, "write": false }
     },
     {
+      "name": "checkins",
+      "fields": ["openid", "log", "updatedAt"],
+      "permission": { "read": false, "write": false }
+    },
+    {
       "name": "word_cache",
       "fields": ["word", "phonetic", "meanings", "updatedAt"],
       "permission": { "read": false, "write": false }

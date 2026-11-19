@@ -121,6 +121,40 @@
   border-radius: 0 5rpx 5rpx 0;
 }
 
+/* ---------- 外刊：一张带报头的纸 ---------- */
+.paper-sheet {
+  position: absolute;
+  left: 50%;
+  top: 5rpx;
+  width: 29rpx;
+  height: 31rpx;
+  margin-left: -14.5rpx;
+  border: 2rpx solid currentColor;
+  border-radius: 3rpx;
+}
+
+.sheet-band {
+  position: absolute;
+  left: 4rpx;
+  right: 4rpx;
+  top: 4rpx;
+  height: 5rpx;
+  background: currentColor;
+  border-radius: 1rpx;
+}
+
+.sheet-line {
+  position: absolute;
+  left: 4rpx;
+  height: 2rpx;
+  background: currentColor;
+  opacity: 0.75;
+}
+
+.sheet-line-1 { right: 4rpx; top: 14rpx; }
+.sheet-line-2 { right: 4rpx; top: 20rpx; }
+.sheet-line-3 { right: 10rpx; top: 26rpx; }
+
 /* ---------- 我的：猫头轮廓 + 两只耳朵 ---------- */
 .cat-head {
   position: absolute;

@@ -1,4 +1,4 @@
-@import "../wordbook/index.wxss";
+@import "../../styles/book-page.wxss";
 
 .phrasebook .shelf-hero {
   background: linear-gradient(150deg, #f7fbff 0%, #e6f0f7 58%, #dbe9f2 100%);

@@ -17,6 +17,14 @@
           <view class="book-page book-page-l"></view>
           <view class="book-page book-page-r"></view>
         </block>
+        <block wx:elif="{{item.icon === 'journal'}}">
+          <view class="paper-sheet">
+            <view class="sheet-band"></view>
+            <view class="sheet-line sheet-line-1"></view>
+            <view class="sheet-line sheet-line-2"></view>
+            <view class="sheet-line sheet-line-3"></view>
+          </view>
+        </block>
         <block wx:else>
           <view class="cat-head">
             <view class="cat-ear cat-ear-l"></view>

@@ -27,7 +27,7 @@
 
   <view class="source-tabs enter d1">
     <view class="source-tab {{source === 'bank' ? 'source-on' : ''}}" bind:tap="switchSource" data-source="bank">
-      <text>内置模拟篇</text>
+      <text>模拟篇</text>
     </view>
     <view class="source-tab {{source === 'exams' ? 'source-on' : ''}}" bind:tap="switchSource" data-source="exams">
       <text>真题库</text>
@@ -35,15 +35,6 @@
     <view class="source-tab {{source === 'imported' ? 'source-on' : ''}}" bind:tap="switchSource" data-source="imported">
       <text>我的导入{{imported.length ? '(' + imported.length + ')' : ''}}</text>
     </view>
-  </view>
-
-  <view class="draw-card enter d2" hover-class="draw-card-hover" bind:tap="draw">
-    <view class="lib-draw-tape"></view>
-    <view class="draw-copy">
-      <text class="draw-title">随机抽一篇</text>
-      <text class="draw-desc">{{source === 'bank' ? '猫随手翻一页，抽到哪篇读哪篇' : source === 'exams' ? '从内置真题库里随机抽一篇仔细阅读' : '从你导入的文章里随机抽一篇'}}</text>
-    </view>
-    <view class="draw-dice"></view>
   </view>
 
   <view wx:if="{{error}}" class="lib-error enter">{{error}}</view>
@@ -74,8 +65,8 @@
     </view>
     <view class="lib-import-tip" hover-class="lib-import-hover" hover-stay-time="80" bind:tap="goImport">
       <view class="lib-import-copy">
-        <text class="lib-import-title">手里有真题原文？</text>
-        <text class="lib-import-desc">粘贴或上传 Word / PDF，导入后收进「我的导入」，随时打开精读</text>
+        <text class="lib-import-title">想精读自己的材料？</text>
+        <text class="lib-import-desc">粘贴一段英文原文，导入后收进「我的导入」，随时打开精读</text>
       </view>
       <view class="lib-import-cta">
         <text>去导入</text>
@@ -182,7 +173,7 @@
     </view>
     <view wx:else class="lib-empty">
       <cat-image name="not-found" size="medium" />
-      <text>这个级别还没有导入的文章。上传文档或粘贴原文，就会出现在这里。</text>
+      <text>这个级别还没有导入的文章。粘贴一段英文原文，就会出现在这里。</text>
       <view class="lib-empty-btn" bind:tap="goImport">去导入一篇</view>
     </view>
 

@@ -1,0 +1,377 @@
+.drills-page {
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
+}
+
+/* ---------- 概览 ---------- */
+.drill-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22rpx;
+  padding: 22rpx 26rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  background: rgba(255, 253, 246, 0.92);
+  box-shadow: var(--shadow-paper);
+}
+
+.drill-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.drill-stat-num {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #a86a11;
+}
+
+.drill-stat-label {
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+.drill-stat-line {
+  width: 2rpx;
+  height: 40rpx;
+  background: rgba(75, 64, 52, 0.12);
+}
+
+/* ---------- 筛选 ---------- */
+.drill-tabs {
+  display: flex;
+  gap: 12rpx;
+  margin-bottom: 22rpx;
+}
+
+.drill-tab {
+  flex: none;
+  padding: 12rpx 28rpx;
+  border: 2rpx solid rgba(75, 64, 52, 0.18);
+  border-radius: 999rpx;
+  background: rgba(255, 253, 246, 0.8);
+  font-size: 24rpx;
+  color: var(--muted);
+}
+
+.drill-tab-on {
+  border-color: rgba(168, 106, 17, 0.42);
+  background: #fff3cf;
+  color: #8a5a0d;
+  font-weight: 700;
+}
+
+/* ---------- 记录卡 ---------- */
+.drill-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
+}
+
+.drill-card {
+  padding: 24rpx 26rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  background: linear-gradient(160deg, #fffef9 0%, #fffaf0 100%);
+  box-shadow: var(--shadow-paper);
+}
+
+.drill-card-open {
+  border-color: rgba(168, 106, 17, 0.34);
+}
+
+.drill-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.drill-mode {
+  padding: 4rpx 16rpx;
+  border: 2rpx solid rgba(168, 106, 17, 0.24);
+  border-radius: 999rpx;
+  background: #fff3cf;
+  color: #8a5a0d;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.drill-badge {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #b07b3a;
+}
+
+.drill-badge-pass {
+  color: #4d7a4d;
+}
+
+.drill-prompt {
+  display: block;
+  margin-top: 14rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+/* 出处单独一行，真题写清年份套数，避免整页都是「Passage 2」 */
+.drill-source {
+  display: flex;
+  align-items: flex-start;
+  gap: 10rpx;
+  margin-top: 14rpx;
+}
+
+.drill-source-tag {
+  flex: none;
+  margin-top: 1rpx;
+  padding: 2rpx 10rpx;
+  border: 2rpx solid rgba(168, 106, 17, 0.22);
+  border-radius: 6rpx;
+  background: rgba(255, 243, 207, 0.7);
+  font-size: 20rpx;
+  line-height: 1.4;
+  color: #a2701a;
+}
+
+.drill-source-text {
+  flex: 1;
+  font-size: 22rpx;
+  line-height: 1.45;
+  color: #8d7657;
+  word-break: break-word;
+}
+
+.drill-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+.drill-dot {
+  color: var(--faint);
+}
+
+.drill-open-hint {
+  display: block;
+  margin-top: 14rpx;
+  font-size: 22rpx;
+  color: var(--faint);
+}
+
+/* ---------- 展开对照 ---------- */
+.drill-detail {
+  margin-top: 18rpx;
+  padding-top: 18rpx;
+  border-top: 2rpx dashed rgba(75, 64, 52, 0.18);
+}
+
+.drill-block {
+  padding: 16rpx 18rpx;
+  border-radius: var(--r-sm);
+  background: rgba(255, 246, 219, 0.5);
+}
+
+.drill-block + .drill-block {
+  margin-top: 12rpx;
+}
+
+.drill-block-mine {
+  background: rgba(217, 236, 217, 0.4);
+}
+
+.drill-block-label {
+  display: block;
+  margin-bottom: 6rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #8a5a0d;
+}
+
+.drill-block-mine .drill-block-label {
+  color: #4d7a4d;
+}
+
+.drill-block-text {
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.drill-versions-toggle {
+  display: block;
+  margin-top: 16rpx;
+  text-align: center;
+  font-size: 23rpx;
+  color: var(--muted);
+  text-decoration: underline;
+}
+
+.drill-versions {
+  margin-top: 14rpx;
+  border: 2rpx dashed rgba(75, 64, 52, 0.18);
+  border-radius: var(--r-sm);
+  background: rgba(255, 253, 246, 0.7);
+}
+
+.drill-version {
+  padding: 14rpx 18rpx;
+}
+
+.drill-version + .drill-version {
+  border-top: 2rpx solid rgba(75, 64, 52, 0.08);
+}
+
+.drill-version-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6rpx;
+}
+
+.drill-version-at {
+  font-size: 21rpx;
+  color: var(--faint);
+}
+
+.drill-version-result {
+  font-size: 21rpx;
+  font-weight: 700;
+  color: #b07b3a;
+}
+
+.drill-version-pass {
+  color: #4d7a4d;
+}
+
+.drill-version-text {
+  font-size: 24rpx;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* ---------- 错题重练 ---------- */
+.drill-retry-open {
+  display: block;
+  margin-top: 16rpx;
+  padding: 14rpx 0;
+  text-align: center;
+  border: 2rpx dashed rgba(168, 106, 17, 0.34);
+  border-radius: var(--r-sm);
+  background: rgba(255, 246, 219, 0.6);
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #8a5a0d;
+}
+
+.drill-retry {
+  margin-top: 16rpx;
+  padding: 16rpx 18rpx;
+  border: 2rpx solid rgba(168, 106, 17, 0.26);
+  border-radius: var(--r-sm);
+  background: rgba(255, 250, 236, 0.92);
+}
+
+.drill-retry-input {
+  width: 100%;
+  min-height: 120rpx;
+  padding: 14rpx 16rpx;
+  border: 2rpx solid rgba(75, 64, 52, 0.16);
+  border-radius: var(--r-sm);
+  background: #fffdf9;
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.drill-retry-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20rpx;
+  margin-top: 14rpx;
+}
+
+.drill-retry-cancel {
+  padding: 12rpx 20rpx;
+  font-size: 24rpx;
+  color: var(--muted);
+}
+
+.drill-retry-submit {
+  padding: 14rpx 30rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(150deg, #ffd77a 0%, #f2ad2e 100%);
+  box-shadow: 3rpx 3rpx 0 rgba(168, 106, 17, 0.22);
+  font-size: 25rpx;
+  font-weight: 700;
+  color: #6b4406;
+}
+
+.drill-retry-busy {
+  opacity: 0.62;
+}
+
+.drill-retry-feedback {
+  display: block;
+  margin-top: 14rpx;
+  padding: 12rpx 16rpx;
+  border-radius: var(--r-sm);
+  background: rgba(255, 231, 222, 0.6);
+  font-size: 23rpx;
+  line-height: 1.6;
+  color: #9c4a3c;
+}
+
+.drill-retry-feedback-pass {
+  background: rgba(217, 236, 217, 0.6);
+  color: #3f6b3f;
+}
+
+/* ---------- 空态 ---------- */
+.drill-empty-filter {
+  padding: 60rpx 0;
+  text-align: center;
+  font-size: 24rpx;
+  color: var(--muted);
+}
+
+.drill-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 40rpx;
+  padding: 44rpx 32rpx 36rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  background: rgba(255, 253, 246, 0.94);
+  box-shadow: var(--shadow-paper);
+  text-align: center;
+}
+
+.drill-empty-cat {
+  width: 140rpx;
+  height: 140rpx;
+}
+
+.drill-empty-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.drill-empty-text {
+  margin-bottom: 12rpx;
+  font-size: 25rpx;
+  line-height: 1.6;
+  color: var(--muted);
+}

@@ -1,0 +1,508 @@
+/* 语法知识点详情页 */
+.gp-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 28rpx 28rpx 24rpx 50rpx;
+  border-radius: var(--r-lg);
+  border: 2rpx solid rgba(199, 121, 63, 0.26);
+  background: linear-gradient(150deg, #fff9ee 0%, #f9e8d7 58%, #f3dac6 100%);
+  box-shadow: 7rpx 8rpx 0 rgba(199, 121, 63, 0.18);
+}
+
+.gp-kicker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.gp-cat {
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  background: rgba(255, 255, 255, 0.78);
+  border: 2rpx solid rgba(199, 121, 63, 0.24);
+  color: #a56338;
+  font-size: 19rpx;
+  font-weight: 700;
+}
+
+.gp-module {
+  color: #8c6b53;
+  font-size: 20rpx;
+}
+
+.gp-title {
+  display: block;
+  margin-top: 16rpx;
+  color: #33280f;
+  font-size: 38rpx;
+  font-weight: 700;
+  line-height: 1.42;
+}
+
+.gp-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14rpx;
+  margin-top: 16rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx dashed rgba(116, 72, 40, 0.2);
+}
+
+.gp-order {
+  color: #9a6b48;
+  font-size: 20rpx;
+}
+
+.gp-key {
+  color: #b08a63;
+  font-size: 19rpx;
+}
+
+.gp-card {
+  margin-top: 18rpx;
+  padding: 24rpx 26rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: 24rpx;
+  background: var(--paper);
+  box-shadow: var(--shadow-1);
+}
+
+.gp-label {
+  display: block;
+  margin-bottom: 12rpx;
+  color: #a8865c;
+  font-size: 19rpx;
+  font-weight: 700;
+  letter-spacing: 1.5rpx;
+}
+
+.gp-text {
+  display: block;
+  color: var(--ink-2);
+  font-size: 25rpx;
+  line-height: 1.85;
+}
+
+/* 识别 / 用法 / 译法 分段 */
+.gp-row + .gp-row {
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx dashed rgba(116, 72, 40, 0.16);
+}
+
+.gp-row-label {
+  display: block;
+  margin-bottom: 6rpx;
+  color: #8a5a2f;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+/* 易错正误对比 */
+.gp-trap {
+  border-color: rgba(193, 101, 90, 0.24);
+  background: #fffbf8;
+}
+
+.gp-trap-note {
+  display: block;
+  margin-top: 12rpx;
+  padding-left: 14rpx;
+  border-left: 4rpx solid rgba(193, 101, 90, 0.4);
+  color: #8a6357;
+  font-size: 22rpx;
+  line-height: 1.75;
+}
+
+/* 长难句方法卡 */
+.gp-method {
+  border-color: rgba(111, 145, 173, 0.3);
+  background: linear-gradient(160deg, #f6fbff 0%, #eaf3fa 100%);
+  box-shadow: 5rpx 6rpx 0 rgba(90, 132, 168, 0.12);
+}
+
+.gp-card-head {
+  margin-bottom: 6rpx;
+}
+
+.gp-card-title {
+  display: block;
+  color: #3f5c74;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.gp-card-sub {
+  display: block;
+  margin-top: 4rpx;
+  color: #6d8ba3;
+  font-size: 20rpx;
+  line-height: 1.6;
+}
+
+.gp-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14rpx;
+  margin-top: 16rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx dashed rgba(111, 145, 173, 0.24);
+}
+
+.gp-step-index {
+  flex: none;
+  width: 36rpx;
+  height: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid rgba(90, 132, 168, 0.32);
+  border-radius: 9rpx 7rpx 10rpx 8rpx;
+  background: #fffdf6;
+  color: #3f5c74;
+  font-size: 19rpx;
+  font-weight: 700;
+}
+
+.gp-step-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.gp-step-title {
+  display: block;
+  color: #3f5c74;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.gp-step-detail {
+  display: block;
+  margin-top: 4rpx;
+  color: #4d6579;
+  font-size: 23rpx;
+  line-height: 1.75;
+}
+
+.gp-tips {
+  margin-top: 16rpx;
+  padding: 14rpx 18rpx;
+  border-radius: 14rpx;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.gp-tip {
+  display: block;
+  padding-left: 20rpx;
+  position: relative;
+  color: #5a7488;
+  font-size: 21rpx;
+  line-height: 1.7;
+}
+
+.gp-tip::before {
+  content: '';
+  position: absolute;
+  left: 2rpx;
+  top: 12rpx;
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: rgba(90, 132, 168, 0.5);
+}
+
+/* 四步法示范句 */
+.gp-walk {
+  margin-top: 16rpx;
+  padding: 16rpx 18rpx;
+  border: 2rpx dashed rgba(111, 145, 173, 0.32);
+  border-radius: 14rpx;
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.gp-walk-label {
+  display: block;
+  margin-bottom: 8rpx;
+  color: #7d99ad;
+  font-size: 18rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+.gp-walk-en {
+  display: block;
+  color: #3f5c74;
+  font-size: 23rpx;
+  line-height: 1.7;
+}
+
+.gp-walk-zh {
+  display: block;
+  margin-top: 4rpx;
+  color: #5a7488;
+  font-size: 21rpx;
+  line-height: 1.6;
+}
+
+.gp-walk-row {
+  display: flex;
+  gap: 10rpx;
+  margin-top: 10rpx;
+  padding-top: 10rpx;
+  border-top: 1rpx dashed rgba(111, 145, 173, 0.2);
+}
+
+.gp-walk-tag {
+  flex: none;
+  align-self: flex-start;
+  padding: 2rpx 10rpx;
+  border-radius: 6rpx;
+  background: rgba(90, 132, 168, 0.12);
+  color: #46647c;
+  font-size: 18rpx;
+}
+
+.gp-walk-text {
+  flex: 1;
+  min-width: 0;
+  color: #4d6579;
+  font-size: 21rpx;
+  line-height: 1.65;
+}
+
+/* 用法问答 */
+.gp-usage {
+  border-color: rgba(90, 132, 168, 0.2);
+  background: rgba(238, 245, 250, 0.9);
+  box-shadow: 3rpx 4rpx 0 rgba(90, 132, 168, 0.07);
+}
+
+.gp-summary {
+  display: block;
+  padding: 10rpx 14rpx;
+  border-left: 5rpx solid rgba(90, 132, 168, 0.5);
+  border-radius: 0 10rpx 10rpx 0;
+  background: rgba(255, 255, 255, 0.76);
+  color: #3f5c74;
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 1.8;
+}
+
+.gp-note {
+  margin-top: 14rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx dashed rgba(90, 132, 168, 0.22);
+}
+
+.gp-note-q {
+  display: block;
+  color: #3a5670;
+  font-size: 24rpx;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.gp-note-a {
+  display: block;
+  margin-top: 5rpx;
+  color: var(--muted);
+  font-size: 23rpx;
+  line-height: 1.8;
+}
+
+.gp-demo {
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+  margin-top: 8rpx;
+  padding: 9rpx 12rpx;
+  border-radius: 10rpx 14rpx 11rpx 13rpx;
+}
+
+.gp-demo-good { background: rgba(232, 246, 236, 0.94); }
+.gp-demo-bad { background: rgba(252, 234, 230, 0.94); }
+
+.gp-mark {
+  position: relative;
+  flex: none;
+  width: 22rpx;
+  height: 22rpx;
+  margin-top: 8rpx;
+}
+
+.gp-demo-good .gp-mark::after {
+  content: '';
+  position: absolute;
+  left: 5rpx;
+  top: 1rpx;
+  width: 7rpx;
+  height: 13rpx;
+  border-right: 3rpx solid #4f9a71;
+  border-bottom: 3rpx solid #4f9a71;
+  border-radius: 0 0 2rpx 0;
+  transform: rotate(40deg);
+}
+
+.gp-demo-bad .gp-mark::before,
+.gp-demo-bad .gp-mark::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18rpx;
+  height: 3rpx;
+  background: #c1655a;
+  border-radius: 2rpx;
+}
+
+.gp-demo-bad .gp-mark::before { transform: translate(-50%, -50%) rotate(-45deg); }
+.gp-demo-bad .gp-mark::after { transform: translate(-50%, -50%) rotate(45deg); }
+
+.gp-demo-text {
+  flex: 1;
+  min-width: 0;
+  color: var(--ink-2);
+  font-size: 22rpx;
+  line-height: 1.7;
+}
+
+/* 例句 */
+.gp-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.gp-example {
+  padding: 14rpx 16rpx;
+  border: 2rpx solid rgba(95, 168, 124, 0.15);
+  border-radius: 14rpx 18rpx 13rpx 17rpx;
+  background: rgba(239, 248, 241, 0.88);
+}
+
+.gp-example-en,
+.gp-example-zh {
+  display: block;
+  font-size: 24rpx;
+  line-height: 1.7;
+}
+
+.gp-example-en { color: var(--ink-2); }
+.gp-example-zh { margin-top: 4rpx; color: var(--muted); }
+
+/* 体系位置 */
+.gp-module-title {
+  display: block;
+  margin-bottom: 8rpx;
+  color: #6a3d17;
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.gp-line {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 10rpx;
+}
+
+.gp-tag {
+  flex: none;
+  align-self: flex-start;
+  padding: 2rpx 12rpx;
+  border-radius: 8rpx;
+  background: rgba(199, 121, 63, 0.12);
+  color: #8a5a2f;
+  font-size: 19rpx;
+}
+
+.gp-tag-warn {
+  background: rgba(201, 91, 82, 0.12);
+  color: #b4573f;
+}
+
+.gp-line-text {
+  flex: 1;
+  color: #7a6350;
+  font-size: 22rpx;
+  line-height: 1.65;
+}
+
+/* 上一个 / 下一个 */
+.gp-nav {
+  display: flex;
+  gap: 14rpx;
+  margin-top: 24rpx;
+}
+
+.gp-nav-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 18rpx 20rpx;
+  border: 2rpx solid rgba(199, 121, 63, 0.24);
+  border-radius: 18rpx;
+  background: #fffdf6;
+}
+
+.gp-nav-next { text-align: right; }
+
+.gp-nav-off {
+  opacity: 0.5;
+  background: #f7f0e3;
+}
+
+.gp-nav-dir {
+  display: block;
+  color: #a08767;
+  font-size: 19rpx;
+}
+
+.gp-nav-name {
+  display: block;
+  margin-top: 4rpx;
+  color: #6a4a2c;
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+/* 空态 */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 40rpx 60rpx;
+  text-align: center;
+}
+
+.empty-title {
+  margin-top: 12rpx;
+  color: var(--ink);
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.empty-text {
+  max-width: 520rpx;
+  margin-top: 10rpx;
+  color: var(--muted);
+  font-size: 22rpx;
+  line-height: 1.7;
+}
+
+.gp-feedback {
+  margin-top: 18rpx;
+  padding: 0;
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-size: 21rpx;
+  line-height: 1.6;
+  color: var(--muted);
+  text-decoration: underline;
+}
+.gp-feedback::after {
+  border: none;
+}

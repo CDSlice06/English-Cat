@@ -3,7 +3,7 @@
   overflow: hidden;
   display: flex;
   align-items: center;
-  padding: 30rpx 28rpx;
+  padding: 22rpx 26rpx;
   border-radius: var(--r-lg);
   background: linear-gradient(150deg, #fff7e0 0%, #ffe9b0 55%, #ffdd94 100%);
   border: 2rpx solid rgba(116, 72, 40, 0.22);
@@ -58,8 +58,8 @@
 .id-cat {
   position: relative !important;
   z-index: 1;
-  width: 140rpx !important;
-  height: 140rpx !important;
+  width: 116rpx !important;
+  height: 116rpx !important;
   flex-shrink: 0;
 }
 
@@ -75,14 +75,14 @@
   display: block;
   color: #8a5a0d;
   font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
-  font-size: 18rpx;
+  font-size: 20rpx;
   font-weight: 700;
   letter-spacing: 2.5rpx;
 }
 
 .id-name {
   display: block;
-  margin-top: 10rpx;
+  margin-top: 6rpx;
   color: #33280f;
   font-size: var(--fs-sub);
   font-weight: 700;
@@ -90,7 +90,7 @@
 
 .id-goal {
   display: block;
-  margin-top: 10rpx;
+  margin-top: 6rpx;
   color: #7a5713;
   font-size: var(--fs-note);
   line-height: 1.6;
@@ -178,6 +178,89 @@
   margin-top: 8rpx;
   color: var(--muted);
   font-size: var(--fs-note);
+}
+
+/* ---------- 背诵模式入口 ---------- */
+.recite-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 22rpx;
+  padding: 22rpx 26rpx;
+  border: 2rpx dashed rgba(116, 72, 40, 0.24);
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, #fff9e8 0%, #ffefc4 100%);
+  box-shadow: 4rpx 5rpx 0 rgba(103, 73, 40, 0.10);
+  transition: transform 0.16s ease;
+}
+
+.recite-entry-hover {
+  transform: scale(0.99);
+}
+
+/* 今日复习用绿色系，和背诵模式的黄色区分开 */
+.review-entry {
+  border-color: rgba(95, 138, 102, 0.34);
+  background: linear-gradient(135deg, #f4faf2 0%, #dfeeda 100%);
+}
+
+.review-entry .recite-entry-kicker {
+  color: #5b7a5f;
+}
+
+.review-entry .recite-entry-sub {
+  color: #6b7f6c;
+}
+
+/* 两张卡的右侧统一用胶囊按钮，只靠颜色区分 */
+.entry-badge {
+  flex: none;
+  box-sizing: border-box;
+  min-width: 108rpx;
+  padding: 9rpx 20rpx;
+  border: 2rpx solid transparent;
+  border-radius: 999rpx;
+  font-size: 21rpx;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.review-badge {
+  background: #5f8a66;
+  color: #fff;
+}
+
+.recite-badge {
+  border-color: rgba(116, 72, 40, 0.22);
+  background: rgba(255, 226, 160, 0.96);
+  color: #6b4a12;
+}
+
+.recite-entry-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.recite-entry-kicker {
+  color: #a2701a;
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 19rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+
+.recite-entry-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.recite-entry-sub {
+  font-size: 22rpx;
+  color: #8d7657;
 }
 
 /* ---------- 三个笔记本入口 ---------- */
@@ -324,6 +407,7 @@
 .dot-warn { background: #ef8368; }
 .dot-ok { background: #5fa87c; }
 .dot-coral { background: #ef8368; }
+.dot-neutral { background: #c3b49c; }
 
 .shelf-enter {
   position: relative;
@@ -338,24 +422,152 @@
   transform: rotate(-45deg);
 }
 
-.privacy {
-  display: block;
-  margin: 20rpx 8rpx 0;
-  color: var(--muted);
-  font-size: var(--fs-note);
-  line-height: 1.7;
+/* 可点的统计卡：按下时给一层暖色，暗示能进明细 */
+.stat-link:active,
+.stat-hover {
+  background: #fff3d4;
 }
 
-.reset-zone {
+/* ---------- 设置 ---------- */
+.settings {
+  position: relative;
+  margin-top: 30rpx;
+  padding: 0 24rpx 6rpx;
+  border: 2rpx solid var(--paper-line);
+  border-radius: var(--r-lg);
+  background: rgba(255, 253, 249, 0.92);
+  box-shadow: var(--shadow-paper);
+}
+
+/* 和首页、复习卡同一套纸胶带 + 猫爪，避免这一块过于平面 */
+.settings-tape {
+  top: -13rpx;
+  left: 56rpx;
+  width: 96rpx;
+  height: 26rpx;
+  transform: rotate(-3deg);
+}
+
+/* 猫爪图形按 56×52 的坐标画成，直接改宽高会把圆点挤变形、顶部脚趾被裁掉；
+   这里保持原尺寸再等比缩小，形状和别的页面保持一致 */
+.settings-paw {
+  top: 30rpx;
+  right: 22rpx;
+  opacity: 0.5;
+  transform: scale(0.72);
+  transform-origin: top right;
+}
+
+.settings-danger-card {
+  margin-top: 20rpx;
+}
+
+.settings-head {
   display: flex;
-  flex-direction: column;
-  gap: 24rpx;
-  margin-top: 32rpx;
+  align-items: baseline;
+  gap: 12rpx;
+  padding: 20rpx 4rpx 12rpx;
+  border-bottom: 2rpx dashed rgba(116, 72, 40, 0.2);
+}
+
+.settings-stamp {
+  color: var(--faint);
+  font-family: 'Iowan Old Style', Georgia, 'Songti SC', serif;
+  font-size: 20rpx;
+  letter-spacing: 2.5rpx;
+}
+
+.settings-title {
+  color: var(--ink);
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 88rpx;
+  padding: 0 4rpx;
+  border-bottom: 2rpx dashed rgba(116, 72, 40, 0.18);
+}
+
+.setting-row:last-child { border-bottom: none; }
+
+/* 意见反馈必须用原生 button 才能唤起会话，这里让它透明铺满整行，
+   视觉上仍然是一行普通列表，不再受 button 默认居中的影响 */
+.setting-hit-row {
+  position: relative;
+}
+
+.setting-hit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  opacity: 0;
+}
+
+.setting-hit::after { border: none; }
+
+.setting-hover { background: rgba(255, 240, 205, 0.55); }
+
+.setting-label {
+  font-size: 28rpx;
+  color: var(--ink);
+}
+
+.setting-side {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+/* 状态做成小胶囊：未开启是低调灰，开启后浅绿，扫一眼就知道开没开 */
+.setting-value {
+  padding: 5rpx 16rpx;
+  border: 2rpx solid rgba(116, 72, 40, 0.12);
+  border-radius: 999rpx;
+  background: rgba(116, 72, 40, 0.05);
+  font-size: 22rpx;
+  color: var(--muted);
+}
+
+.setting-value-on {
+  border-color: rgba(76, 122, 76, 0.22);
+  background: #e9f1e2;
+  color: #4c7a4c;
+}
+
+/* 危险操作：只换颜色不加重，避免误点 */
+.setting-label-danger {
+  color: #b5533f;
+}
+
+.setting-arrow {
+  flex: none;
+  width: 16rpx;
+  height: 16rpx;
+  margin-right: 6rpx;
+  border-right: 2rpx solid #b3a28a;
+  border-bottom: 2rpx solid #b3a28a;
+  border-radius: 0 0 2rpx 0;
+  transform: rotate(-45deg);
 }
 
 .version {
+  display: block;
+  margin-top: 24rpx;
   text-align: center;
   color: var(--faint);
-  font-size: 20rpx;
+  font-size: 22rpx;
   letter-spacing: 1rpx;
 }
